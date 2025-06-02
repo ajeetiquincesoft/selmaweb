@@ -1,0 +1,24 @@
+/* src/components/Profile.css */
+.profile-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.profile-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #4b6cb7;
+  position: relative;
+}
+
+.profile-upload-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background-color: white;
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+}
