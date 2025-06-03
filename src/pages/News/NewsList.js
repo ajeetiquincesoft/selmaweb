@@ -21,7 +21,7 @@ const NewsList = () => {
   const [activeTab, toggleTab] = useState("1");
 
   return (
-    <React.Fragment>
+ <>
       <Col xl={12} lg={12}>
         <Card>
           <TabContent className="p-4" activeTab={activeTab}>
@@ -30,45 +30,7 @@ const NewsList = () => {
                 <Row className="justify-content-center">
                   <Col xl={8}>
                     <div>
-                      <Row className="align-items-center">
-                        <Col xs={4}>
-                          <div>
-                            <h5 className="mb-0">Blog List</h5>
-                          </div>
-                        </Col>
-
-                        <Col xs={8}>
-                          <div className="float-end">
-                            <Nav tag="ul" className="nav-pills justify-content-end">
-                              <NavItem tag="li">
-                                <NavLink
-                                  className="disabled"
-                                  to="#"
-                                  tabIndex="-1"
-                                >
-                                  View :
-                                </NavLink>
-                              </NavItem>
-                              <NavItem tag="li">
-                                <Link
-                                  className="nav-link active"
-                                  to="/blog-list"
-                                >
-                                  <i className="mdi mdi-format-list-bulleted"></i>
-                                </Link>
-                              </NavItem>
-                              <NavItem>
-                                <Link to="/blog-grid" className="nav-link">
-                                  <i className="mdi mdi-view-grid-outline"></i>
-                                </Link>
-                              </NavItem>
-                            </Nav>
-                          </div>
-                        </Col>
-                      </Row>
-
                       <hr className="mb-4" />
-
                       <div>
                         <h5>
                           <Link to="/blog-details" className="text-dark">
@@ -107,9 +69,7 @@ const NewsList = () => {
                           </Link>
                         </div>
                       </div>
-
                       <hr className="my-5" />
-
                       <div>
                         <h5>
                           <Link to="/blog-details" className="text-dark">
@@ -158,9 +118,7 @@ const NewsList = () => {
                           </Link>
                         </div>
                       </div>
-
                       <hr className="my-5" />
-
                       <div className="text-center">
                         <ul className="pagination justify-content-center pagination-rounded">
                           <li className="page-item disabled">
@@ -208,7 +166,7 @@ const NewsList = () => {
           </TabContent>
         </Card>
       </Col>
-    </React.Fragment>
+    </>
   )
 }
 
