@@ -18,7 +18,7 @@ import { useFormik } from "formik";
 import axios from "axios";
 import BASE_URL from "path";
 import { FaCamera } from "react-icons/fa";
-import "../../profile.css";
+import "../../custom.css";
 import Breadcrumbs from "../../components/Common/Breadcrumb"
 
 const ChangePassword = () => {
