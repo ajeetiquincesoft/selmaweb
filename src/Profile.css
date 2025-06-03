@@ -1,24 +1,32 @@
-/* src/components/Profile.css */
-.profile-container {
-  text-align: center;
-  margin-top: 20px;
+.profile-wrapper {
+  height: 100px;
+  width: 100px;
+  border: 1px solid;
+  border-radius: 50%;
+  display: flex;
+  overflow: hidden;
+
 }
 
-.profile-image {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #4b6cb7;
-  position: relative;
+.profile-img-round {
+  color: red;
+  display: flex;
+  justify-content: end;
+  align-items: end;
+  width: 100%;
+  height: 100%;
 }
 
-.profile-upload-icon {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  background-color: white;
+.camera-icon {
+  z-index: 200;
+  border: 1px solid #535050;
+  background-color: rgb(255, 255, 255);
   border-radius: 50%;
-  padding: 6px;
-  cursor: pointer;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -30px;
+  margin-left: 73%;
 }

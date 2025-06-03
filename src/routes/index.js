@@ -111,6 +111,11 @@ import BlogList from "../pages/Blog/BlogList/index";
 import BlogGrid from "../pages/Blog/BlogGrid/index";
 import BlogDetails from "../pages/Blog/BlogDetails";
 
+//news
+import AddNews from "../pages/News/AddNews";
+import NewsList from "../pages/News/index";
+import NewsCategories from "../pages/News/NewsCategories";
+
 //Job
 import JobGrid from "../pages/JobPages/JobGrid/index";
 import JobDetails from "../pages/JobPages/JobDetails";
@@ -232,7 +237,12 @@ const authProtectedRoutes = [
   { path: "/projects-overview/:id", component: <ProjectsOverview /> },
   { path: "/projects-create", component: <ProjectsCreate /> },
 
-  //Blog
+  //news
+  { path: "/add-news", component: <AddNews /> },
+  { path: "/news-list", component: <NewsList /> },
+  { path: "/news-categories", component: <NewsCategories /> },
+
+  //blog
   { path: "/blog-list", component: <BlogList /> },
   { path: "/blog-grid", component: <BlogGrid /> },
   { path: "/blog-details", component: <BlogDetails /> },

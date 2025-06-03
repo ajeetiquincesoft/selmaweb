@@ -2,9 +2,9 @@ import React from "react"
 import { Container, Row } from "reactstrap"
 
 //Import Breadcrumb
-import Breadcrumbs from "../../../components/Common/Breadcrumb"
+import Breadcrumbs from "../../components/Common/Breadcrumb"
 
-import BlogList from "./BlogList"
+import NewsList from "./NewsList"
 
 
 const Index = () => {
@@ -16,7 +16,7 @@ const Index = () => {
         <Container fluid>
           <Breadcrumbs title="Blog" breadcrumbItem="Blog List" />
           <Row>
-            <BlogList />
+            <NewsList />
           </Row>
         </Container>
       </div>

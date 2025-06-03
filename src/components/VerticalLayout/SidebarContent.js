@@ -153,11 +153,22 @@ const SidebarContent = props => {
                 <span>{props.t("Dashboards")}</span>
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link to="/blog-grid">
                 <i className='bx bx-news'></i>
                 <span>{props.t("News Updates")}</span>
               </Link>
+            </li> */}
+              <li>
+              <Link to="/#" className="has-arrow">
+                <i className="bx bx-briefcase-alt"></i>
+                <span key="t-jobs">{props.t("News")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li><Link to="/add-news">{props.t("Add News")}</Link></li>
+                <li><Link to="/news-list">{props.t("News List")}</Link></li>
+                <li><Link to="/news-categories">{props.t("News categories")}</Link></li>
+              </ul>
             </li>
             <li>
               <Link to="/#" className="has-arrow">

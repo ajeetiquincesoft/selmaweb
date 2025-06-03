@@ -18,7 +18,8 @@ import { useFormik } from "formik";
 import axios from "axios";
 import BASE_URL from "path";
 import { FaCamera } from "react-icons/fa";
-import "../../Profile.css";
+import "../../profile.css";
+import Breadcrumbs from "../../components/Common/Breadcrumb"
 
 const ChangePassword = () => {
   const [token, setToken] = useState(null);
@@ -45,7 +46,7 @@ const ChangePassword = () => {
         }
       });
       const userData = response.data;
-       setProfileImage(userData.meta.profile_pic); 
+      setProfileImage(userData.meta.profile_pic);
       profileValidation.setValues({
         name: userData.name || '',
         email: userData.email || '',
@@ -119,7 +120,8 @@ const ChangePassword = () => {
           }
         );
         setAlertMsg({ type: "success", message: "Profile updated successfully!" });
-        resetForm();
+         fetchUserData(token);
+        // resetForm();
       } catch (error) {
         const message = error.response?.data?.message || error.message;
         setAlertMsg({ type: "danger", message: "Error updating profile: " + message });
@@ -157,38 +159,9 @@ const ChangePassword = () => {
       }
     }
   };
-
-  <style>
-    {`
-      .profile-wrapper {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        overflow: hidden;
-        position: relative;
-        border: 2px solid #ccc;
-      }
-
-      .profile-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .camera-icon {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        background-color: #000000a0;
-        color: white;
-        padding: 5px;
-        border-radius: 50%;
-        cursor: pointer;
-      }
-    `}
-  </style>
   return (
     <div className="page-content">
+      <Breadcrumbs title="Forms" breadcrumbItem="Form Elements" />
       <Container fluid>
         <h4 className="card-title mb-4">User Settings</h4>
 
@@ -201,8 +174,10 @@ const ChangePassword = () => {
             <h5 className="mb-3">Update Profile</h5>
             <Row className="justify-content-center">
               <Col md={4} className="d-flex justify-content-center">
-                <div className="profile-wrapper img-circle position-relative">
-                  <img src={profileImage} alt="Profile" className="profile-img" />
+                <div className=" img-circle ">
+                  < div className="profile-wrapper">
+                    <img src={profileImage} alt="Profile" className="profile-img-round" />
+                  </div>
                   <div className="camera-icon" onClick={handleImageClick}>
                     <FaCamera />
                   </div>

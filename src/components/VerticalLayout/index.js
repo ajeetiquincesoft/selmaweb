@@ -22,7 +22,23 @@ import RightSidebar from "../CommonForBoth/RightSidebar";
 import { useSelector, useDispatch } from "react-redux";
 import { createSelector } from 'reselect';
 
+
+
 const Layout = props => {
+ useEffect(() => {
+    const storedUser = localStorage.getItem("authUser");
+    if (!storedUser) {
+      navigate("/login");
+      return;
+    }
+    const { token, expiry } = JSON.parse(storedUser);
+    if (!token) {
+      localStorage.removeItem("authUser");
+      navigate("/login");
+      return;
+    }
+  });
+
   const dispatch = useDispatch();
 
   const selectLayoutProperties = createSelector(

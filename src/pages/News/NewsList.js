@@ -14,45 +14,16 @@ import {
 import classnames from "classnames"
 
 //import images
-import small from "../../../assets/images/small/img-2.jpg"
-import small2 from "../../../assets/images/small/img-6.jpg"
+import small from "../../assets/images/small/img-2.jpg"
+import small2 from "../../assets/images/small/img-6.jpg"
 
-const BlogList = () => {
+const NewsList = () => {
   const [activeTab, toggleTab] = useState("1");
 
   return (
     <React.Fragment>
       <Col xl={12} lg={12}>
         <Card>
-          <Nav tag="ul" className="nav-tabs nav-tabs-custom justify-content-center pt-2" role="tablist">
-            <NavItem tag="li">
-              <NavLink
-                to="#"
-                className={classnames({
-                  active: activeTab === "1",
-                })}
-                onClick={() => {
-                  toggleTab("1")
-                }}
-              >
-                All Post
-              </NavLink>
-            </NavItem>
-            <NavItem tag="li">
-              <NavLink
-                to="#"
-                className={classnames({
-                  active: activeTab === "2",
-                })}
-                onClick={() => {
-                  toggleTab("2")
-                }}
-              >
-                Archive
-              </NavLink>
-            </NavItem>
-          </Nav>
-
           <TabContent className="p-4" activeTab={activeTab}>
             <TabPane tabId="1">
               <div>
@@ -234,160 +205,6 @@ const BlogList = () => {
                 </Row>
               </div>
             </TabPane>
-
-            <TabPane tabId="2">
-              <div>
-                <Row className="justify-content-center">
-                  <Col xl={8}>
-                    <h5>Archive</h5>
-
-                    <div className="mt-5">
-                      <div className="d-flex flex-wrap">
-                        <div className="me-2">
-                          <h4>2020</h4>
-                        </div>
-                        <div className="ms-auto">
-                          <span className="badge badge-soft-success rounded-pill float-end ms-1 font-size-12">
-                            03
-                          </span>
-                        </div>
-                      </div>
-                      <hr className="mt-2" />
-
-                      <div className="list-group list-group-flush">
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i>{" "}
-                          Beautiful Day with Friends
-                        </Link>
-
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i> Drawing
-                          a sketch
-                        </Link>
-
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i> Project
-                          discussion with team
-                        </Link>
-                      </div>
-                    </div>
-
-                    <div className="mt-5">
-                      <div className="d-flex flex-wrap">
-                        <div className="me-2">
-                          <h4>2019</h4>
-                        </div>
-                        <div className="ms-auto">
-                          <span className="badge badge-soft-success badge-pill float-right ms-1 font-size-12">
-                            06
-                          </span>
-                        </div>
-                      </div>
-                      <hr className="mt-2" />
-
-                      <div className="list-group list-group-flush">
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i> Coffee
-                          with Friends
-                        </Link>
-
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i> Neque
-                          porro quisquam est
-                        </Link>
-
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i> Quis
-                          autem vel eum iure
-                        </Link>
-
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i> Cras mi
-                          eu turpis
-                        </Link>
-
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i> Drawing
-                          a sketch
-                        </Link>
-
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i> Project
-                          discussion with team
-                        </Link>
-                      </div>
-                    </div>
-
-                    <div className="mt-5">
-                      <div className="d-flex flex-wrap">
-                        <div className="me-2">
-                          <h4>2018</h4>
-                        </div>
-                        <div className="ms-auto">
-                          <span className="badge badge-soft-success rounded-pill float-end ms-1 font-size-12">
-                            03
-                          </span>
-                        </div>
-                      </div>
-                      <hr className="mt-2" />
-
-                      <div className="list-group list-group-flush">
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i>{" "}
-                          Beautiful Day with Friends
-                        </Link>
-
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i> Drawing
-                          a sketch
-                        </Link>
-
-                        <Link
-                          to="/blog-details"
-                          className="list-group-item text-muted"
-                        >
-                          <i className="mdi mdi-circle-medium me-1"></i> Project
-                          discussion with team
-                        </Link>
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-            </TabPane>
           </TabContent>
         </Card>
       </Col>
@@ -395,4 +212,4 @@ const BlogList = () => {
   )
 }
 
-export default BlogList;
+export default NewsList;
