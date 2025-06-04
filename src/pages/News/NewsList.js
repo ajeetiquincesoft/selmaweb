@@ -1,5 +1,5 @@
-import React, { useState } from "react"
-import { Link } from "react-router-dom"
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Card,
   Col,
@@ -9,48 +9,201 @@ import {
   Row,
   TabContent,
   TabPane,
-} from "reactstrap"
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  Container,
+  Alert,
+} from "reactstrap";
+import classnames from "classnames";
+import axios from "axios";
+import BASE_URL from "path"; // Replace with your actual BASE_URL import
 
-import classnames from "classnames"
-
-//import images
-import small from "../../assets/images/small/img-2.jpg"
-import small2 from "../../assets/images/small/img-6.jpg"
+// Import images
+import img1 from "../../assets/images/small/img-2.jpg";
+import img2 from "../../assets/images/small/img-6.jpg";
+import img3 from "../../assets/images/small/img-1.jpg";
 
 const NewsList = () => {
   const [activeTab, toggleTab] = useState("1");
+  const [modal, setModal] = useState(false);
+  const [token, setToken] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [getnews, setNews] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    shortdescription: "",
+    featured_image: null,
+    images: [],
+    category_id: "",
+    status: ""
+  });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("authUser");
+    if (storedUser) {
+      const { token } = JSON.parse(storedUser);
+      setToken(token);
+    }
+    fetchCategories();
+    fetchNewsdata();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/auth/getallnewscategory`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCategories(response.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
+    }
+  };
+  const fetchNewsdata = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/auth/getnews`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setNews(response.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
+    }
+  };
+
+  const toggleModal = () => setModal(!modal);
+
+  const handleChange = (e) => {
+    const { name, value, type, files } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "file"
+        ? name === "images"
+          ? files
+          : files[0]
+        : value,
+    }));
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.title) newErrors.title = "Title is required";
+    if (!formData.description) newErrors.description = "Description is required";
+    if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
+    if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
+    if (!formData.images || formData.images.length === 0) newErrors.images = "At least one image is required";
+    if (!formData.category_id) newErrors.category_id = "Category is required";
+    if (!formData.status) newErrors.status = "Status is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    const today = new Date().toISOString().split("T")[0];
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("description", formData.description);
+    data.append("shortdescription", formData.shortdescription);
+    data.append("featured_image", formData.featured_image);
+
+    for (let i = 0; i < formData.images.length; i++) {
+      data.append("images", formData.images[i]);
+    }
+
+    data.append("category_id", formData.category_id);
+    data.append("status", formData.status);
+    data.append("published_at", today);
+
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/auth/addnews`,
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setAlertMsg({ type: "success", message: "News added successfully!" });
+      // Reset form and close modal after 2 seconds
+      setTimeout(() => {
+        setFormData({
+          title: "",
+          description: "",
+          shortdescription: "",
+          featured_image: null,
+          images: [],
+          category_id: "",
+          status: ""
+        });
+        setModal(false);
+        setAlertMsg({ type: "", message: "" });
+      }, 2000);
+    } catch (error) {
+      console.error("API error:", error);
+      setAlertMsg({ type: "danger", message: "Something Went Wrong!" });
+    }
+  };
 
   return (
- <>
+    <>
       <Col xl={12} lg={12}>
-        <Card>
-          <TabContent className="p-4" activeTab={activeTab}>
-            <TabPane tabId="1">
+        <div>
+          <Row className="justify-content-between mb-3">
+            <Col xs="auto">
+              <h4>News List</h4>
+            </Col>
+            <Col xs="auto">
+              <Button color="primary" onClick={toggleModal}>
+                <i className="mdi mdi-plus me-1"></i> Add News
+              </Button>
+            </Col>
+          </Row>
+
+          <Row className="justify-content-center">
+            <Col xl={12}>
               <div>
-                <Row className="justify-content-center">
-                  <Col xl={8}>
-                    <div>
-                      <hr className="mb-4" />
-                      <div>
+                <hr className="mb-4" />
+                <Row>
+                  <Col sn={4} md={4} lg={4}>
+                    <Card className="p-1 border shadow-none">
+                      <div className="p-3">
                         <h5>
                           <Link to="/blog-details" className="text-dark">
                             Beautiful Day with Friends
                           </Link>
                         </h5>
-                        <p className="text-muted">10 Apr, 2020</p>
+                        <p className="text-muted mb-0">10 Apr, 2020</p>
+                      </div>
 
-                        <div className="position-relative mb-3">
-                          <img src={small} alt="" className="img-thumbnail" />
-                        </div>
+                      <div className="position-relative">
+                        <img
+                          src={img1}
+                          alt=""
+                          className="img-thumbnail"
+                        />
+                      </div>
 
+                      <div className="p-3">
                         <ul className="list-inline">
-                          <li className="list-inline-item mr-3">
+                          <li className="list-inline-item me-3">
                             <Link to="#" className="text-muted">
                               <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
                               Project
                             </Link>
                           </li>
-                          <li className="list-inline-item mr-3">
+                          <li className="list-inline-item me-3">
                             <Link to="#" className="text-muted">
                               <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
                               12 Comments
@@ -58,116 +211,441 @@ const NewsList = () => {
                           </li>
                         </ul>
                         <p>
-                          Neque porro quisquam est, qui dolorem ipsum quia dolor
-                          sit amet, consectetur, adipisci velit, aliquam quaerat
-                          voluptatem. Ut enim ad minima veniam, quis
+                          Neque porro quisquam est, qui dolorem ipsum quia
+                          dolor sit amet
                         </p>
 
                         <div>
                           <Link to="#" className="text-primary">
-                            Read more <i className="mdi mdi-arrow-right"></i>
+                            Read more{" "}
+                            <i className="mdi mdi-arrow-right"></i>
                           </Link>
                         </div>
                       </div>
-                      <hr className="my-5" />
-                      <div>
+                    </Card>
+                  </Col>
+                  <Col sn={4} md={4} lg={4}>
+                    <Card className="p-1 border shadow-none">
+                      <div className="p-3">
                         <h5>
-                          <Link to="/blog-details" className="text-dark">
-                            Project discussion with team
+                          <Link to="blog-details" className="text-dark">
+                            Drawing a sketch
                           </Link>
                         </h5>
-                        <p className="text-muted">24 Mar, 2020</p>
+                        <p className="text-muted mb-0">24 Mar, 2020</p>
+                      </div>
 
-                        <div className="position-relative mb-3">
-                          <img src={small2} alt="" className="img-thumbnail" />
+                      <div className="position-relative">
+                        <img
+                          src={img2}
+                          alt=""
+                          className="img-thumbnail"
+                        />
 
-                          <div className="blog-play-icon">
-                            <Link to="#" className="avatar-sm d-block mx-auto">
-                              <span className="avatar-title rounded-circle font-size-18">
-                                <i className="mdi mdi-play"></i>
-                              </span>
-                            </Link>
-                          </div>
+                        <div className="blog-play-icon">
+                          <Link
+                            to="#"
+                            className="avatar-sm d-block mx-auto"
+                          >
+                            <span className="avatar-title rounded-circle font-size-18">
+                              <i className="mdi mdi-play"></i>
+                            </span>
+                          </Link>
                         </div>
-
+                      </div>
+                      <div className="p-3">
                         <ul className="list-inline">
-                          <li className="list-inline-item mr-3">
+                          <li className="list-inline-item me-3">
                             <Link to="#" className="text-muted">
-                              <i className="bx bx-purchase-tag-alt align-middle text-muted ms-1"></i>{" "}
+                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
                               Development
                             </Link>
                           </li>
-                          <li className="list-inline-item mr-3">
+                          <li className="list-inline-item me-3">
                             <Link to="#" className="text-muted">
-                              <i className="bx bx-comment-dots align-middle text-muted ms-1"></i>{" "}
+                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
                               08 Comments
                             </Link>
                           </li>
                         </ul>
 
                         <p>
-                          At vero eos et accusamus et iusto odio dignissimos
-                          ducimus qui blanditiis praesentium voluptatum deleniti
-                          atque corrupti quos dolores similique sunt in culpa
-                          qui officia deserunt mollitia animi est
+                          At vero eos et accusamus et iusto odio
+                          dignissimos ducimus quos
                         </p>
 
                         <div>
                           <Link to="#" className="text-primary">
-                            Read more <i className="mdi mdi-arrow-right"></i>
+                            Read more{" "}
+                            <i className="mdi mdi-arrow-right"></i>
                           </Link>
                         </div>
                       </div>
-                      <hr className="my-5" />
-                      <div className="text-center">
-                        <ul className="pagination justify-content-center pagination-rounded">
-                          <li className="page-item disabled">
-                            <Link to="#" className="page-link">
-                              <i className="mdi mdi-chevron-left"></i>
+                    </Card>
+                  </Col>
+                  <Col sn={4} md={4} lg={4}>
+                    <Card className="p-1 border shadow-none">
+                      <div className="p-3">
+                        <h5>
+                          <Link to="/blog-details" className="text-dark">
+                            Riding bike on road
+                          </Link>
+                        </h5>
+                        <p className="text-muted mb-0">10 Apr, 2020</p>
+                      </div>
+
+                      <div className="position-relative">
+                        <img
+                          src={img3}
+                          alt=""
+                          className="img-thumbnail"
+                        />
+                      </div>
+
+                      <div className="p-3">
+                        <ul className="list-inline">
+                          <li className="list-inline-item me-3">
+                            <Link to="#" className="text-muted">
+                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
+                              Travel
                             </Link>
                           </li>
-                          <li className="page-item">
-                            <Link to="#" className="page-link">
-                              1
-                            </Link>
-                          </li>
-                          <li className="page-item active">
-                            <Link to="#" className="page-link">
-                              2
-                            </Link>
-                          </li>
-                          <li className="page-item">
-                            <Link to="#" className="page-link">
-                              3
-                            </Link>
-                          </li>
-                          <li className="page-item">
-                            <Link to="#" className="page-link">
-                              ...
-                            </Link>
-                          </li>
-                          <li className="page-item">
-                            <Link to="#" className="page-link">
-                              10
-                            </Link>
-                          </li>
-                          <li className="page-item">
-                            <Link to="#" className="page-link">
-                              <i className="mdi mdi-chevron-right"></i>
+                          <li className="list-inline-item me-3">
+                            <Link to="#" className="text-muted">
+                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
+                              08 Comments
                             </Link>
                           </li>
                         </ul>
+                        <p>
+                          Itaque earum rerum hic tenetur a sapiente
+                          delectus ut aut
+                        </p>
+
+                        <div>
+                          <Link to="#" className="text-primary">
+                            Read more{" "}
+                            <i className="mdi mdi-arrow-right"></i>
+                          </Link>
+                        </div>
                       </div>
-                    </div>
+                    </Card>
                   </Col>
                 </Row>
+                <Row>
+                  <Col sn={4} md={4} lg={4}>
+                    <Card className="p-1 border shadow-none">
+                      <div className="p-3">
+                        <h5>
+                          <Link to="/blog-details" className="text-dark">
+                            Beautiful Day with Friends
+                          </Link>
+                        </h5>
+                        <p className="text-muted mb-0">10 Apr, 2020</p>
+                      </div>
+
+                      <div className="position-relative">
+                        <img
+                          src={img1}
+                          alt=""
+                          className="img-thumbnail"
+                        />
+                      </div>
+
+                      <div className="p-3">
+                        <ul className="list-inline">
+                          <li className="list-inline-item me-3">
+                            <Link to="#" className="text-muted">
+                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
+                              Project
+                            </Link>
+                          </li>
+                          <li className="list-inline-item me-3">
+                            <Link to="#" className="text-muted">
+                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
+                              12 Comments
+                            </Link>
+                          </li>
+                        </ul>
+                        <p>
+                          Neque porro quisquam est, qui dolorem ipsum quia
+                          dolor sit amet
+                        </p>
+
+                        <div>
+                          <Link to="#" className="text-primary">
+                            Read more{" "}
+                            <i className="mdi mdi-arrow-right"></i>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  </Col>
+                  <Col sn={4} md={4} lg={4}>
+                    <Card className="p-1 border shadow-none">
+                      <div className="p-3">
+                        <h5>
+                          <Link to="blog-details" className="text-dark">
+                            Drawing a sketch
+                          </Link>
+                        </h5>
+                        <p className="text-muted mb-0">24 Mar, 2020</p>
+                      </div>
+
+                      <div className="position-relative">
+                        <img
+                          src={img2}
+                          alt=""
+                          className="img-thumbnail"
+                        />
+
+                        <div className="blog-play-icon">
+                          <Link
+                            to="#"
+                            className="avatar-sm d-block mx-auto"
+                          >
+                            <span className="avatar-title rounded-circle font-size-18">
+                              <i className="mdi mdi-play"></i>
+                            </span>
+                          </Link>
+                        </div>
+                      </div>
+                      <div className="p-3">
+                        <ul className="list-inline">
+                          <li className="list-inline-item me-3">
+                            <Link to="#" className="text-muted">
+                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
+                              Development
+                            </Link>
+                          </li>
+                          <li className="list-inline-item me-3">
+                            <Link to="#" className="text-muted">
+                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
+                              08 Comments
+                            </Link>
+                          </li>
+                        </ul>
+
+                        <p>
+                          At vero eos et accusamus et iusto odio
+                          dignissimos ducimus quos
+                        </p>
+
+                        <div>
+                          <Link to="#" className="text-primary">
+                            Read more{" "}
+                            <i className="mdi mdi-arrow-right"></i>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  </Col>
+                  <Col sn={4} md={4} lg={4}>
+                    <Card className="p-1 border shadow-none">
+                      <div className="p-3">
+                        <h5>
+                          <Link to="/blog-details" className="text-dark">
+                            Riding bike on road
+                          </Link>
+                        </h5>
+                        <p className="text-muted mb-0">10 Apr, 2020</p>
+                      </div>
+
+                      <div className="position-relative">
+                        <img
+                          src={img3}
+                          alt=""
+                          className="img-thumbnail"
+                        />
+                      </div>
+
+                      <div className="p-3">
+                        <ul className="list-inline">
+                          <li className="list-inline-item me-3">
+                            <Link to="#" className="text-muted">
+                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
+                              Travel
+                            </Link>
+                          </li>
+                          <li className="list-inline-item me-3">
+                            <Link to="#" className="text-muted">
+                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
+                              08 Comments
+                            </Link>
+                          </li>
+                        </ul>
+                        <p>
+                          Itaque earum rerum hic tenetur a sapiente
+                          delectus ut aut
+                        </p>
+
+                        <div>
+                          <Link to="#" className="text-primary">
+                            Read more{" "}
+                            <i className="mdi mdi-arrow-right"></i>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  </Col>
+                </Row>
+
+                {/* Pagination */}
+                <div className="text-center mt-4">
+                  <ul className="pagination justify-content-center pagination-rounded">
+                    <li className="page-item disabled">
+                      <Link to="#" className="page-link">
+                        <i className="mdi mdi-chevron-left"></i>
+                      </Link>
+                    </li>
+                    <li className="page-item">
+                      <Link to="#" className="page-link">
+                        1
+                      </Link>
+                    </li>
+                    <li className="page-item active">
+                      <Link to="#" className="page-link">
+                        2
+                      </Link>
+                    </li>
+                    <li className="page-item">
+                      <Link to="#" className="page-link">
+                        3
+                      </Link>
+                    </li>
+                    <li className="page-item">
+                      <Link to="#" className="page-link">
+                        ...
+                      </Link>
+                    </li>
+                    <li className="page-item">
+                      <Link to="#" className="page-link">
+                        10
+                      </Link>
+                    </li>
+                    <li className="page-item">
+                      <Link to="#" className="page-link">
+                        <i className="mdi mdi-chevron-right"></i>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
               </div>
-            </TabPane>
-          </TabContent>
-        </Card>
+            </Col>
+          </Row>
+        </div>
       </Col>
+
+      {/* Add News Modal */}
+      <Modal isOpen={modal} toggle={toggleModal} size="lg">
+        <ModalHeader toggle={toggleModal}>Add News</ModalHeader>
+        <ModalBody>
+          <form onSubmit={handleSubmit}>
+            <Container fluid>
+              <Row>
+                <Col>
+                  {alertMsg.message && (
+                    <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
+                  )}
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Title</label>
+                    <input
+                      className="form-control"
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleChange}
+                    />
+                    {errors.title && <span className="text-danger">{errors.title}</span>}
+                  </Col>
+
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Short Description</label>
+                    <textarea
+                      className="form-control"
+                      name="shortdescription"
+                      value={formData.shortdescription}
+                      onChange={handleChange}
+                    />
+                    {errors.shortdescription && <span className="text-danger">{errors.shortdescription}</span>}
+                  </Col>
+
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Description</label>
+                    <textarea
+                      className="form-control"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                    />
+                    {errors.description && <span className="text-danger">{errors.description}</span>}
+                  </Col>
+
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Category</label>
+                    <select
+                      className="form-control"
+                      name="category_id"
+                      value={formData.category_id}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                    {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
+                  </Col>
+
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Status</label>
+                    <select
+                      className="form-control"
+                      name="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select Status</option>
+                      <option value="draft">Draft</option>
+                      <option value="published">Published</option>
+                    </select>
+                    {errors.status && <span className="text-danger">{errors.status}</span>}
+                  </Col>
+
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Featured Image</label>
+                    <input
+                      className="form-control"
+                      type="file"
+                      name="featured_image"
+                      onChange={handleChange}
+                    />
+                    {errors.featured_image && <span className="text-danger">{errors.featured_image}</span>}
+                  </Col>
+
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Images (multiple)</label>
+                    <input
+                      className="form-control"
+                      type="file"
+                      name="images"
+                      onChange={handleChange}
+                      multiple
+                    />
+                    {errors.images && <span className="text-danger">{errors.images}</span>}
+                  </Col>
+
+                  <Col lg={12} className="mt-4 text-center">
+                    <Button type="submit" color="primary">Submit</Button>
+                  </Col>
+                </Col>
+              </Row>
+            </Container>
+          </form>
+        </ModalBody>
+      </Modal>
     </>
-  )
-}
+  );
+};
 
 export default NewsList;

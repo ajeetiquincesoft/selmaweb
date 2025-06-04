@@ -14,7 +14,7 @@ const Index = () => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Blog" breadcrumbItem="Blog List" />
+          {/* <Breadcrumbs title="Blog" breadcrumbItem="Blog List" /> */}
           <Row>
             <NewsList />
           </Row>
