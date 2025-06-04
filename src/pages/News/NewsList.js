@@ -187,18 +187,21 @@ const NewsList = () => {
             <Col xl={12}>
               <div>
                 <Row>
-
                   {getnews.map((item, index) => (
                     <Col key={index} sm={4} md={4} lg={4}>
                       <Card className="p-1 border shadow-none">
                         <div className="p-3">
                           <h5>
-                            <Link to={`/blog-details/${item.id}`} className="text-dark">
+                            <Link to={`/news-details/${item.id}`} className="text-dark">
                               {item.title}
                             </Link>
                           </h5>
                           <p className="text-muted mb-0">
-                            {new Date(item.createdAt).toLocaleDateString("en-GB")}
+                            {new Date(item.createdAt).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })}
                           </p>
                         </div>
 
@@ -226,13 +229,22 @@ const NewsList = () => {
                             </li>
                           </ul>
                           <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
-                          {/* <div dangerouslySetInnerHTML={{ __html: item.shortdescription }} /> */}
+                          <Row>
+                            <Col sm={6} md={6} lg={6}>
+                              <div>
+                                <Link to={`/news-details/${item.id}`} className="text-primary">
+                                  Read more <i className="mdi mdi-arrow-right"></i>
+                                </Link>
+                              </div>
+                            </Col>
+                            <Col sm={3} md={3} lg={3}>
+                              <i className="bx bx-edit-alt align-middle text-primary me-2" title="Edit"></i>
+                            </Col>
+                            <Col sm={3} md={3} lg={3}>
+                              <i className="bx bx-trash align-middle text-danger me-2" title="Delete"></i>
+                            </Col>
+                          </Row>
 
-                          <div>
-                            <Link to={`/blog-details/${item.id}`} className="text-primary">
-                              Read more <i className="mdi mdi-arrow-right"></i>
-                            </Link>
-                          </div>
                         </div>
                       </Card>
                     </Col>
