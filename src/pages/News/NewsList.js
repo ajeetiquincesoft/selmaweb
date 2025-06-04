@@ -19,6 +19,10 @@ import {
 import classnames from "classnames";
 import axios from "axios";
 import BASE_URL from "path"; // Replace with your actual BASE_URL import
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import "../../custom.css";
+
 
 // Import images
 import img1 from "../../assets/images/small/img-2.jpg";
@@ -68,9 +72,12 @@ const NewsList = () => {
   };
   const fetchNewsdata = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/auth/getnews`, {
+      const response = await axios.get(`${BASE_URL}/auth/getallnews`, {
         headers: {
           Authorization: `Bearer ${token}`,
+        },
+        params: {
+          limit: 100,
         },
       });
       setNews(response.data.data || []);
@@ -79,6 +86,11 @@ const NewsList = () => {
     }
   };
 
+  const stripHtml = (html) => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    return div.textContent || div.innerText || "";
+  };
   const toggleModal = () => setModal(!modal);
 
   const handleChange = (e) => {
@@ -174,322 +186,58 @@ const NewsList = () => {
           <Row className="justify-content-center">
             <Col xl={12}>
               <div>
-                <hr className="mb-4" />
                 <Row>
-                  <Col sn={4} md={4} lg={4}>
-                    <Card className="p-1 border shadow-none">
-                      <div className="p-3">
-                        <h5>
-                          <Link to="/blog-details" className="text-dark">
-                            Beautiful Day with Friends
-                          </Link>
-                        </h5>
-                        <p className="text-muted mb-0">10 Apr, 2020</p>
-                      </div>
 
-                      <div className="position-relative">
-                        <img
-                          src={img1}
-                          alt=""
-                          className="img-thumbnail"
-                        />
-                      </div>
-
-                      <div className="p-3">
-                        <ul className="list-inline">
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
-                              Project
+                  {getnews.map((item, index) => (
+                    <Col key={index} sm={4} md={4} lg={4}>
+                      <Card className="p-1 border shadow-none">
+                        <div className="p-3">
+                          <h5>
+                            <Link to={`/blog-details/${item.id}`} className="text-dark">
+                              {item.title}
                             </Link>
-                          </li>
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
-                              12 Comments
-                            </Link>
-                          </li>
-                        </ul>
-                        <p>
-                          Neque porro quisquam est, qui dolorem ipsum quia
-                          dolor sit amet
-                        </p>
-
-                        <div>
-                          <Link to="#" className="text-primary">
-                            Read more{" "}
-                            <i className="mdi mdi-arrow-right"></i>
-                          </Link>
+                          </h5>
+                          <p className="text-muted mb-0">
+                            {new Date(item.createdAt).toLocaleDateString("en-GB")}
+                          </p>
                         </div>
-                      </div>
-                    </Card>
-                  </Col>
-                  <Col sn={4} md={4} lg={4}>
-                    <Card className="p-1 border shadow-none">
-                      <div className="p-3">
-                        <h5>
-                          <Link to="blog-details" className="text-dark">
-                            Drawing a sketch
-                          </Link>
-                        </h5>
-                        <p className="text-muted mb-0">24 Mar, 2020</p>
-                      </div>
 
-                      <div className="position-relative">
-                        <img
-                          src={img2}
-                          alt=""
-                          className="img-thumbnail"
-                        />
-
-                        <div className="blog-play-icon">
-                          <Link
-                            to="#"
-                            className="avatar-sm d-block mx-auto"
-                          >
-                            <span className="avatar-title rounded-circle font-size-18">
-                              <i className="mdi mdi-play"></i>
-                            </span>
-                          </Link>
+                        <div className="position-relative">
+                          <img
+                            src={item.featured_image || "default.jpg"}
+                            alt={item.title}
+                            className="img-thumbnail fixed-size-img"
+                          />
                         </div>
-                      </div>
-                      <div className="p-3">
-                        <ul className="list-inline">
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
-                              Development
-                            </Link>
-                          </li>
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
-                              08 Comments
-                            </Link>
-                          </li>
-                        </ul>
 
-                        <p>
-                          At vero eos et accusamus et iusto odio
-                          dignissimos ducimus quos
-                        </p>
+                        <div className="p-3">
+                          <ul className="list-inline">
+                            <li className="list-inline-item me-3">
+                              <span className="text-muted">
+                                <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
+                                {item.category?.name || "General"}
+                              </span>
+                            </li>
+                            <li className="list-inline-item me-3">
+                              <span className="text-muted">
+                                <i className="bx bx-user align-middle text-muted me-1"></i>
+                                {item.author?.name || "Admin"}
+                              </span>
+                            </li>
+                          </ul>
+                          <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                          {/* <div dangerouslySetInnerHTML={{ __html: item.shortdescription }} /> */}
 
-                        <div>
-                          <Link to="#" className="text-primary">
-                            Read more{" "}
-                            <i className="mdi mdi-arrow-right"></i>
-                          </Link>
+                          <div>
+                            <Link to={`/blog-details/${item.id}`} className="text-primary">
+                              Read more <i className="mdi mdi-arrow-right"></i>
+                            </Link>
+                          </div>
                         </div>
-                      </div>
-                    </Card>
-                  </Col>
-                  <Col sn={4} md={4} lg={4}>
-                    <Card className="p-1 border shadow-none">
-                      <div className="p-3">
-                        <h5>
-                          <Link to="/blog-details" className="text-dark">
-                            Riding bike on road
-                          </Link>
-                        </h5>
-                        <p className="text-muted mb-0">10 Apr, 2020</p>
-                      </div>
-
-                      <div className="position-relative">
-                        <img
-                          src={img3}
-                          alt=""
-                          className="img-thumbnail"
-                        />
-                      </div>
-
-                      <div className="p-3">
-                        <ul className="list-inline">
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
-                              Travel
-                            </Link>
-                          </li>
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
-                              08 Comments
-                            </Link>
-                          </li>
-                        </ul>
-                        <p>
-                          Itaque earum rerum hic tenetur a sapiente
-                          delectus ut aut
-                        </p>
-
-                        <div>
-                          <Link to="#" className="text-primary">
-                            Read more{" "}
-                            <i className="mdi mdi-arrow-right"></i>
-                          </Link>
-                        </div>
-                      </div>
-                    </Card>
-                  </Col>
+                      </Card>
+                    </Col>
+                  ))}
                 </Row>
-                <Row>
-                  <Col sn={4} md={4} lg={4}>
-                    <Card className="p-1 border shadow-none">
-                      <div className="p-3">
-                        <h5>
-                          <Link to="/blog-details" className="text-dark">
-                            Beautiful Day with Friends
-                          </Link>
-                        </h5>
-                        <p className="text-muted mb-0">10 Apr, 2020</p>
-                      </div>
-
-                      <div className="position-relative">
-                        <img
-                          src={img1}
-                          alt=""
-                          className="img-thumbnail"
-                        />
-                      </div>
-
-                      <div className="p-3">
-                        <ul className="list-inline">
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
-                              Project
-                            </Link>
-                          </li>
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
-                              12 Comments
-                            </Link>
-                          </li>
-                        </ul>
-                        <p>
-                          Neque porro quisquam est, qui dolorem ipsum quia
-                          dolor sit amet
-                        </p>
-
-                        <div>
-                          <Link to="#" className="text-primary">
-                            Read more{" "}
-                            <i className="mdi mdi-arrow-right"></i>
-                          </Link>
-                        </div>
-                      </div>
-                    </Card>
-                  </Col>
-                  <Col sn={4} md={4} lg={4}>
-                    <Card className="p-1 border shadow-none">
-                      <div className="p-3">
-                        <h5>
-                          <Link to="blog-details" className="text-dark">
-                            Drawing a sketch
-                          </Link>
-                        </h5>
-                        <p className="text-muted mb-0">24 Mar, 2020</p>
-                      </div>
-
-                      <div className="position-relative">
-                        <img
-                          src={img2}
-                          alt=""
-                          className="img-thumbnail"
-                        />
-
-                        <div className="blog-play-icon">
-                          <Link
-                            to="#"
-                            className="avatar-sm d-block mx-auto"
-                          >
-                            <span className="avatar-title rounded-circle font-size-18">
-                              <i className="mdi mdi-play"></i>
-                            </span>
-                          </Link>
-                        </div>
-                      </div>
-                      <div className="p-3">
-                        <ul className="list-inline">
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
-                              Development
-                            </Link>
-                          </li>
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
-                              08 Comments
-                            </Link>
-                          </li>
-                        </ul>
-
-                        <p>
-                          At vero eos et accusamus et iusto odio
-                          dignissimos ducimus quos
-                        </p>
-
-                        <div>
-                          <Link to="#" className="text-primary">
-                            Read more{" "}
-                            <i className="mdi mdi-arrow-right"></i>
-                          </Link>
-                        </div>
-                      </div>
-                    </Card>
-                  </Col>
-                  <Col sn={4} md={4} lg={4}>
-                    <Card className="p-1 border shadow-none">
-                      <div className="p-3">
-                        <h5>
-                          <Link to="/blog-details" className="text-dark">
-                            Riding bike on road
-                          </Link>
-                        </h5>
-                        <p className="text-muted mb-0">10 Apr, 2020</p>
-                      </div>
-
-                      <div className="position-relative">
-                        <img
-                          src={img3}
-                          alt=""
-                          className="img-thumbnail"
-                        />
-                      </div>
-
-                      <div className="p-3">
-                        <ul className="list-inline">
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>{" "}
-                              Travel
-                            </Link>
-                          </li>
-                          <li className="list-inline-item me-3">
-                            <Link to="#" className="text-muted">
-                              <i className="bx bx-comment-dots align-middle text-muted me-1"></i>{" "}
-                              08 Comments
-                            </Link>
-                          </li>
-                        </ul>
-                        <p>
-                          Itaque earum rerum hic tenetur a sapiente
-                          delectus ut aut
-                        </p>
-
-                        <div>
-                          <Link to="#" className="text-primary">
-                            Read more{" "}
-                            <i className="mdi mdi-arrow-right"></i>
-                          </Link>
-                        </div>
-                      </div>
-                    </Card>
-                  </Col>
-                </Row>
-
                 {/* Pagination */}
                 <div className="text-center mt-4">
                   <ul className="pagination justify-content-center pagination-rounded">
@@ -561,24 +309,36 @@ const NewsList = () => {
 
                   <Col lg={12} className="mt-3">
                     <label className="form-label">Short Description</label>
-                    <textarea
-                      className="form-control"
-                      name="shortdescription"
-                      value={formData.shortdescription}
-                      onChange={handleChange}
+
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data={formData.shortdescription}
+                      onChange={(event, editor) => {
+                        const content = editor.getData();
+                        setFormData({ ...formData, shortdescription: content });
+                      }}
                     />
-                    {errors.shortdescription && <span className="text-danger">{errors.shortdescription}</span>}
+
+                    {errors.shortdescription && (
+                      <span className="text-danger">{errors.shortdescription}</span>
+                    )}
                   </Col>
 
                   <Col lg={12} className="mt-3">
                     <label className="form-label">Description</label>
-                    <textarea
-                      className="form-control"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
+
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data={formData.description}
+                      onChange={(event, editor) => {
+                        const content = editor.getData();
+                        setFormData({ ...formData, description: content });
+                      }}
                     />
-                    {errors.description && <span className="text-danger">{errors.description}</span>}
+
+                    {errors.description && (
+                      <span className="text-danger">{errors.description}</span>
+                    )}
                   </Col>
 
                   <Col lg={12} className="mt-3">
@@ -606,8 +366,9 @@ const NewsList = () => {
                       onChange={handleChange}
                     >
                       <option value="">Select Status</option>
-                      <option value="draft">Draft</option>
-                      <option value="published">Published</option>
+                      <option value="0">Unpublished</option>
+                      <option value="2">Draft</option>
+                      <option value="1">Published</option>
                     </select>
                     {errors.status && <span className="text-danger">{errors.status}</span>}
                   </Col>
