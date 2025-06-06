@@ -187,22 +187,26 @@ const NewsEdit = () => {
 
                                     <Col lg={12} className="mt-3">
                                         <label className="form-label">Short Description</label>
-                                        <textarea
-                                            className="form-control"
-                                            name="shortdescription"
-                                            value={formData.shortdescription}
-                                            onChange={handleChange}
+                                        <CKEditor
+                                            editor={ClassicEditor}
+                                            data={formData.shortdescription}
+                                            onChange={(event, editor) => {
+                                                const data = editor.getData();
+                                                setFormData((prev) => ({ ...prev, shortdescription: data }));
+                                            }}
                                         />
                                         {errors.shortdescription && <span className="text-danger">{errors.shortdescription}</span>}
                                     </Col>
 
                                     <Col lg={12} className="mt-3">
                                         <label className="form-label">Description</label>
-                                        <textarea
-                                            className="form-control"
-                                            name="description"
-                                            value={formData.description}
-                                            onChange={handleChange}
+                                        <CKEditor
+                                            editor={ClassicEditor}
+                                            data={formData.description}
+                                            onChange={(event, editor) => {
+                                                const data = editor.getData();
+                                                setFormData((prev) => ({ ...prev, description: data }));
+                                            }}
                                         />
                                         {errors.description && <span className="text-danger">{errors.description}</span>}
                                     </Col>
