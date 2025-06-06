@@ -35,3 +35,7 @@
   height: 220px !important; /* or any fixed height you want */
   object-fit: cover; /* Keeps aspect ratio but fills box */
 }
+.fw-20
+{
+  font-size: 20px;
+}

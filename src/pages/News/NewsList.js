@@ -72,7 +72,7 @@ const NewsList = () => {
   };
   const fetchNewsdata = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/auth/getallnews`, {
+      const response = await axios.get(`${BASE_URL}/auth/getallnews?status=all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -168,6 +168,28 @@ const NewsList = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this news item?")) {
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/auth/deletenews`,
+          { id: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // correct place for auth
+              "Content-Type": "application/json"
+            }
+          }
+        );
+        console.log(response);
+        fetchNewsdata();
+        console.error("Delete data:", response.data.message);
+      } catch (error) {
+        console.error("Error deleting news:", error);
+      }
+    }
+  };
+
   return (
     <>
       <Col xl={12} lg={12}>
@@ -214,7 +236,7 @@ const NewsList = () => {
                         </div>
 
                         <div className="p-3">
-                          <ul className="list-inline">
+                          <ul className="list-inline d-flex justify-content-between">
                             <li className="list-inline-item me-3">
                               <span className="text-muted">
                                 <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
@@ -227,10 +249,19 @@ const NewsList = () => {
                                 {item.author?.name || "Admin"}
                               </span>
                             </li>
+                            <li className="list-inline-item me-3  ">
+                              <Link to={`/edit-news/${item.id}`}>
+                                <i
+                                  className="bx bx-edit align-middle fw-20 text-primary me-2"
+                                  title="Edit"
+                                  style={{ cursor: "pointer" }}
+                                ></i>
+                              </Link>
+                            </li>
                           </ul>
                           <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
                           <Row>
-                            <Col sm={6} md={6} lg={6}>
+                            <Col sm={9} md={9} lg={9}>
                               <div>
                                 <Link to={`/news-details/${item.id}`} className="text-primary">
                                   Read more <i className="mdi mdi-arrow-right"></i>
@@ -238,10 +269,13 @@ const NewsList = () => {
                               </div>
                             </Col>
                             <Col sm={3} md={3} lg={3}>
-                              <i className="bx bx-edit-alt align-middle text-primary me-2" title="Edit"></i>
-                            </Col>
-                            <Col sm={3} md={3} lg={3}>
-                              <i className="bx bx-trash align-middle text-danger me-2" title="Delete"></i>
+                              <i className="bx bx-trash align-middle text-danger me-2"
+                                title="Delete"
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => handleDelete(item.id)}
+                              >
+                                Delete
+                              </i>
                             </Col>
                           </Row>
 

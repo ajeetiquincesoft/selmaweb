@@ -116,6 +116,7 @@ import AddNews from "../pages/News/AddNews";
 import NewsList from "../pages/News/index";
 import NewsCategories from "../pages/News/NewsCategories";
 import NewsDetails from "../pages/News/NewsDetails";
+import NewsEdit from "../pages/News/NewsEdit.js";
 
 //Job
 import JobGrid from "../pages/JobPages/JobGrid/index";
@@ -243,6 +244,7 @@ const authProtectedRoutes = [
   { path: "/news-list", component: <NewsList /> },
   { path: "/news-categories", component: <NewsCategories /> },
   { path: "/news-details/:id", component: <NewsDetails /> },
+  { path: "/edit-news/:id", component: <NewsEdit /> },
 
   //blog
   { path: "/blog-list", component: <BlogList /> },
