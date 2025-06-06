@@ -116,16 +116,18 @@ import AddNews from "../pages/News/AddNews";
 import NewsList from "../pages/News/index";
 import NewsCategories from "../pages/News/NewsCategories";
 import NewsDetails from "../pages/News/NewsDetails";
-import NewsEdit from "../pages/News/NewsEdit.js";
+import NewsEdit from "../pages/News/NewsEdit";
 
 //Job
 import JobGrid from "../pages/JobPages/JobGrid/index";
 import JobDetails from "../pages/JobPages/JobDetails";
+import JobEdit from "../pages/JobPages/JobEdit";
 import JobCategories from "../pages/JobPages/JobCategories";
 import JobList from "../pages/JobPages/JobList";
 import ApplyJobs from "../pages/JobPages/ApplyJobs/index";
 import CandidateList from "../pages/JobPages/CandidateList";
 import CandidateOverview from "../pages/JobPages/CandidateOverview";
+
 
 // Forms
 import FormElements from "../pages/Forms/FormElements";
@@ -253,13 +255,13 @@ const authProtectedRoutes = [
 
   //job
   { path: "/job-grid", component: <JobGrid /> },
-  { path: "/job-details", component: <JobDetails /> },
+  { path: "/job-details/:id", component: <JobDetails /> },
   { path: "/job-categories", component: <JobCategories /> },
   { path: "/job-list", component: <JobList /> },
   { path: "/job-apply", component: <ApplyJobs /> },
   { path: "/candidate-list", component: <CandidateList /> },
   { path: "/candidate-overview", component: <CandidateOverview /> },
-
+  { path: "/edit-job/:id", component: <JobEdit /> },
   // Contacts
   { path: "/contacts-grid", component: <ContactsGrid /> },
   { path: "/contacts-list", component: <ContactsList /> },

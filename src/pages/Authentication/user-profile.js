@@ -111,7 +111,7 @@ const ChangePassword = () => {
     onSubmit: async (values, { resetForm }) => {
       try {
         const response = await axios.post(
-          `${BASE_URL}/auth/updateAuthUser`, // 👈 yahan use ho gaya
+          `${BASE_URL}/auth/updateAuthUser`, 
           values,
           {
             headers: {
@@ -144,7 +144,7 @@ const ChangePassword = () => {
 
       try {
         const response = await axios.post(
-          "https://selmaapi.onrender.com/api/auth/uploadProfilePic",
+            `${BASE_URL}/auth/uploadProfilePic`, 
           formData,
           {
             headers: {

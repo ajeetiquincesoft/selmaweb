@@ -177,10 +177,10 @@ const SidebarContent = props => {
               </Link>
               <ul className="sub-menu">
                 <li><Link to="/job-list">{props.t("Job List")}</Link></li>
-                <li><Link to="/job-grid">{props.t("Job Grid")}</Link></li>
+                {/* <li><Link to="/job-grid">{props.t("Job Grid")}</Link></li>
                 <li><Link to="/job-apply">{props.t("Apply Job")}</Link></li>
-                <li><Link to="/job-details">{props.t("Job Details")}</Link></li>
-                <li><Link to="/job-categories">{props.t("Jobs Categories")}</Link></li>
+                <li><Link to="/job-details">{props.t("Job Details")}</Link></li> */}
+                {/* <li><Link to="/job-categories">{props.t("Jobs Categories")}</Link></li> */}
                 <li>
                   <Link to="/#" className="has-arrow">{props.t("Candidate")}</Link>
                   <ul className="sub-menu" aria-expanded="true">
