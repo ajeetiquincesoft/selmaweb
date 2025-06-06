@@ -128,6 +128,13 @@ import ApplyJobs from "../pages/JobPages/ApplyJobs/index";
 import CandidateList from "../pages/JobPages/CandidateList";
 import CandidateOverview from "../pages/JobPages/CandidateOverview";
 
+//Event
+
+import EventCategories from "../pages/Event/EventCategories";
+import EventList from "../pages/Event/EventList";
+import EventDetails from "../pages/Event/EventDetails";
+
+
 
 // Forms
 import FormElements from "../pages/Forms/FormElements";
@@ -262,6 +269,16 @@ const authProtectedRoutes = [
   { path: "/candidate-list", component: <CandidateList /> },
   { path: "/candidate-overview", component: <CandidateOverview /> },
   { path: "/edit-job/:id", component: <JobEdit /> },
+
+
+  //Event
+
+  { path: "/event-categories", component: <EventCategories /> },
+  { path: "/event-list", component: <EventList /> },
+  { path: "/event-details/:id", component: <EventDetails /> },
+
+
+
   // Contacts
   { path: "/contacts-grid", component: <ContactsGrid /> },
   { path: "/contacts-list", component: <ContactsList /> },

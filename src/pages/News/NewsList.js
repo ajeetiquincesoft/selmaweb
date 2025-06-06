@@ -37,6 +37,8 @@ const NewsList = () => {
   const [getnews, setNews] = useState([]);
   const [errors, setErrors] = useState({});
   const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -55,8 +57,8 @@ const NewsList = () => {
       setToken(token);
     }
     fetchCategories();
-    fetchNewsdata();
-  }, []);
+    fetchNewsdata(currentPage);
+  }, [token, currentPage]);
 
   const fetchCategories = async () => {
     try {
@@ -70,17 +72,20 @@ const NewsList = () => {
       console.error("Failed to fetch categories", err);
     }
   };
-  const fetchNewsdata = async () => {
+  const fetchNewsdata = async (page = 1) => {
     try {
       const response = await axios.get(`${BASE_URL}/auth/getallnews?status=all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
         params: {
-          limit: 100,
+          limit: 15,
+          page: page
         },
       });
       setNews(response.data.data || []);
+      setCurrentPage(response.data.pagination.currentPage);
+      setTotalPages(response.data.pagination.totalPages);
     } catch (err) {
       console.error("Failed to fetch categories", err);
     }
@@ -286,41 +291,26 @@ const NewsList = () => {
                 </Row>
                 {/* Pagination */}
                 <div className="text-center mt-4">
-                  <ul className="pagination justify-content-center pagination-rounded">
-                    <li className="page-item disabled">
-                      <Link to="#" className="page-link">
-                        <i className="mdi mdi-chevron-left"></i>
-                      </Link>
+                  <ul className="pagination justify-content-center">
+                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                      <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>
+                        &laquo;
+                      </button>
                     </li>
-                    <li className="page-item">
-                      <Link to="#" className="page-link">
-                        1
-                      </Link>
-                    </li>
-                    <li className="page-item active">
-                      <Link to="#" className="page-link">
-                        2
-                      </Link>
-                    </li>
-                    <li className="page-item">
-                      <Link to="#" className="page-link">
-                        3
-                      </Link>
-                    </li>
-                    <li className="page-item">
-                      <Link to="#" className="page-link">
-                        ...
-                      </Link>
-                    </li>
-                    <li className="page-item">
-                      <Link to="#" className="page-link">
-                        10
-                      </Link>
-                    </li>
-                    <li className="page-item">
-                      <Link to="#" className="page-link">
-                        <i className="mdi mdi-chevron-right"></i>
-                      </Link>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                      <li
+                        key={index + 1}
+                        className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                      >
+                        <button className="page-link" onClick={() => setCurrentPage(index + 1)}>
+                          {index + 1}
+                        </button>
+                      </li>
+                    ))}
+                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                      <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>
+                        &raquo;
+                      </button>
                     </li>
                   </ul>
                 </div>

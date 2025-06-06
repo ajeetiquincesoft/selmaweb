@@ -165,8 +165,8 @@ const NewsEdit = () => {
         <div className="page-content">
             <Container>
                 <form onSubmit={handleSubmit}>
-                    <Row>
-                        <Col>
+                    <Row className="d-flex justify-content-center">
+                        <Col md={9} lg={9}>
                             <Card>
                                 <CardBody>
                                     <h2 className="display-4 text-center">News Update Form</h2>

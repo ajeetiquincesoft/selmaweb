@@ -166,11 +166,11 @@ const JobEdit = () => {
         <div className="page-content">
             <Container>
                 <form onSubmit={handleSubmit}>
-                    <Row>
-                        <Col>
+                    <Row className="d-flex justify-content-center">
+                        <Col md={9} lg={9}>
                             <Card>
                                 <CardBody>
-                                    <h2 className="display-5 text-center">Edit Job</h2>
+                                    <h3 className="display-5 text-center">Edit Job</h3>
                                     {alertMsg.message && (
                                         <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
                                     )}

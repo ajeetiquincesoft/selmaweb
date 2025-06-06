@@ -146,7 +146,7 @@ const SidebarContent = props => {
         <div id="sidebar-menu">
           <ul className="metismenu list-unstyled" id="side-menu">
 
-          <li className="menu-title">{props.t("Menu")} </li>
+            <li className="menu-title">{props.t("Menu")} </li>
             <li>
               <Link to="/#">
                 <i className="bx bx-home-circle"></i>
@@ -159,7 +159,7 @@ const SidebarContent = props => {
                 <span>{props.t("News Updates")}</span>
               </Link>
             </li> */}
-              <li>
+            <li>
               <Link to="/#" className="has-arrow">
                 <i className="bx bx-briefcase-alt"></i>
                 <span key="t-jobs">{props.t("News")}</span>
@@ -180,22 +180,28 @@ const SidebarContent = props => {
                 {/* <li><Link to="/job-grid">{props.t("Job Grid")}</Link></li>
                 <li><Link to="/job-apply">{props.t("Apply Job")}</Link></li>
                 <li><Link to="/job-details">{props.t("Job Details")}</Link></li> */}
-                {/* <li><Link to="/job-categories">{props.t("Jobs Categories")}</Link></li> */}
-                <li>
+                <li><Link to="/job-categories">{props.t("Jobs Categories")}</Link></li>
+                {/* <li>
                   <Link to="/#" className="has-arrow">{props.t("Candidate")}</Link>
                   <ul className="sub-menu" aria-expanded="true">
                     <li><Link to="/candidate-list">{props.t("List")}</Link></li>
                     <li><Link to="/candidate-overview">{props.t("Overview")}</Link></li>
                   </ul>
-                </li>
+                </li> */}
               </ul>
             </li>
+
             <li>
-              <Link to="/calendar" >
-                <i className="bx bx-calendar"></i>
-                <span>{props.t("Events")}</span>
+              <Link to="/#" className="has-arrow">
+                <i className="bx bx-briefcase-alt"></i>
+                <span key="t-jobs">{props.t("Event")}</span>
               </Link>
+              <ul className="sub-menu">
+                <li><Link to="/event-list">{props.t("Event List")}</Link></li>
+                <li><Link to="/event-categories">{props.t("Event Categories")}</Link></li>
+              </ul>
             </li>
+
             <li>
               <Link to="/calendar" >
                 <i className="bx bxs-parking"></i>
