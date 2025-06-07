@@ -160,8 +160,9 @@ const EventEdit = () => {
                         "Content-Type": "multipart/form-data",
                     },
                 });
-            fetchEventById(id);
+
             if (response.data.success) {
+                fetchEventById(id);
                 setAlertMsg({ message: "Event updated successfully", type: "success" });
 
             } else {
