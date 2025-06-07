@@ -116,7 +116,7 @@ const EventDetails = () => {
                                             />
                                         </div>
                                         
-                                        {/* <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', textAlign: 'center' }}>
+                                        <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', textAlign: 'center' }}>
                                             {event.files && event.files.map((img, index) => (
                                                 <img
                                                     key={index}
@@ -133,7 +133,7 @@ const EventDetails = () => {
                                                     className="img-thumbnail"
                                                 />
                                             ))}
-                                        </div> */}
+                                        </div>
 
                                         <hr />
 

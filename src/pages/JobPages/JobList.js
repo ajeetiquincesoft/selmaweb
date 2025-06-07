@@ -308,16 +308,13 @@ const JobList = () => {
 
                     <Col lg={12} className="mt-3">
                       <label className="form-label">Short Description</label>
-
-                      <CKEditor
-                        editor={ClassicEditor}
-                        data={formData.shortdescription}
-                        onChange={(event, editor) => {
-                          const content = editor.getData();
-                          setFormData({ ...formData, shortdescription: content });
-                        }}
+                      <textarea
+                        className="form-control"
+                        name="shortdescription"
+                        value={formData.shortdescription}
+                        onChange={handleChange}
+                        rows={4}
                       />
-
                       {errors.shortdescription && (
                         <span className="text-danger">{errors.shortdescription}</span>
                       )}

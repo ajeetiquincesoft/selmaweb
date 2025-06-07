@@ -133,6 +133,7 @@ import CandidateOverview from "../pages/JobPages/CandidateOverview";
 import EventCategories from "../pages/Event/EventCategories";
 import EventList from "../pages/Event/EventList";
 import EventDetails from "../pages/Event/EventDetails";
+import EventEdit from "../pages/Event/EventEdit";
 
 
 
@@ -276,6 +277,7 @@ const authProtectedRoutes = [
   { path: "/event-categories", component: <EventCategories /> },
   { path: "/event-list", component: <EventList /> },
   { path: "/event-details/:id", component: <EventDetails /> },
+  { path: "/edit-event/:id", component: <EventEdit /> },
 
 
 

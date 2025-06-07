@@ -173,7 +173,7 @@ const NewsEdit = () => {
                                     {alertMsg.message && (
                                         <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
                                     )}
-                                    <Col lg={8} className="mt-3">
+                                    <Col lg={12} className="mt-3">
                                         <label className="form-label">Title</label>
                                         <input
                                             className="form-control"
@@ -187,15 +187,16 @@ const NewsEdit = () => {
 
                                     <Col lg={12} className="mt-3">
                                         <label className="form-label">Short Description</label>
-                                        <CKEditor
-                                            editor={ClassicEditor}
-                                            data={formData.shortdescription}
-                                            onChange={(event, editor) => {
-                                                const data = editor.getData();
-                                                setFormData((prev) => ({ ...prev, shortdescription: data }));
-                                            }}
+                                        <textarea
+                                            className="form-control"
+                                            name="shortdescription"
+                                            value={formData.shortdescription}
+                                            onChange={handleChange}
+                                            rows={4}
                                         />
-                                        {errors.shortdescription && <span className="text-danger">{errors.shortdescription}</span>}
+                                        {errors.shortdescription && (
+                                            <span className="text-danger">{errors.shortdescription}</span>
+                                        )}
                                     </Col>
 
                                     <Col lg={12} className="mt-3">
