@@ -14,20 +14,28 @@ import {
 import BASE_URL from "path"; // Replace with actual BASE_URL
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
-const EventCategories = () => {
+const ParkCreationCategory = () => {
     const [token, setToken] = useState(null);
     const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
     const [modalOpen, setModalOpen] = useState(false);
     const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [editId, setEditId] = useState(null);
 
-    const [formData, setFormData] = useState({ name: "", status: "" });
+    const [formData, setFormData] = useState({
+        name: "",
+        status: "",
+        image: null,
+    });
+
     const [errors, setErrors] = useState({});
 
     const toggleModal = (category = null) => {
         if (category) {
-            setFormData({ name: category.name, status: category.status });
+            setFormData({
+                name: category.name || "",
+                status: category.status || "",
+                image: null, // Only allow changing image, not pre-filling file
+            });
             setEditId(category.id);
         } else {
             resetForm();
@@ -49,19 +57,25 @@ const EventCategories = () => {
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get(`${BASE_URL}/auth/getalleventcategory`, {
-                headers: { Authorization: `Bearer ${token}` }
+            const response = await axios.get(`${BASE_URL}/auth/getAllParksAndRecreationCategories`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
             setCategories(response.data.data || []);
         } catch (err) {
-            console.error("Error fetching categories", err);
-            setAlertMsg({ type: "danger", message: "Failed to load event categories." });
+            console.error("Failed to fetch park categories", err);
         }
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setFormData(prev => ({ ...prev, image: file }));
     };
 
     const validate = () => {
@@ -73,7 +87,7 @@ const EventCategories = () => {
     };
 
     const resetForm = () => {
-        setFormData({ name: "", status: "" });
+        setFormData({ name: "", status: "", image: null });
         setErrors({});
         setEditId(null);
     };
@@ -82,45 +96,52 @@ const EventCategories = () => {
         e.preventDefault();
         if (!validate()) return;
 
-        setLoading(true);
-        const endpoint = editId
-            ? `${BASE_URL}/auth/updateeventcategory`
-            : `${BASE_URL}/auth/addeventcategory`;
+        const payload = new FormData();
+        payload.append("name", formData.name);
+        payload.append("status", formData.status);
+        if (formData.image) {
+            payload.append("image", formData.image);
+        }
 
-        const payload = editId
-            ? { ...formData, id: editId }
-            : formData;
+        if (editId) {
+            payload.append("id", editId);
+        }
 
         try {
+            const endpoint = editId
+                ? `${BASE_URL}/auth/updateParksAndRecreationCategory`
+                : `${BASE_URL}/auth/addParksAndRecreationCategory`;
+
             await axios.post(endpoint, payload, {
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "multipart/form-data",
                     Authorization: `Bearer ${token}`,
-                }
+                },
             });
+
             setAlertMsg({
                 type: "success",
                 message: editId
-                    ? "Event category updated successfully!"
-                    : "Event category added successfully!"
+                    ? "Category updated successfully!"
+                    : "Category added successfully!",
             });
-            toggleModal(); // closes and resets
+
+            toggleModal();
             fetchCategories();
         } catch (error) {
             const errMsg = error.response?.data?.message || "Something went wrong!";
             setAlertMsg({ type: "danger", message: `Error: ${errMsg}` });
-        } finally {
-            setLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure to delete this event category?")) return;
+        if (!window.confirm("Are you sure to delete this category?")) return;
 
         try {
-            await axios.post(`${BASE_URL}/auth/deleteeventcategory`, { id }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await axios.post(`${BASE_URL}/auth/deleteParksAndRecreationCategory`,
+                { id },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             setAlertMsg({ type: "success", message: "Category deleted successfully!" });
             fetchCategories();
         } catch (err) {
@@ -130,13 +151,13 @@ const EventCategories = () => {
 
     return (
         <div className="page-content">
-            <Breadcrumbs title="Events" breadcrumbItem="Event Category" />
+            <Breadcrumbs title="Park and Recreation" breadcrumbItem="Parks & Recreation Category" />
             <Container fluid>
                 <Row className="mb-3">
                     <Col className="d-flex justify-content-between align-items-center">
-                        <h4 className="mb-0"></h4>
+                        <h4></h4>
                         <Button color="primary" onClick={() => toggleModal()}>
-                            Add Event Category
+                            Add Category
                         </Button>
                     </Col>
                 </Row>
@@ -161,7 +182,21 @@ const EventCategories = () => {
                                     categories.map((cat, index) => (
                                         <tr key={cat.id}>
                                             <td>{index + 1}</td>
-                                            <td>{cat.name}</td>
+                                            <td className="d-flex align-items-center gap-2">
+                                                {cat.image && (
+                                                    <img
+                                                        src={`http://192.168.10.140:3000/uploads/${cat.image}`}
+                                                        alt={cat.name}
+                                                        style={{
+                                                            width: "40px",
+                                                            height: "40px",
+                                                            borderRadius: "50%",
+                                                            objectFit: "cover",
+                                                        }}
+                                                    />
+                                                )}
+                                                <span>{cat.name}</span>
+                                            </td>
                                             <td>{cat.status === "1" ? "Active" : "Pending"}</td>
                                             <td>
                                                 <Button
@@ -194,12 +229,13 @@ const EventCategories = () => {
                     </Col>
                 </Row>
 
-                <Modal isOpen={modalOpen} toggle={() => toggleModal()}>
-                    <ModalHeader toggle={() => toggleModal()}>
-                        {editId ? "Edit" : "Add"} Event Category
+                {/* Modal Form */}
+                <Modal isOpen={modalOpen} toggle={toggleModal}>
+                    <ModalHeader toggle={toggleModal}>
+                        {editId ? "Edit" : "Add"} Park Category
                     </ModalHeader>
                     <ModalBody>
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleSubmit} encType="multipart/form-data">
                             <div className="mb-3">
                                 <label className="form-label">Name</label>
                                 <input
@@ -212,6 +248,16 @@ const EventCategories = () => {
                                 {errors.name && (
                                     <small className="text-danger">{errors.name}</small>
                                 )}
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Image</label>
+                                <input
+                                    className="form-control"
+                                    type="file"
+                                    name="image"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                />
                             </div>
                             <div className="mb-3">
                                 <label className="form-label">Status</label>
@@ -230,8 +276,8 @@ const EventCategories = () => {
                                 )}
                             </div>
                             <div className="text-end">
-                                <Button color="primary" type="submit" disabled={loading}>
-                                    {loading ? "Submitting..." : editId ? "Update" : "Submit"}
+                                <Button color="primary" type="submit">
+                                    {editId ? "Update" : "Submit"}
                                 </Button>
                             </div>
                         </form>
@@ -242,4 +288,4 @@ const EventCategories = () => {
     );
 };
 
-export default EventCategories;
+export default ParkCreationCategory;

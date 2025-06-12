@@ -1,15 +1,12 @@
 import React, { useEffect, useRef, useCallback } from "react";
-import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
-
+import { Link, useLocation } from "react-router-dom";
 
 // //Import Scrollbar
 import SimpleBar from "simplebar-react";
-
 // MetisMenu
 import MetisMenu from "metismenujs";
 import withRouter from "components/Common/withRouter";
-import { Link } from "react-router-dom";
 
 //i18n
 import { withTranslation } from "react-i18next";
@@ -160,7 +157,7 @@ const SidebarContent = props => {
               </Link>
             </li> */}
             <li>
-              <Link to="/#" className="has-arrow">
+              <Link to="/#" className={path.pathname === "/news-list" ? " has-arrow  active" : ""}>
                 <i className="bx bx-briefcase-alt"></i>
                 <span key="t-jobs">{props.t("News")}</span>
               </Link>
@@ -203,17 +200,46 @@ const SidebarContent = props => {
             </li>
 
             <li>
-              <Link to="/calendar" >
+              <Link to="#" className="has-arrow">
                 <i className="bx bxs-parking"></i>
-                <span>{props.t("Parks & Recreation")}</span>
+                <span key="t-Parks">{props.t("Parks & Recreation")}</span>
               </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/park-recreation-content">
+                    {props.t("Parks & Recreation Content")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/parks-recreation-list">
+                    {props.t("Parks & Recreation List")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/parks-recreation-categories">
+                    {props.t("Parks & Recreation Categories")}
+                  </Link>
+                </li>
+              </ul>
             </li>
+
             <li>
-              <Link to="/calendar" >
+              <Link to="/#" className="has-arrow">
                 <i className="bx bx-recycle"></i>
                 <span>{props.t("Recycling & Garbage")}</span>
               </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/recycling-garbage-content">{props.t("Recycling & Garbage Content")}</Link>
+                </li>
+                <li>
+                  <Link to="/recycling-garbage-list">
+                    {props.t("Recycling & Garbage List")}
+                  </Link>
+                </li>
+              </ul>
             </li>
+
             <li>
               <Link to="/calendar" >
                 <i className="bx bxs-bell"></i>

@@ -135,7 +135,19 @@ import EventList from "../pages/Event/EventList";
 import EventDetails from "../pages/Event/EventDetails";
 import EventEdit from "../pages/Event/EventEdit";
 
+//Park And Recreation
+import ParkCreationContent from "../pages/ParkCreation/ParkCreationContentList";
+import ParkCreationContentDetails from "../pages/ParkCreation/ParkCreationContentDetails";
+import ParkCreationCategory from "../pages/ParkCreation/ParkCreationCategory";
+import ParkCreationList from "../pages/ParkCreation/ParkCreationList";
+import ParkDetails from "../pages/ParkCreation/ParkDetails";
+import ParkEdit from "../pages/ParkCreation/ParkEdit";
 
+//Recycling Garbage 
+import RecyclingGarbageContent from "../pages/RecyclingGarbage/RecyclingGarbageContent";
+import RecyclingGarbageList from "../pages/RecyclingGarbage/RecyclingGarbageList";
+import RecyclingGarbageDetails from "../pages/RecyclingGarbage/RecyclingGarbageDetails";
+import EditRecyclingGarbage from "../pages/RecyclingGarbage/EditRecyclingGarbage";
 
 // Forms
 import FormElements from "../pages/Forms/FormElements";
@@ -279,7 +291,19 @@ const authProtectedRoutes = [
   { path: "/event-details/:id", component: <EventDetails /> },
   { path: "/edit-event/:id", component: <EventEdit /> },
 
+  //Park And Recreation
+  { path: "/park-recreation-content", component: <ParkCreationContent /> },
+  { path: "/park-recreation-content-details", component: <ParkCreationContentDetails /> },
+  { path: "/parks-recreation-categories", component: <ParkCreationCategory /> },
+  { path: "/parks-recreation-list", component: <ParkCreationList /> },
+  { path: "/park-details/:id", component: <ParkDetails /> },
+  { path: "/edit-park/:id", component: <ParkEdit /> },
 
+  //Recycling & Garbage
+  { path: "/recycling-garbage-content", component: <RecyclingGarbageContent /> },
+  { path: "/recycling-garbage-list", component: <RecyclingGarbageList /> },
+  { path: "/recycling-garbage-details/:id", component: <RecyclingGarbageDetails /> },
+  { path: "/edit-recycling-garbage/:id", component: <EditRecyclingGarbage /> },
 
   // Contacts
   { path: "/contacts-grid", component: <ContactsGrid /> },
