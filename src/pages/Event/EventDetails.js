@@ -59,7 +59,15 @@ const EventDetails = () => {
     return (
         <div className="page-content">
             <Container fluid>
-                <Breadcrumbs title="Event" breadcrumbItem="Event Details" />
+                <ul className="breadcrumb">
+                    <li>
+                        <Link to="/"><a href="/">Home /</a></Link>
+                    </li>
+                    <li>
+                        <Link to="/event-list"><a href="">Event List /</a></Link>
+                    </li>
+                    <li className="active">Event Details</li>
+                </ul>
 
                 <Row>
                     <Col lg={12}>
@@ -101,7 +109,7 @@ const EventDetails = () => {
                                                 <Col sm={4}>
                                                     <p className="text-muted mb-2">Posted by</p>
                                                     <h5 className="font-size-15">{event.author?.name}</h5>
-                                                    
+
                                                 </Col>
                                             </Row>
                                         </div>
@@ -115,7 +123,7 @@ const EventDetails = () => {
                                                 className="img-thumbnail mx-auto d-block"
                                             />
                                         </div>
-                                        
+
                                         <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', textAlign: 'center' }}>
                                             {event.files && event.files.map((img, index) => (
                                                 <img

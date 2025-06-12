@@ -7,7 +7,8 @@ import {
 import axios from "axios";
 import BASE_URL from "path"; // Replace with your actual BASE_URL
 import "../../custom.css";
-
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const initialFormData = {
   image: null,
@@ -104,7 +105,14 @@ const RecyclingGarbageContent = () => {
 
       <Container fluid>
         <Row className="justify-content-between mb-3">
-          <Col xs="auto"><h4>Recycling & Garbage Content</h4></Col>
+          <Col xs="auto">
+            <ul className="breadcrumb">
+              <li>
+                <Link to="/"><a href="/">Home /</a></Link>
+              </li>
+              <li className="active">Recycling & Garbage Content</li>
+            </ul>
+          </Col>
           <Col xs="auto">
             <Button color="primary" onClick={toggleModal}>
               <i className={`mdi ${content ? 'mdi-pencil' : 'mdi-plus'} me-1`}></i>
@@ -163,7 +171,6 @@ const RecyclingGarbageContent = () => {
 
                   {[{ label: "Image", name: "image", type: "file" },
                   { label: "Short Description", name: "shortdescription", type: "text" },
-                  { label: "Description", name: "description", type: "text" }
                   ].map(({ label, name, type }) => (
                     <Col lg={12} className="mt-3" key={name}>
                       <label className="form-label">{label}</label>
@@ -176,6 +183,19 @@ const RecyclingGarbageContent = () => {
                       {errors[name] && <span className="text-danger">{errors[name]}</span>}
                     </Col>
                   ))}
+
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Description</label>
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data={formData.description}
+                      onChange={(event, editor) => {
+                        const data = editor.getData();
+                        setFormData(prev => ({ ...prev, description: data }));
+                      }}
+                    />
+                    {errors.description && <span className="text-danger">{errors.description}</span>}
+                  </Col>
 
                   <Col lg={12} className="mt-3">
                     <label className="form-label">Status</label>

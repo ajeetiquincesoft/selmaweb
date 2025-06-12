@@ -16,6 +16,7 @@ import {
 } from "reactstrap";
 import BASE_URL from "path"; // Replace with your actual BASE_URL
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { Link } from "react-router-dom";
 
 const JobCategories = () => {
   const [token, setToken] = useState(null);
@@ -148,11 +149,16 @@ const JobCategories = () => {
 
   return (
     <div className="page-content">
-      <Breadcrumbs title="Jobs" breadcrumbItem="Job Category" />
+
       <Container fluid>
         <Row className="mb-3">
           <Col className="d-flex justify-content-between align-items-center">
-            <h4></h4>
+            <ul className="breadcrumb">
+              <li>
+                <Link to="/"><a href="/">Home /</a></Link>
+              </li>
+              <li className="active">Job Category</li>
+            </ul>
             <Button color="primary" onClick={() => { resetForm(); toggleModal(); }}>
               Add Job Category
             </Button>

@@ -53,6 +53,7 @@ const ParkDetails = () => {
     <Container className="mt-5">
       <Row>
         <Col md={12}>
+        
           <Card className="p-4 shadow-sm">
             <Row>
               <Col md={6}>

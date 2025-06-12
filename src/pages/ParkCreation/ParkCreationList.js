@@ -231,7 +231,12 @@ const ParkCreationList = () => {
       <Col xl={12}>
         <Row className="justify-content-between mb-3">
           <Col xs="auto">
-            <h4>Park & Recreation List</h4>
+            <ul className="breadcrumb">
+              <li>
+                <Link to="/"><a href="/">Home /</a></Link>
+              </li>
+              <li className="active">Parks & Recreation List</li>
+            </ul>
           </Col>
           <Col xs="auto">
             <Button color="primary" onClick={toggleModal}>

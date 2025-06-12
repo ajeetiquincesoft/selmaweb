@@ -48,7 +48,16 @@ const RecyclingGarbageDetails = () => {
 
     return (
         <div className="page-content">
-            <Container className="mt-5">
+            <Container className="">
+                <ul className="breadcrumb">
+                    <li>
+                        <Link to="/"><a href="/">Home /</a></Link>
+                    </li>
+                    <li>
+                        <Link to="/recycling-garbage-list"><a href="/">Recycling & Garbage list /</a></Link>
+                    </li>
+                    <li className="active">Recycling & Garbage Details</li>
+                </ul>
                 <Row className="justify-content-center">
                     <Col lg={10}>
                         <Card className="shadow rounded border-0">

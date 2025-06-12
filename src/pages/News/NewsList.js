@@ -198,13 +198,18 @@ const NewsList = () => {
 
   return (
     <div className="page-content p-0">
-      <Breadcrumbs title="News" breadcrumbItem="News" />
+
       <Container fluid>
         <Col xl={12} lg={12}>
           <div>
             <Row className="justify-content-between mb-3">
               <Col xs="auto">
-                <h4></h4>
+                <ul className="breadcrumb">
+                  <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                  </li>
+                  <li className="active">News List</li>
+                </ul>
               </Col>
               <Col xs="auto">
                 <Button color="primary" onClick={toggleModal}>

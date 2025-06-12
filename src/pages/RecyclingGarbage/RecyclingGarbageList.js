@@ -152,7 +152,12 @@ const RecyclingAndGarbageList = () => {
             <Col xl={12} lg={12}>
                 <Row className="justify-content-between mb-3">
                     <Col xs="auto">
-                        <h4>Recycling And Garbage List</h4>
+                        <ul className="breadcrumb">
+                            <li>
+                                <Link to="/"><a href="/">Home /</a></Link>
+                            </li>
+                            <li className="active">Recycling & Garbage list</li>
+                        </ul>
                     </Col>
                     <Col xs="auto">
                         <Button color="primary" onClick={toggleModal}>

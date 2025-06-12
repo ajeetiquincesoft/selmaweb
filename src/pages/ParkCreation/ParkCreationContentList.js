@@ -7,6 +7,8 @@ import {
 import axios from "axios";
 import BASE_URL from "path"; // Replace with actual BASE_URL
 import "../../custom.css";
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const initialFormData = {
   image: null,
@@ -113,7 +115,14 @@ const ParkCreationContent = () => {
     <div className="page-content">
       <Container fluid>
         <Row className="justify-content-between mb-3">
-          <Col xs="auto"><h4>Park & Recreation Content</h4></Col>
+          <Col xs="auto">
+            <ul className="breadcrumb">
+              <li>
+                <Link to="/"><a href="/">Home /</a></Link>
+              </li>
+              <li className="active">Parks & Recreation Content</li>
+            </ul>
+          </Col>
           <Col xs="auto">
             <Button color="primary" onClick={toggleModal}>
               <i className={`mdi ${content ? 'mdi-pencil' : 'mdi-plus'} me-1`}></i>
@@ -216,8 +225,6 @@ const ParkCreationContent = () => {
 
                   {[
                     { label: "Image", name: "image", type: "file" },
-                    { label: "Mission", name: "mission", type: "text" },
-                    { label: "Vision", name: "vision", type: "text" },
                     { label: "Address", name: "address", type: "text" },
                     { label: "Hours", name: "hours", type: "text" },
                     { label: "Contacts", name: "contacts", type: "text" },
@@ -233,6 +240,32 @@ const ParkCreationContent = () => {
                       {errors[name] && <span className="text-danger">{errors[name]}</span>}
                     </Col>
                   ))}
+
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Mission</label>
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data={formData.mission}
+                      onChange={(event, editor) => {
+                        const data = editor.getData();
+                        setFormData(prev => ({ ...prev, mission: data }));
+                      }}
+                    />
+                    {errors.mission && <span className="text-danger">{errors.mission}</span>}
+                  </Col>
+
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Vision</label>
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data={formData.vision}
+                      onChange={(event, editor) => {
+                        const data = editor.getData();
+                        setFormData(prev => ({ ...prev, vision: data }));
+                      }}
+                    />
+                    {errors.vision && <span className="text-danger">{errors.vision}</span>}
+                  </Col>
 
                   <Col lg={12} className="mt-3">
                     <label className="form-label">Status</label>

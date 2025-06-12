@@ -157,12 +157,11 @@ const SidebarContent = props => {
               </Link>
             </li> */}
             <li>
-              <Link to="/#" className={path.pathname === "/news-list" ? " has-arrow  active" : ""}>
-                <i className="bx bx-briefcase-alt"></i>
+              <Link to="/#" className={`has-arrow${path.pathname === "/news-list" ? " active" : ""}`}>
+                <i className="bx  bxs-detail"></i>
                 <span key="t-jobs">{props.t("News")}</span>
               </Link>
               <ul className="sub-menu">
-                {/* <li><Link to="/add-news">{props.t("Add News")}</Link></li> */}
                 <li><Link to="/news-list">{props.t("News List")}</Link></li>
                 <li><Link to="/news-categories">{props.t("News categories")}</Link></li>
               </ul>
@@ -190,7 +189,7 @@ const SidebarContent = props => {
 
             <li>
               <Link to="/#" className="has-arrow">
-                <i className="bx bx-briefcase-alt"></i>
+                <i className="bx bx-calendar-event"></i>
                 <span key="t-jobs">{props.t("Event")}</span>
               </Link>
               <ul className="sub-menu">
@@ -200,7 +199,7 @@ const SidebarContent = props => {
             </li>
 
             <li>
-              <Link to="#" className="has-arrow">
+              <Link to="#" className="has-arrow  ">
                 <i className="bx bxs-parking"></i>
                 <span key="t-Parks">{props.t("Parks & Recreation")}</span>
               </Link>

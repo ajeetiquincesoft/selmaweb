@@ -172,7 +172,14 @@ const JobList = () => {
     <div className="page-content">
       <Container fluid>
         <Row className="justify-content-between mb-3">
-          <Col xs="auto"><h4>Job List</h4></Col>
+          <Col xs="auto">
+            <ul className="breadcrumb">
+              <li>
+                <Link to="/"><a href="/">Home /</a></Link>
+              </li>
+              <li className="active">Job list</li>
+            </ul>
+          </Col>
           <Col xs="auto">
             <Button color="primary" onClick={toggleModal}>
               <i className="mdi mdi-plus me-1"></i> Add Job

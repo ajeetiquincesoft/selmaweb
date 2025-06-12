@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import {
   Card,
@@ -147,11 +148,15 @@ const NewsCategories = () => {
 
   return (
     <div className="page-content">
-      <Breadcrumbs title="News" breadcrumbItem="News Category" />
       <Container fluid>
         <Row className="mb-3">
           <Col className="d-flex justify-content-between align-items-center">
-            <h4></h4>
+            <ul className="breadcrumb">
+              <li>
+                <Link to="/"><a href="/">Home /</a></Link>
+              </li>
+              <li className="active">News Category</li>
+            </ul>
             <Button color="primary" onClick={() => { resetForm(); toggleModal(); }}>
               Add Category
             </Button>

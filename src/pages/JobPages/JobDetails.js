@@ -61,7 +61,15 @@ const JobDetails = () => {
     return (
         <div className="page-content">
             <Container fluid>
-                <Breadcrumbs title="Jobs" breadcrumbItem="Job Details" />
+                <ul className="breadcrumb">
+                    <li>
+                        <Link to="/"><a href="/">Home /</a></Link>
+                    </li>
+                    <li>
+                        <Link to="/job-list"><a href="/">Jobs List /</a></Link>
+                    </li>
+                    <li className="active">Job Details</li>
+                </ul>
                 <Row>
                     <Col lg={12}>
                         <Card>

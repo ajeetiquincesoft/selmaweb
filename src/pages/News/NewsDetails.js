@@ -76,8 +76,15 @@ const NewsDetails = () => {
         <>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumbs title="Blog" breadcrumbItem="Blog Details" />
-                    { }
+                    <ul className="breadcrumb">
+                        <li>
+                            <Link to="/"><a href="/">Home /</a></Link>
+                        </li>
+                        <li>
+                            <Link to="/news-list"><a href="/">News List /</a></Link>
+                        </li>
+                        <li className="active">News Details</li>
+                    </ul>
                     <Row>
                         <Col lg={12}>
                             <Card>

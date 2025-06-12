@@ -74,13 +74,22 @@ const ParkDetails = () => {
   }
 
   // Parse facilities if it's a string
-  const facilities = typeof park.facilities === 'string' 
-    ? JSON.parse(park.facilities) 
+  const facilities = typeof park.facilities === 'string'
+    ? JSON.parse(park.facilities)
     : park.facilities || [];
 
   return (
     <div className="page-content">
       <Container>
+        <ul className="breadcrumb">
+          <li>
+            <Link to="/"><a href="/">Home /</a></Link>
+          </li>
+          <li>
+            <Link to="/parks-recreation-list"><a href="/">Parks & Recreation List /</a></Link>
+          </li>
+          <li className="active">Parks & Recreation Details</li>
+        </ul>
         <Card className="p-4 mb-4 shadow-sm">
           <Row className="mb-4">
             <Col md={6}>

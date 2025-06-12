@@ -13,6 +13,7 @@ import {
 } from "reactstrap";
 import BASE_URL from "path"; // Replace with actual BASE_URL
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { Link } from "react-router-dom";
 
 const ParkCreationCategory = () => {
     const [token, setToken] = useState(null);
@@ -151,11 +152,15 @@ const ParkCreationCategory = () => {
 
     return (
         <div className="page-content">
-            <Breadcrumbs title="Park and Recreation" breadcrumbItem="Parks & Recreation Category" />
             <Container fluid>
                 <Row className="mb-3">
                     <Col className="d-flex justify-content-between align-items-center">
-                        <h4></h4>
+                        <ul className="breadcrumb">
+                            <li>
+                                <Link to="/"><a href="/">Home /</a></Link>
+                            </li>
+                            <li className="active">Parks & Recreation Category</li>
+                        </ul>
                         <Button color="primary" onClick={() => toggleModal()}>
                             Add Category
                         </Button>
