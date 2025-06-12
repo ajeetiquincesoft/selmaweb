@@ -77,7 +77,13 @@ const JobDetails = () => {
                                 <div className="pt-3">
                                     <Row className="justify-content-center">
                                         <Col xl={8}>
+
                                             <div>
+                                                <div className='text-end'>
+                                                    <Link to={`/edit-job/${job.id}`}>
+                                                        <button className='btn btn-success'>Edit</button>
+                                                    </Link>
+                                                </div>
                                                 <div className="text-center">
                                                     <div className="mb-4">
                                                         <Link
@@ -85,7 +91,7 @@ const JobDetails = () => {
                                                             className="badge bg-light font-size-12"
                                                         >
                                                             <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
-                                                            News
+                                                            Jobs
                                                         </Link>
                                                     </div>
                                                     <h4>{job.title}</h4>

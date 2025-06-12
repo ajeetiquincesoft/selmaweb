@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams,Link, useNavigate } from "react-router-dom";
 import {
     Card, Col, Row, Button, Modal, ModalHeader, ModalBody, Container, Alert, Badge, Table
 } from "reactstrap";
@@ -170,7 +170,7 @@ const EditPark = () => {
     };
 
     const validate = () => {
-         console.log('aasd');
+        console.log('aasd');
         const newErrors = {};
         if (!formData.title.trim()) newErrors.title = "Title is required";
         if (!formData.shortdescription.trim()) newErrors.shortdescription = "Short description is required";
@@ -251,16 +251,18 @@ const EditPark = () => {
     return (
         <div className="page-content">
             <Container>
-                <Row className="mb-4">
-                    <Col>
-                        <Button color="secondary" onClick={() => navigate(-1)}>
-                            <i className="mdi mdi-arrow-left me-1"></i> Back
-                        </Button>
-                    </Col>
-                </Row>
+                <ul className="breadcrumb">
+                    <li>
+                        <Link to="/"><a href="/">Home /</a></Link>
+                    </li>
+                    <li>
+                        <Link to="/parks-recreation-list"><a href="/">Parks & Recreation List /</a></Link>
+                    </li>
+                    <li className="active">Parks & Recreation Edit</li>
+                </ul>
 
                 <Card className="p-4 shadow">
-                    <h3 className="mb-4">Edit Park: {formData.title}</h3>
+                    <h3 className="mb-4">Edit</h3>
 
                     {alertMsg.message && (
                         <Alert color={alertMsg.type} className="mb-4" toggle={() => setAlertMsg({ type: "", message: "" })}>
@@ -594,7 +596,7 @@ const EditPark = () => {
                             </Col>
 
                             <Col lg={12} className="mt-4 text-center">
-                                <Button type="submit" color="primary">Submit</Button>
+                                <Button type="submit" color="primary">Update</Button>
                             </Col>
 
                         </Row>

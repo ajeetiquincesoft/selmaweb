@@ -154,7 +154,7 @@ const NewsList = () => {
         }
       );
       setAlertMsg({ type: "success", message: "News added successfully!" });
-      // Reset form and close modal after 2 seconds
+      fetchNewsdata(currentPage);
       setTimeout(() => {
         setFormData({
           title: "",
@@ -226,11 +226,25 @@ const NewsList = () => {
                       <Col key={index} sm={4} md={4} lg={4}>
                         <Card className="p-1 border shadow-none">
                           <div className="p-3">
-                            <h5>
-                              <Link to={`/news-details/${item.id}`} className="text-dark">
-                                {item.title}
-                              </Link>
-                            </h5>
+                            <div className="d-flex justify-content-between">
+                              <div>
+                                <h5>
+                                  <Link to={`/news-details/${item.id}`} className="text-dark">
+                                    {item.title}
+                                  </Link>
+                                </h5>
+                              </div>
+                              <div>
+                                <Link to={`/edit-news/${item.id}`}>
+                                  <i
+                                    className="bx bx-edit align-middle fw-20 text-primary me-2"
+                                    title="Edit"
+                                    style={{ cursor: "pointer" }}
+                                  ></i>
+                                </Link>
+                              </div>
+                            </div>
+
                             <p className="text-muted mb-0">
                               {new Date(item.createdAt).toLocaleDateString("en-GB", {
                                 day: "2-digit",
@@ -249,7 +263,7 @@ const NewsList = () => {
                           </div>
 
                           <div className="p-3">
-                            <ul className="list-inline d-flex justify-content-between">
+                            <ul className="list-inline d-flex justify-content">
                               <li className="list-inline-item me-3">
                                 <span className="text-muted">
                                   <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
@@ -261,15 +275,6 @@ const NewsList = () => {
                                   <i className="bx bx-user align-middle text-muted me-1"></i>
                                   {item.author?.name || "Admin"}
                                 </span>
-                              </li>
-                              <li className="list-inline-item me-3  ">
-                                <Link to={`/edit-news/${item.id}`}>
-                                  <i
-                                    className="bx bx-edit align-middle fw-20 text-primary me-2"
-                                    title="Edit"
-                                    style={{ cursor: "pointer" }}
-                                  ></i>
-                                </Link>
                               </li>
                             </ul>
                             <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>

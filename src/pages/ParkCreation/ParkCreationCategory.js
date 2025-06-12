@@ -173,7 +173,7 @@ const ParkCreationCategory = () => {
 
                 <Row>
                     <Col>
-                        <Table bordered responsive>
+                        <Table  responsive className="align-middle table-nowrap mb-0 table table-hover">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -205,7 +205,7 @@ const ParkCreationCategory = () => {
                                             <td>{cat.status === "1" ? "Active" : "Pending"}</td>
                                             <td>
                                                 <Button
-                                                    color="info"
+                                                    color="warning"
                                                     size="sm"
                                                     className="me-2"
                                                     onClick={() => toggleModal(cat)}

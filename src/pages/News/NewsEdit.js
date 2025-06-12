@@ -14,6 +14,7 @@ import {
 import BASE_URL from "path"; // Replace this with your actual BASE_URL import
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { Link } from "react-router-dom";
 
 const NewsEdit = () => {
     const { id } = useParams();
@@ -164,12 +165,22 @@ const NewsEdit = () => {
     return (
         <div className="page-content">
             <Container>
+                <ul className="breadcrumb">
+                    <li>
+                        <Link to="/"><a href="/">Home /</a></Link>
+                    </li>
+                    <li>
+                        <Link to="/news-list"><a href="/">News List /</a></Link>
+                    </li>
+                    <li className="active">News Edit</li>
+                </ul>
+
                 <form onSubmit={handleSubmit}>
                     <Row className="d-flex justify-content-center">
                         <Col md={9} lg={9}>
                             <Card>
                                 <CardBody>
-                                    <h2 className="display-4 text-center">News Update Form</h2>
+                                    <h2 className="display-4 text-center">News </h2>
                                     {alertMsg.message && (
                                         <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
                                     )}
@@ -289,7 +300,7 @@ const NewsEdit = () => {
                                     </Col>
 
                                     <Col lg={12} className="mt-4 text-center">
-                                        <Button type="submit" color="primary">Submit</Button>
+                                        <Button type="submit" color="primary">Update</Button>
                                     </Col>
                                 </CardBody>
                             </Card>

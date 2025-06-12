@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { Link } from "react-router-dom"
 import {
     Card,
     CardBody,
@@ -29,6 +30,7 @@ const EventEdit = () => {
         featured_image: null,
         files: [],
         link: "",
+        address: "",
         category_id: "",
         date: "",
         time: "",
@@ -112,6 +114,7 @@ const EventEdit = () => {
         if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
         if (!formData.description) newErrors.description = "Description is required";
         if (!formData.link) newErrors.link = "Link is required";
+        if (!formData.address) newErrors.address = "Address is required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.date) newErrors.date = "Date is required";
         if (!formData.time) newErrors.time = "Time is required";
@@ -144,6 +147,7 @@ const EventEdit = () => {
             });
         }
         formPayload.append("link", formData.link);
+        formPayload.append("address", formData.address);
         formPayload.append("category_id", formData.category_id);
         formPayload.append("date", formData.date);
         formPayload.append("time", formData.time);
@@ -177,12 +181,21 @@ const EventEdit = () => {
     return (
         <div className="page-content">
             <Container>
+                <ul className="breadcrumb">
+                    <li>
+                        <Link to="/"><a href="/">Home /</a></Link>
+                    </li>
+                    <li>
+                        <Link to="/event-list"><a href="">Event List /</a></Link>
+                    </li>
+                    <li className="active">Event Details</li>
+                </ul>
                 <form onSubmit={handleSubmit}>
                     <Row className="d-flex justify-content-center">
                         <Col md={9}>
                             <Card>
                                 <CardBody>
-                                    <h2 className="display-4 text-center">Event Update Form</h2>
+                                    <h2 className="display-4 text-center">Event</h2>
                                     {alertMsg.message && (
                                         <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
                                     )}
@@ -252,6 +265,30 @@ const EventEdit = () => {
                                             ))}
                                         </select>
                                         {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
+                                    </Col>
+
+                                    <Col lg={12} className="mt-3">
+                                        <label className="form-label">Link</label>
+                                        <input
+                                            className="form-control"
+                                            type="text"
+                                            name="link"
+                                            value={formData.link}
+                                            onChange={handleChange}
+                                        />
+                                        {errors.link && <span className="text-danger">{errors.link}</span>}
+                                    </Col>
+
+                                     <Col lg={12} className="mt-3">
+                                        <label className="form-label">Address</label>
+                                        <input
+                                            className="form-control"
+                                            type="text"
+                                            name="address"
+                                            value={formData.address}
+                                            onChange={handleChange}
+                                        />
+                                        {errors.address && <span className="text-danger">{errors.address}</span>}
                                     </Col>
 
                                     <Col lg={12} className="mt-3">

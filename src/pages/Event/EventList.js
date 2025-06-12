@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
     Card,
@@ -27,6 +27,7 @@ const EventList = () => {
     const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const formRef = useRef(null);
 
     const [formData, setFormData] = useState({
         title: "",
@@ -110,6 +111,7 @@ const EventList = () => {
         if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
         if (!formData.files || formData.files.length === 0) newErrors.files = "At least one image is required";
         if (!formData.link) newErrors.link = "Link is required";
+        if (!formData.address) newErrors.address = "address is required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.date) newErrors.date = "Date is required";
         if (!formData.time) newErrors.time = "Time is required";
@@ -133,6 +135,7 @@ const EventList = () => {
             data.append("files", formData.files[i]);
         }
         data.append("link", formData.link);
+        data.append("address", formData.address);
         data.append("category_id", formData.category_id);
         data.append("date", formData.date);
         data.append("time", formData.time);
@@ -152,6 +155,8 @@ const EventList = () => {
                     },
                 });
             setAlertMsg({ type: "success", message: "Event added successfully!" });
+
+
             fetchEventData(currentPage);
             setTimeout(() => {
                 setFormData({
@@ -167,6 +172,10 @@ const EventList = () => {
                     organizor: "",
                     status: ""
                 });
+
+                if (formRef.current) {
+                    formRef.current.reset();
+                }
                 setModal(false);
                 setAlertMsg({ type: "", message: "" });
             }, 2000);
@@ -216,11 +225,24 @@ const EventList = () => {
                         <Col key={index} sm={4} md={4} lg={4}>
                             <Card className="p-1 border shadow-none">
                                 <div className="p-3">
-                                    <h5>
-                                        <Link to={`/event-details/${item.id}`} className="text-dark">
-                                            {item.title}
-                                        </Link>
-                                    </h5>
+                                    <div className="d-flex justify-content-between">
+                                        <div>
+                                            <h5>
+                                                <Link to={`/event-details/${item.id}`} className="text-dark">
+                                                    {item.title}
+                                                </Link>
+                                            </h5>
+                                        </div>
+                                        <div>
+                                            <Link to={`/edit-event/${item.id}`}>
+                                                <i
+                                                    className="bx bx-edit align-middle fw-20 text-primary me-2"
+                                                    title="Edit"
+                                                    style={{ cursor: "pointer" }}
+                                                ></i>
+                                            </Link>
+                                        </div>
+                                    </div>
                                     <p className="text-muted mb-0">
                                         {new Date(item.createdAt).toLocaleDateString("en-GB", {
                                             day: "2-digit",
@@ -239,7 +261,7 @@ const EventList = () => {
                                 </div>
 
                                 <div className="p-3">
-                                    <ul className="list-inline d-flex justify-content-between">
+                                    <ul className="list-inline d-flex justify-content">
                                         <li className="list-inline-item me-3">
                                             <span className="text-muted">
                                                 <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
@@ -252,15 +274,7 @@ const EventList = () => {
                                                 {item.user?.name || "Admin"}
                                             </span>
                                         </li>
-                                        <li className="list-inline-item me-3">
-                                            <Link to={`/edit-event/${item.id}`}>
-                                                <i
-                                                    className="bx bx-edit align-middle fw-20 text-primary me-2"
-                                                    title="Edit"
-                                                    style={{ cursor: "pointer" }}
-                                                ></i>
-                                            </Link>
-                                        </li>
+
                                     </ul>
                                     <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
                                     <Row>
@@ -370,6 +384,19 @@ const EventList = () => {
                                             </select>
                                             {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
                                         </Col>
+
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Address</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleChange}
+                                            />
+                                            {errors.address && <span className="text-danger">{errors.address}</span>}
+                                        </Col>
+
                                         <Col lg={12} className="mt-3">
                                             <label className="form-label">Link</label>
                                             <input

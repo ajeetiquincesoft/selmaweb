@@ -75,6 +75,11 @@ const EventDetails = () => {
                             <CardBody>
                                 <Row className="justify-content-center">
                                     <Col xl={8}>
+                                        <div className='text-end'>
+                                            <Link to={`/edit-event/${event.id}`}>
+                                                <button className='btn btn-success'>Edit</button>
+                                            </Link>
+                                        </div>
                                         <div className="text-center">
                                             <div className="mb-4">
                                                 <Link to="#" className="badge bg-light font-size-12">

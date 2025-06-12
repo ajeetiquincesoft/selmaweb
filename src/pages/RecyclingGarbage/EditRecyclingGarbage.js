@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams,Link, useNavigate } from "react-router-dom";
 import {
     Container,
     Row,
@@ -134,12 +134,21 @@ const EditRecyclingGarbage = () => {
     return (
         <div className="page-content">
             <Container>
+                <ul className="breadcrumb">
+                    <li>
+                        <Link to="/"><a href="/">Home /</a></Link>
+                    </li>
+                    <li>
+                        <Link to="/recycling-garbage-list"><a href="/">Recycling & Garbage list /</a></Link>
+                    </li>
+                    <li className="active">Recycling & Garbage Edit</li>
+                </ul>
                 <form onSubmit={handleSubmit}>
                     <Row className="d-flex justify-content-center">
                         <Col md={9} lg={9}>
                             <Card>
                                 <CardBody>
-                                    <h3 className="display-4 text-center">Edit Recycling & Garbage</h3>
+                                    <h3 className="display-4 text-center">Recycling & Garbage</h3>
                                     {alertMsg.message && (
                                         <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
                                     )}

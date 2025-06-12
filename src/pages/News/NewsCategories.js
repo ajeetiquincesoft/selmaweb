@@ -169,7 +169,7 @@ const NewsCategories = () => {
 
         <Row>
           <Col>
-            <Table bordered responsive>
+            <Table  responsive className="align-middle table-nowrap mb-0 table table-hover">
               <thead>
                 <tr>
                   <th>#</th>

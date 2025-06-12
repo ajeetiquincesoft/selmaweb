@@ -61,7 +61,14 @@ const RecyclingGarbageDetails = () => {
                 <Row className="justify-content-center">
                     <Col lg={10}>
                         <Card className="shadow rounded border-0">
+
                             <CardBody>
+                                <div className="text-end">
+                                    <Link to={`/edit-park/${data.id}`} className="btn btn-sm btn-primary">
+                                        Edit
+                                    </Link>
+                                </div>
+
                                 <h2 className="mb-3 text-center">{data.title}</h2>
                                 <p className="text-muted text-center">
                                     {new Date(data.createdAt).toLocaleDateString("en-GB", {

@@ -93,6 +93,12 @@ const NewsDetails = () => {
                                         <Row className="justify-content-center">
                                             <Col xl={8}>
                                                 <div>
+                                                    <div className='text-end'>
+                                                        <Link to={`/edit-news/${news.id}`}>
+                                                            <button className='btn btn-success'>Edit</button>
+                                                        </Link>
+                                                    </div>
+
                                                     <div className="text-center">
                                                         <div className="mb-4">
                                                             <Link
@@ -103,6 +109,7 @@ const NewsDetails = () => {
                                                                 News
                                                             </Link>
                                                         </div>
+
                                                         <h4>{news.title}</h4>
                                                         <p className="text-muted mb-4">
                                                             <div dangerouslySetInnerHTML={{ __html: news.shortdescription }} />
@@ -175,6 +182,7 @@ const NewsDetails = () => {
                                                             <div dangerouslySetInnerHTML={{ __html: news.description }} />
                                                         </div>
                                                     </div>
+
                                                 </div>
                                             </Col>
                                         </Row>

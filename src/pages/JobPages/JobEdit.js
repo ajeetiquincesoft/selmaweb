@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from "axios";
+import { Link } from "react-router-dom"
 import {
     Card,
     CardBody,
@@ -165,12 +166,21 @@ const JobEdit = () => {
     return (
         <div className="page-content">
             <Container>
+                <ul className="breadcrumb">
+                    <li>
+                        <Link to="/"><a href="/">Home /</a></Link>
+                    </li>
+                    <li>
+                        <Link to="/job-list"><a href="/">Jobs List /</a></Link>
+                    </li>
+                    <li className="active">Job Edit</li>
+                </ul>
                 <form onSubmit={handleSubmit}>
                     <Row className="d-flex justify-content-center">
                         <Col md={9} lg={9}>
                             <Card>
                                 <CardBody>
-                                    <h3 className="display-5 text-center">Edit Job</h3>
+                                    <h3 className="display-5 text-center">Job</h3>
                                     {alertMsg.message && (
                                         <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
                                     )}
