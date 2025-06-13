@@ -97,7 +97,18 @@ const NewsList = () => {
     div.innerHTML = html;
     return div.textContent || div.innerText || "";
   };
-  const toggleModal = () => setModal(!modal);
+  const toggleModal = () => {
+    setFormData({
+      title: "",
+      description: "",
+      shortdescription: "",
+      featured_image: null,
+      images: [],
+      category_id: "",
+      status: ""
+    });
+    setModal(!modal);
+  }
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -156,15 +167,6 @@ const NewsList = () => {
       setAlertMsg({ type: "success", message: "News added successfully!" });
       fetchNewsdata(currentPage);
       setTimeout(() => {
-        setFormData({
-          title: "",
-          description: "",
-          shortdescription: "",
-          featured_image: null,
-          images: [],
-          category_id: "",
-          status: ""
-        });
         setModal(false);
         setAlertMsg({ type: "", message: "" });
       }, 2000);

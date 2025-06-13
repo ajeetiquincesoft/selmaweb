@@ -75,7 +75,16 @@ const RecyclingAndGarbageList = () => {
         return div.textContent || div.innerText || "";
     };
 
-    const toggleModal = () => setModal(!modal);
+    const toggleModal = () => {
+        setFormData({
+            title: "",
+            description: "",
+            shortdescription: "",
+            image: null,
+            status: ""
+        });
+        setModal(!modal);
+    }
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
@@ -115,13 +124,7 @@ const RecyclingAndGarbageList = () => {
             setAlertMsg({ type: "success", message: "News added successfully!" });
             fetchRecyclingData(currentPage);
             setTimeout(() => {
-                setFormData({
-                    title: "",
-                    description: "",
-                    shortdescription: "",
-                    image: null,
-                    status: ""
-                });
+
                 setModal(false);
                 setAlertMsg({ type: "", message: "" });
             }, 2000);

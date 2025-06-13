@@ -180,19 +180,20 @@ const EventEdit = () => {
 
     return (
         <div className="page-content">
+            <ul className="breadcrumb">
+                <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                </li>
+                <li>
+                    <Link to="/event-list"><a href="">Event List /</a></Link>
+                </li>
+                <li className="active">Event Details</li>
+            </ul>
             <Container>
-                <ul className="breadcrumb">
-                    <li>
-                        <Link to="/"><a href="/">Home /</a></Link>
-                    </li>
-                    <li>
-                        <Link to="/event-list"><a href="">Event List /</a></Link>
-                    </li>
-                    <li className="active">Event Details</li>
-                </ul>
+
                 <form onSubmit={handleSubmit}>
                     <Row className="d-flex justify-content-center">
-                        <Col md={9}>
+                        <Col md={12}>
                             <Card>
                                 <CardBody>
                                     <h2 className="display-4 text-center">Event</h2>
@@ -279,7 +280,7 @@ const EventEdit = () => {
                                         {errors.link && <span className="text-danger">{errors.link}</span>}
                                     </Col>
 
-                                     <Col lg={12} className="mt-3">
+                                    <Col lg={12} className="mt-3">
                                         <label className="form-label">Address</label>
                                         <input
                                             className="form-control"

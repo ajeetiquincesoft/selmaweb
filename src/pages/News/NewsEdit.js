@@ -164,20 +164,21 @@ const NewsEdit = () => {
     };
     return (
         <div className="page-content">
+            <ul className="breadcrumb">
+                <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                </li>
+                <li>
+                    <Link to="/news-list"><a href="/">News List /</a></Link>
+                </li>
+                <li className="active">News Edit</li>
+            </ul>
+
             <Container>
-                <ul className="breadcrumb">
-                    <li>
-                        <Link to="/"><a href="/">Home /</a></Link>
-                    </li>
-                    <li>
-                        <Link to="/news-list"><a href="/">News List /</a></Link>
-                    </li>
-                    <li className="active">News Edit</li>
-                </ul>
 
                 <form onSubmit={handleSubmit}>
                     <Row className="d-flex justify-content-center">
-                        <Col md={9} lg={9}>
+                        <Col md={12} lg={12}>
                             <Card>
                                 <CardBody>
                                     <h2 className="display-4 text-center">News </h2>

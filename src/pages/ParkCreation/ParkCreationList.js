@@ -74,7 +74,24 @@ const ParkCreationList = () => {
     }
   };
 
-  const toggleModal = () => setModal(!modal);
+  const toggleModal = () => {
+    setFormData({
+      title: "",
+      description: "",
+      shortdescription: "",
+      featured_image: null,
+      address:"",
+      images: [],
+      category_id: "",
+      status: "",
+      link: "",
+      date: "",
+      time: "",
+      organizer: "",
+      published_at: ""
+    });
+    setModal(!modal);
+  }
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -180,20 +197,6 @@ const ParkCreationList = () => {
 
       setAlertMsg({ type: "success", message: "Park added successfully!" });
       setTimeout(() => {
-        setFormData({
-          title: "",
-          description: "",
-          shortdescription: "",
-          featured_image: null,
-          images: [],
-          category_id: "",
-          status: "",
-          link: "",
-          date: "",
-          time: "",
-          organizer: "",
-          published_at: ""
-        });
         setFacilities([{ name: "", address: "", amenities: [""] }]);
         setModal(false);
         setAlertMsg({ type: "", message: "" });
@@ -213,7 +216,7 @@ const ParkCreationList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this park?")) {
       try {
-        const response = await axios.post(`${BASE_URL}/auth/deletepark`, { id }, {
+        const response = await axios.post(`${BASE_URL}/auth/deleteParksAndRecreationById`, { id }, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json"

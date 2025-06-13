@@ -133,8 +133,7 @@ const EditRecyclingGarbage = () => {
 
     return (
         <div className="page-content">
-            <Container>
-                <ul className="breadcrumb">
+             <ul className="breadcrumb">
                     <li>
                         <Link to="/"><a href="/">Home /</a></Link>
                     </li>
@@ -143,9 +142,10 @@ const EditRecyclingGarbage = () => {
                     </li>
                     <li className="active">Recycling & Garbage Edit</li>
                 </ul>
+            <Container>
                 <form onSubmit={handleSubmit}>
                     <Row className="d-flex justify-content-center">
-                        <Col md={9} lg={9}>
+                        <Col md={12} lg={12}>
                             <Card>
                                 <CardBody>
                                     <h3 className="display-4 text-center">Recycling & Garbage</h3>

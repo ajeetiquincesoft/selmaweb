@@ -14,7 +14,8 @@ const initialFormData = {
   image: null,
   description: "",
   shortdescription: "",
-  status: ""
+  status: "",
+  id: ""
 };
 
 const RecyclingGarbageContent = () => {
@@ -44,16 +45,28 @@ const RecyclingGarbageContent = () => {
         headers: { Authorization: `Bearer ${token}` },
         params: { limit: 1, page, status: 'all' }
       });
-      console.log(res.data);
       setContent(res.data.data || {});
-      setCurrentPage(res.data.pagination.currentPage);
-      setTotalPages(res.data.pagination.totalPages);
+      setCurrentPage(1);
+      setTotalPages(1);
     } catch (err) {
       console.error("Failed to fetch data", err);
     }
   };
 
-  const toggleModal = () => setModal(!modal);
+  const toggleModal = () => {
+    if (!modal && content) {
+      setFormData({
+        image: null,
+        shortdescription: content.shortdescription || "",
+        description: content.description || "",
+        status: content.status || "",
+        id: content.id || ""
+      });
+    } else {
+      setFormData(initialFormData);
+    }
+    setModal(!modal);
+  };
 
   const handleChange = (e) => {
     const { name, value, files, type } = e.target;
@@ -64,11 +77,19 @@ const RecyclingGarbageContent = () => {
   };
 
   const validate = () => {
-    const requiredFields = ["image", "description", "shortdescription", "status"];
+    const requiredFields = ["description", "shortdescription", "status"];
     const newErrors = {};
+
     requiredFields.forEach(field => {
-      if (!formData[field]) newErrors[field] = `${field} is required`;
+      if (!formData[field]) {
+        newErrors[field] = `${field} is required`;
+      }
     });
+
+    if (!formData.id) {
+      newErrors.id = "Invalid content id.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -78,16 +99,19 @@ const RecyclingGarbageContent = () => {
     if (!validate()) return;
 
     const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => data.append(key, value));
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) data.append(key, value);
+    });
 
     try {
-      await axios.post(`${BASE_URL}/auth/addrecyclinggarbagecontent`, data, {
+      const res=await axios.post(`${BASE_URL}/auth/updateRecyclingAndGarbageContent`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
-      setAlertMsg({ type: "success", message: "Content added successfully!" });
+      console.log(res);
+      setAlertMsg({ type: "success", message: "Content updated successfully!" });
       fetchContent(currentPage);
       setTimeout(() => {
         setFormData(initialFormData);
@@ -102,7 +126,6 @@ const RecyclingGarbageContent = () => {
 
   return (
     <div className="page-content">
-
       <Container fluid>
         <Row className="justify-content-between mb-3">
           <Col xs="auto">
@@ -158,7 +181,7 @@ const RecyclingGarbageContent = () => {
 
         {/* Modal */}
         <Modal isOpen={modal} toggle={toggleModal} size="lg">
-          <ModalHeader toggle={toggleModal}>Add Recycling & Garbage Content</ModalHeader>
+          <ModalHeader toggle={toggleModal}>Update Recycling & Garbage Content</ModalHeader>
           <ModalBody>
             <form onSubmit={handleSubmit}>
               <Container fluid>
@@ -168,6 +191,18 @@ const RecyclingGarbageContent = () => {
                       <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
                     )}
                   </Col>
+
+                  {/* Optional: Preview existing image */}
+                  {content.image && (
+                    <Col lg={12} className="mt-3 text-center">
+                      <img
+                        src={content.image}
+                        alt="Preview"
+                        className="img-thumbnail"
+                        style={{ maxHeight: "150px" }}
+                      />
+                    </Col>
+                  )}
 
                   {[{ label: "Image", name: "image", type: "file" },
                   { label: "Short Description", name: "shortdescription", type: "text" },
@@ -183,6 +218,9 @@ const RecyclingGarbageContent = () => {
                       {errors[name] && <span className="text-danger">{errors[name]}</span>}
                     </Col>
                   ))}
+
+                  <input type="hidden" name="id" value={formData.id || ''} />
+                  {errors.id && <span className="text-danger">{errors.id}</span>}
 
                   <Col lg={12} className="mt-3">
                     <label className="form-label">Description</label>

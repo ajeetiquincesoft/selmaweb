@@ -88,7 +88,22 @@ const EventList = () => {
         return div.textContent || div.innerText || "";
     };
 
-    const toggleModal = () => setModal(!modal);
+    const toggleModal = () => {
+        setFormData({
+            title: "",
+            shortdescription: "",
+            description: "",
+            featured_image: null,
+            files: [],
+            link: "",
+            category_id: "",
+            date: "",
+            time: "",
+            organizor: "",
+            status: ""
+        });
+        setModal(!modal);
+    }
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
@@ -119,6 +134,7 @@ const EventList = () => {
         if (!formData.status) newErrors.status = "Status is required";
 
         setErrors(newErrors);
+        console.log(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
@@ -159,23 +175,6 @@ const EventList = () => {
 
             fetchEventData(currentPage);
             setTimeout(() => {
-                setFormData({
-                    title: "",
-                    shortdescription: "",
-                    description: "",
-                    featured_image: null,
-                    files: [],
-                    link: "",
-                    category_id: "",
-                    date: "",
-                    time: "",
-                    organizor: "",
-                    status: ""
-                });
-
-                if (formRef.current) {
-                    formRef.current.reset();
-                }
                 setModal(false);
                 setAlertMsg({ type: "", message: "" });
             }, 2000);

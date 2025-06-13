@@ -165,19 +165,20 @@ const JobEdit = () => {
 
     return (
         <div className="page-content">
+            <ul className="breadcrumb">
+                <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                </li>
+                <li>
+                    <Link to="/job-list"><a href="/">Jobs List /</a></Link>
+                </li>
+                <li className="active">Job Edit</li>
+            </ul>
             <Container>
-                <ul className="breadcrumb">
-                    <li>
-                        <Link to="/"><a href="/">Home /</a></Link>
-                    </li>
-                    <li>
-                        <Link to="/job-list"><a href="/">Jobs List /</a></Link>
-                    </li>
-                    <li className="active">Job Edit</li>
-                </ul>
+
                 <form onSubmit={handleSubmit}>
                     <Row className="d-flex justify-content-center">
-                        <Col md={9} lg={9}>
+                        <Col md={12} lg={12}>
                             <Card>
                                 <CardBody>
                                     <h3 className="display-5 text-center">Job</h3>

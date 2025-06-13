@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams,Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
     Card, Col, Row, Button, Modal, ModalHeader, ModalBody, Container, Alert, Badge, Table
 } from "reactstrap";
@@ -250,16 +250,17 @@ const EditPark = () => {
 
     return (
         <div className="page-content">
+            <ul className="breadcrumb">
+                <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                </li>
+                <li>
+                    <Link to="/parks-recreation-list"><a href="/">Parks & Recreation List /</a></Link>
+                </li>
+                <li className="active">Parks & Recreation Edit</li>
+            </ul>
             <Container>
-                <ul className="breadcrumb">
-                    <li>
-                        <Link to="/"><a href="/">Home /</a></Link>
-                    </li>
-                    <li>
-                        <Link to="/parks-recreation-list"><a href="/">Parks & Recreation List /</a></Link>
-                    </li>
-                    <li className="active">Parks & Recreation Edit</li>
-                </ul>
+
 
                 <Card className="p-4 shadow">
                     <h3 className="mb-4">Edit</h3>

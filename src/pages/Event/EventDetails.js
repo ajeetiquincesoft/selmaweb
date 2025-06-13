@@ -97,11 +97,11 @@ const EventDetails = () => {
 
                                         <div className="text-center">
                                             <Row>
-                                                <Col sm={4}>
+                                                <Col sm={3}>
                                                     <p className="text-muted mb-2">Category</p>
                                                     <h5 className="font-size-15">{event.category?.name}</h5>
                                                 </Col>
-                                                <Col sm={4}>
+                                                <Col sm={3}>
                                                     <p className="text-muted mb-2">Date</p>
                                                     <h5 className="font-size-15">
                                                         {new Date(event.createdAt).toLocaleDateString("en-GB", {
@@ -111,9 +111,14 @@ const EventDetails = () => {
                                                         })}
                                                     </h5>
                                                 </Col>
-                                                <Col sm={4}>
+                                                <Col sm={3}>
                                                     <p className="text-muted mb-2">Posted by</p>
-                                                    <h5 className="font-size-15">{event.author?.name}</h5>
+                                                    <h5 className="font-size-15">{event.organizor}</h5>
+
+                                                </Col>
+                                                <Col sm={3}>
+                                                    <p className="text-muted mb-2">Vanue </p>
+                                                    <h5 className="font-size-15">{event.address}</h5>
 
                                                 </Col>
                                             </Row>
