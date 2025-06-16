@@ -104,11 +104,11 @@ const EventDetails = () => {
                                                 <Col sm={3}>
                                                     <p className="text-muted mb-2">Date</p>
                                                     <h5 className="font-size-15">
-                                                        {new Date(event.createdAt).toLocaleDateString("en-GB", {
+                                                        {new Date(event.date).toLocaleDateString("en-GB", {
                                                             day: "2-digit",
                                                             month: "short",
                                                             year: "numeric",
-                                                        })}
+                                                        })} @ {event.time}
                                                     </h5>
                                                 </Col>
                                                 <Col sm={3}>

@@ -243,7 +243,7 @@ const EventList = () => {
                                         </div>
                                     </div>
                                     <p className="text-muted mb-0">
-                                        {new Date(item.createdAt).toLocaleDateString("en-GB", {
+                                        {new Date(item.date).toLocaleDateString("en-GB", {
                                             day: "2-digit",
                                             month: "short",
                                             year: "numeric",
