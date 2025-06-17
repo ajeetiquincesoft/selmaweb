@@ -199,7 +199,7 @@ const EventList = () => {
             }
         }
     };
-
+document.title=" Event | City of Selma";
     return (
         <div className="page-content">
             <Container fluid>

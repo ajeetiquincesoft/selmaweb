@@ -9,7 +9,7 @@ import NewsList from "./NewsList"
 
 const Index = () => {
     //meta title
-    document.title="Blog List | Skote - React Admin & Dashboard Template";
+    document.title="News | City of Selma";
   return (
     <React.Fragment>
       <div className="page-content">

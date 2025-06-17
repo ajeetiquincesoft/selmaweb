@@ -77,7 +77,7 @@ const ParkDetails = () => {
   const facilities = typeof park.facilities === 'string'
     ? JSON.parse(park.facilities)
     : park.facilities || [];
-
+document.title = "Parks & Recreation Details  | City of Selma";
   return (
     <div className="page-content">
       <Container>

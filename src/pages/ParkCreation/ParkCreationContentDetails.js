@@ -48,7 +48,7 @@ const ParkDetails = () => {
   if (!park) {
     return <Alert color="warning" className="text-center mt-5">No park data found.</Alert>;
   }
-
+document.title = "Parks & Recreation Details Page | City of Selma";
   return (
     <Container className="mt-5">
       <Row>

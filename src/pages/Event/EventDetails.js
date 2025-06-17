@@ -55,7 +55,7 @@ const EventDetails = () => {
     if (error) return <p>{error}</p>;
 
     document.title = "Event Details";
-
+document.title=" Event Details | City of Selma";
     return (
         <div className="page-content">
             <Container fluid>

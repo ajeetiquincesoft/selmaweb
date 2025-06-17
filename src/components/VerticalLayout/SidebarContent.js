@@ -230,7 +230,7 @@ const SidebarContent = props => {
             </li>
 
 
-            <li>
+            {/* <li>
               <Link to="/#" className="has-arrow" >
                 <i className='bx bx-cog'></i>
                 <span>{props.t("Pages")}</span>
@@ -245,16 +245,16 @@ const SidebarContent = props => {
                   </Link>
                 </li>
               </ul>
-            </li>
+            </li> */}
 
 
             <li>
-              <Link to="/calendar" >
+              <Link to="/#" >
                 <i className="bx bxs-bell"></i>
                 <span>{props.t("Push Notifications")}</span>
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link to="/calendar" className="has-arrow" >
                 <i className='bx bxs-user-account'></i>
                 <span>{props.t("Admin Access")}</span>
@@ -269,7 +269,7 @@ const SidebarContent = props => {
                   </Link>
                 </li>
               </ul>
-            </li>
+            </li> */}
             <li>
               <Link to="/calendar" className="has-arrow" >
                 <i className='bx bx-cog'></i>

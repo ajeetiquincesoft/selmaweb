@@ -45,7 +45,7 @@ const RecyclingGarbageDetails = () => {
             </Container>
         );
     }
-
+document.title = "Recycling & Garbage Details | City of Selma";
     return (
         <div className="page-content">
             <Container className="">

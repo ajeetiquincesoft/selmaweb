@@ -128,7 +128,7 @@ const EventCategories = () => {
             setAlertMsg({ type: "danger", message: "Failed to delete category!" });
         }
     };
-
+    document.title = "Event Category | City of Selma";
     return (
         <div className="page-content">
 
@@ -153,7 +153,7 @@ const EventCategories = () => {
 
                 <Row>
                     <Col>
-                        <Table  responsive className="align-middle table-nowrap mb-0 table table-hover">
+                        <Table responsive className="align-middle table-nowrap mb-0 table table-hover">
                             <thead>
                                 <tr>
                                     <th>#</th>

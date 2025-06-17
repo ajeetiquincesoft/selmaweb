@@ -170,7 +170,7 @@ const JobList = () => {
       }
     }
   };
-
+document.title="Jobs List | City of Selma";
   return (
     <div className="page-content">
       <Container fluid>

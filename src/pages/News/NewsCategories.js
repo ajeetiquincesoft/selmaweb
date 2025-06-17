@@ -145,7 +145,7 @@ const NewsCategories = () => {
     setCurrentId(cat.id);
     setModalOpen(true);
   };
-
+document.title="News Category | City of Selma";
   return (
     <div className="page-content">
       <Container fluid>

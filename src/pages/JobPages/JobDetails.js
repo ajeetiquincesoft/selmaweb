@@ -56,8 +56,7 @@ const JobDetails = () => {
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
 
-    document.title = "Job Details";
-
+document.title="Job Details | City of Selma";
     return (
         <div className="page-content">
             <Container fluid>

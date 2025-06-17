@@ -228,7 +228,7 @@ const ParkCreationList = () => {
       }
     }
   };
-
+document.title = "Parks & Recreation   | City of Selma";
   return (
     <div className="page-content">
       <Col xl={12}>

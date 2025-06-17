@@ -52,6 +52,7 @@ const JobCategories = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log(response.data);
       setCategories(response.data.data || []);
     } catch (err) {
       console.error("Failed to fetch job categories", err);
@@ -146,7 +147,7 @@ const JobCategories = () => {
     setCurrentId(cat.id);
     setModalOpen(true);
   };
-
+document.title="Job Category | City of Selma";
   return (
     <div className="page-content">
 

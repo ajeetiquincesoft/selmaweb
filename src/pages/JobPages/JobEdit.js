@@ -162,7 +162,7 @@ const JobEdit = () => {
             setAlertMsg({ message: "Error updating job", type: "danger" });
         }
     };
-
+document.title="Job Edit | City of Selma";
     return (
         <div className="page-content">
             <ul className="breadcrumb">

@@ -130,7 +130,7 @@ const EditRecyclingGarbage = () => {
             setAlertMsg({ type: "danger", message: "Something went wrong." });
         }
     };
-
+document.title = "Recycling & Garbage Edit  | City of Selma";
     return (
         <div className="page-content">
              <ul className="breadcrumb">

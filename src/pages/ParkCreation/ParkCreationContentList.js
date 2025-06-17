@@ -119,7 +119,7 @@ const ParkCreationContent = () => {
       setAlertMsg({ type: "danger", message: "Something went wrong!" });
     }
   };
-
+document.title = "Parks & Recreation Content Page | City of Selma";
   return (
     <div className="page-content">
       <Container fluid>

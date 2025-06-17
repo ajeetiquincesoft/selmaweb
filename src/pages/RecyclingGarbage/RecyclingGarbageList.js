@@ -149,7 +149,7 @@ const RecyclingAndGarbageList = () => {
             }
         }
     };
-
+    document.title = "Recycling & Garbage  | City of Selma";
     return (
         <div className="page-content">
             <Col xl={12} lg={12}>
@@ -222,15 +222,15 @@ const RecyclingAndGarbageList = () => {
                                         </li>
                                     </ul>
                                     <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
-                                 <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                         <Col sm={10} md={10} lg={10}>
                                             <Link to={`/recycling-garbage-details/${item.id}`} className="text-primary">
                                                 Read more <i className="mdi mdi-arrow-right"></i>
                                             </Link>
                                         </Col>
-                                       <Col sm={2} md={2} lg={2} className="text-end fs-4">
+                                        <Col sm={2} md={2} lg={2} className="text-end fs-4">
                                             <i className="bx bx-trash text-danger" title="Delete" style={{ cursor: 'pointer' }} onClick={() => handleDelete(item.id)}>
-                                            
+
                                             </i>
                                         </Col>
                                     </Row>

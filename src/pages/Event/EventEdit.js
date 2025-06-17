@@ -177,7 +177,7 @@ const EventEdit = () => {
             setAlertMsg({ message: "Error updating event", type: "danger" });
         }
     };
-
+document.title=" Event Edit | City of Selma";
     return (
         <div className="page-content">
             <ul className="breadcrumb">

@@ -247,7 +247,7 @@ const EditPark = () => {
             });
         }
     };
-
+document.title = "Parks & Recreation Edit  | City of Selma";
     return (
         <div className="page-content">
             <ul className="breadcrumb">

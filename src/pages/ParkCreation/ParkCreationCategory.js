@@ -149,7 +149,7 @@ const ParkCreationCategory = () => {
             setAlertMsg({ type: "danger", message: "Failed to delete category!" });
         }
     };
-
+document.title = "Parks & Recreation Category | City of Selma";
     return (
         <div className="page-content">
             <Container fluid>
