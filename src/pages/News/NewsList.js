@@ -15,6 +15,7 @@ import {
   ModalBody,
   Container,
   Alert,
+  Spinner
 } from "reactstrap";
 import classnames from "classnames";
 import axios from "axios";
@@ -23,7 +24,6 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import "../../custom.css";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
-
 
 // Import images
 import img1 from "../../assets/images/small/img-2.jpg";
@@ -40,6 +40,11 @@ const NewsList = () => {
   const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState({
+    news: false,
+    categories: false,
+    submit: false
+  });
 
   const [formData, setFormData] = useState({
     title: "",
@@ -63,6 +68,7 @@ const NewsList = () => {
 
   const fetchCategories = async () => {
     try {
+      setLoading(prev => ({ ...prev, categories: true }));
       const response = await axios.get(`${BASE_URL}/auth/getallnewscategory`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -71,10 +77,14 @@ const NewsList = () => {
       setCategories(response.data.data || []);
     } catch (err) {
       console.error("Failed to fetch categories", err);
+    } finally {
+      setLoading(prev => ({ ...prev, categories: false }));
     }
   };
+
   const fetchNewsdata = async (page = 1) => {
     try {
+      setLoading(prev => ({ ...prev, news: true }));
       const response = await axios.get(`${BASE_URL}/auth/getallnews?status=all`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -89,6 +99,8 @@ const NewsList = () => {
       setTotalPages(response.data.pagination.totalPages);
     } catch (err) {
       console.error("Failed to fetch categories", err);
+    } finally {
+      setLoading(prev => ({ ...prev, news: false }));
     }
   };
 
@@ -97,6 +109,7 @@ const NewsList = () => {
     div.innerHTML = html;
     return div.textContent || div.innerText || "";
   };
+
   const toggleModal = () => {
     setFormData({
       title: "",
@@ -108,7 +121,7 @@ const NewsList = () => {
       status: ""
     });
     setModal(!modal);
-  }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -138,6 +151,8 @@ const NewsList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
+    
+    setLoading(prev => ({ ...prev, submit: true }));
     const today = new Date().toISOString().split("T")[0];
     const data = new FormData();
     data.append("title", formData.title);
@@ -173,34 +188,36 @@ const NewsList = () => {
     } catch (error) {
       console.error("API error:", error);
       setAlertMsg({ type: "danger", message: "Something Went Wrong!" });
+    } finally {
+      setLoading(prev => ({ ...prev, submit: false }));
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this news item?")) {
       try {
+        setLoading(prev => ({ ...prev, news: true }));
         const response = await axios.post(
           `${BASE_URL}/auth/deletenews`,
           { id: id },
           {
             headers: {
-              Authorization: `Bearer ${token}`, // correct place for auth
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json"
             }
           }
         );
-        console.log(response);
         fetchNewsdata();
-        console.error("Delete data:", response.data.message);
       } catch (error) {
         console.error("Error deleting news:", error);
+      } finally {
+        setLoading(prev => ({ ...prev, news: false }));
       }
     }
   };
 
   return (
     <div className="page-content p-0">
-
       <Container fluid>
         <Col xl={12} lg={12}>
           <div>
@@ -220,118 +237,122 @@ const NewsList = () => {
               </Col>
             </Row>
 
-            <Row className="justify-content-center">
-              <Col xl={12}>
-                <div>
-                  <Row>
-                    {getnews.map((item, index) => (
-                      <Col key={index} sm={4} md={4} lg={4}>
-                        <Card className="p-1 border shadow-none">
-                          <div className="p-3">
-                            <div className="d-flex justify-content-between">
-                              <div>
-                                <h5>
-                                  <Link to={`/news-details/${item.id}`} className="text-dark">
-                                    {item.title}
-                                  </Link>
-                                </h5>
-                              </div>
-                              <div>
-                                <Link to={`/edit-news/${item.id}`}>
-                                  <i
-                                    className="bx bx-edit align-middle fw-20 text-primary me-2"
-                                    title="Edit"
-                                    style={{ cursor: "pointer" }}
-                                  ></i>
-                                </Link>
-                              </div>
-                            </div>
-
-                            <p className="text-muted mb-0">
-                              {new Date(item.createdAt).toLocaleDateString("en-GB", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </p>
-                          </div>
-
-                          <div className="position-relative">
-                            <img
-                              src={item.featured_image || "default.jpg"}
-                              alt={item.title}
-                              className="img-thumbnail fixed-size-img"
-                            />
-                          </div>
-
-                          <div className="p-3">
-                            <ul className="list-inline d-flex justify-content">
-                              <li className="list-inline-item me-3">
-                                <span className="text-muted">
-                                  <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
-                                  {item.category?.name || "General"}
-                                </span>
-                              </li>
-                              <li className="list-inline-item me-3">
-                                <span className="text-muted">
-                                  <i className="bx bx-user align-middle text-muted me-1"></i>
-                                  {item.author?.name || "Admin"}
-                                </span>
-                              </li>
-                            </ul>
-                            <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
-                            <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                              <Col sm={10} md={10} lg={10}>
+            {loading.news ? (
+              <div className="text-center my-5">
+                <Spinner color="primary" />
+                <p>Loading news...</p>
+              </div>
+            ) : (
+              <Row className="justify-content-center">
+                <Col xl={12}>
+                  <div>
+                    <Row>
+                      {getnews.map((item, index) => (
+                        <Col key={index} sm={4} md={4} lg={4}>
+                          <Card className="p-1 border shadow-none">
+                            <div className="p-3">
+                              <div className="d-flex justify-content-between">
                                 <div>
-                                  <Link to={`/news-details/${item.id}`} className="text-primary">
-                                    Read more <i className="mdi mdi-arrow-right"></i>
+                                  <h5>
+                                    <Link to={`/news-details/${item.id}`} className="text-dark">
+                                      {item.title}
+                                    </Link>
+                                  </h5>
+                                </div>
+                                <div>
+                                  <Link to={`/edit-news/${item.id}`}>
+                                    <i
+                                      className="bx bx-edit align-middle fw-20 text-primary me-2"
+                                      title="Edit"
+                                      style={{ cursor: "pointer" }}
+                                    ></i>
                                   </Link>
                                 </div>
-                              </Col>
-                              <Col sm={2} md={2} lg={2} className="text-end fs-4">
-                                <i className="bx bx-trash align-middle text-danger me-2"
-                                  title="Delete"
-                                  style={{ cursor: 'pointer' }}
-                                  onClick={() => handleDelete(item.id)}
-                                >
+                              </div>
 
-                                </i>
-                              </Col>
-                            </Row>
+                              <p className="text-muted mb-0">
+                                {new Date(item.createdAt).toLocaleDateString("en-GB", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                              </p>
+                            </div>
 
-                          </div>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
-                  {/* Pagination */}
-                  <div className="text- mt-4">
-                    <ul className="pagination justify-content-end">
-                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>
-                          &laquo;
-                        </button>
-                      </li>
-                      {Array.from({ length: totalPages }, (_, index) => (
-                        <li
-                          key={index + 1}
-                          className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
-                        >
-                          <button className="page-link" onClick={() => setCurrentPage(index + 1)}>
-                            {index + 1}
+                            <div className="position-relative">
+                              <img
+                                src={item.featured_image || "default.jpg"}
+                                alt={item.title}
+                                className="img-thumbnail fixed-size-img"
+                              />
+                            </div>
+
+                            <div className="p-3">
+                              <ul className="list-inline d-flex justify-content">
+                                <li className="list-inline-item me-3">
+                                  <span className="text-muted">
+                                    <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
+                                    {item.category?.name || "General"}
+                                  </span>
+                                </li>
+                                <li className="list-inline-item me-3">
+                                  <span className="text-muted">
+                                    <i className="bx bx-user align-middle text-muted me-1"></i>
+                                    {item.author?.name || "Admin"}
+                                  </span>
+                                </li>
+                              </ul>
+                              <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                              <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <Col sm={10} md={10} lg={10}>
+                                  <div>
+                                    <Link to={`/news-details/${item.id}`} className="text-primary">
+                                      Read more <i className="mdi mdi-arrow-right"></i>
+                                    </Link>
+                                  </div>
+                                </Col>
+                                <Col sm={2} md={2} lg={2} className="text-end fs-4">
+                                  <i className="bx bx-trash align-middle text-danger me-2"
+                                    title="Delete"
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => handleDelete(item.id)}
+                                  ></i>
+                                </Col>
+                              </Row>
+                            </div>
+                          </Card>
+                        </Col>
+                      ))}
+                    </Row>
+                    {/* Pagination */}
+                    <div className="text- mt-4">
+                      <ul className="pagination justify-content-end">
+                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>
+                            &laquo;
                           </button>
                         </li>
-                      ))}
-                      <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>
-                          &raquo;
-                        </button>
-                      </li>
-                    </ul>
+                        {Array.from({ length: totalPages }, (_, index) => (
+                          <li
+                            key={index + 1}
+                            className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                          >
+                            <button className="page-link" onClick={() => setCurrentPage(index + 1)}>
+                              {index + 1}
+                            </button>
+                          </li>
+                        ))}
+                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>
+                            &raquo;
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
-                </div>
-              </Col>
-            </Row>
+                </Col>
+              </Row>
+            )}
           </div>
         </Col>
 
@@ -374,7 +395,6 @@ const NewsList = () => {
 
                     <Col lg={12} className="mt-3">
                       <label className="form-label">Description</label>
-
                       <CKEditor
                         editor={ClassicEditor}
                         data={formData.description}
@@ -383,7 +403,6 @@ const NewsList = () => {
                           setFormData({ ...formData, description: content });
                         }}
                       />
-
                       {errors.description && (
                         <span className="text-danger">{errors.description}</span>
                       )}
@@ -391,18 +410,26 @@ const NewsList = () => {
 
                     <Col lg={12} className="mt-3">
                       <label className="form-label">Category</label>
-                      <select
-                        className="form-control"
-                        name="category_id"
-                        value={formData.category_id}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select Category</option>
-                        {categories.map((cat) => (
-                          <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                      </select>
-                      {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
+                      {loading.categories ? (
+                        <div className="text-center">
+                          <Spinner size="sm" color="primary" />
+                        </div>
+                      ) : (
+                        <>
+                          <select
+                            className="form-control"
+                            name="category_id"
+                            value={formData.category_id}
+                            onChange={handleChange}
+                          >
+                            <option value="">Select Category</option>
+                            {categories.map((cat) => (
+                              <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                          </select>
+                          {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
+                        </>
+                      )}
                     </Col>
 
                     <Col lg={12} className="mt-3">
@@ -445,7 +472,15 @@ const NewsList = () => {
                     </Col>
 
                     <Col lg={12} className="mt-4 text-center">
-                      <Button type="submit" color="primary">Submit</Button>
+                      <Button type="submit" color="primary" disabled={loading.submit}>
+                        {loading.submit ? (
+                          <>
+                            <Spinner size="sm" className="me-2" /> Submitting...
+                          </>
+                        ) : (
+                          "Submit"
+                        )}
+                      </Button>
                     </Col>
                   </Col>
                 </Row>
@@ -455,7 +490,6 @@ const NewsList = () => {
         </Modal>
       </Container>
     </div>
-
   );
 };
 

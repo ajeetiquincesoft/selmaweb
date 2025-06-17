@@ -9,7 +9,8 @@ import {
     ModalHeader,
     ModalBody,
     Container,
-    Alert
+    Alert,
+    Spinner
 } from "reactstrap";
 import classnames from "classnames";
 import axios from "axios";
@@ -27,6 +28,12 @@ const EventList = () => {
     const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState({
+        events: false,
+        categories: false,
+        submit: false,
+        delete: false
+    });
     const formRef = useRef(null);
 
     const [formData, setFormData] = useState({
@@ -42,6 +49,7 @@ const EventList = () => {
         organizor: "",
         status: ""
     });
+
     useEffect(() => {
         const storedUser = localStorage.getItem("authUser");
         if (storedUser) {
@@ -59,17 +67,21 @@ const EventList = () => {
 
     const fetchCategories = async () => {
         try {
+            setLoading(prev => ({ ...prev, categories: true }));
             const response = await axios.get(`${BASE_URL}/auth/getalleventcategory`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setCategories(response.data.data || []);
         } catch (err) {
             console.error("Failed to fetch event categories", err);
+        } finally {
+            setLoading(prev => ({ ...prev, categories: false }));
         }
     };
 
     const fetchEventData = async (page = 1) => {
         try {
+            setLoading(prev => ({ ...prev, events: true }));
             const response = await axios.get(`${BASE_URL}/auth/getallevents?status=all`, {
                 headers: { Authorization: `Bearer ${token}` },
                 params: { limit: 15, page: page },
@@ -79,6 +91,8 @@ const EventList = () => {
             setTotalPages(response.data.pagination.totalPages);
         } catch (err) {
             console.error("Failed to fetch events", err);
+        } finally {
+            setLoading(prev => ({ ...prev, events: false }));
         }
     };
 
@@ -141,6 +155,8 @@ const EventList = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
+        
+        setLoading(prev => ({ ...prev, submit: true }));
         const today = new Date().toISOString().split("T")[0];
         const data = new FormData();
         data.append("title", formData.title);
@@ -159,8 +175,6 @@ const EventList = () => {
         data.append("status", formData.status);
         data.append("published_at", today);
 
-        console.log(data);
-
         try {
             await axios.post(`${BASE_URL}/auth/addevent`,
                 data,
@@ -171,8 +185,6 @@ const EventList = () => {
                     },
                 });
             setAlertMsg({ type: "success", message: "Event added successfully!" });
-
-
             fetchEventData(currentPage);
             setTimeout(() => {
                 setModal(false);
@@ -181,12 +193,15 @@ const EventList = () => {
         } catch (error) {
             console.error("API error:", error);
             setAlertMsg({ type: "danger", message: "Something went wrong!" });
+        } finally {
+            setLoading(prev => ({ ...prev, submit: false }));
         }
     };
 
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this event?")) {
             try {
+                setLoading(prev => ({ ...prev, delete: id }));
                 await axios.post(`${BASE_URL}/auth/deleteevent`, { id }, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -196,10 +211,13 @@ const EventList = () => {
                 fetchEventData(currentPage);
             } catch (error) {
                 console.error("Error deleting event:", error);
+            } finally {
+                setLoading(prev => ({ ...prev, delete: false }));
             }
         }
     };
-document.title=" Event | City of Selma";
+
+    document.title=" Event | City of Selma";
     return (
         <div className="page-content">
             <Container fluid>
@@ -219,105 +237,115 @@ document.title=" Event | City of Selma";
                     </Col>
                 </Row>
 
-                <Row>
-                    {events.map((item, index) => (
-                        <Col key={index} sm={4} md={4} lg={4}>
-                            <Card className="p-1 border shadow-none">
-                                <div className="p-3">
-                                    <div className="d-flex justify-content-between">
-                                        <div>
-                                            <h5>
-                                                <Link to={`/event-details/${item.id}`} className="text-dark">
-                                                    {item.title}
-                                                </Link>
-                                            </h5>
+                {loading.events ? (
+                    <div className="text-center my-5">
+                        <Spinner color="primary" />
+                        <p>Loading events...</p>
+                    </div>
+                ) : (
+                    <>
+                        <Row>
+                            {events.map((item, index) => (
+                                <Col key={index} sm={4} md={4} lg={4}>
+                                    <Card className="p-1 border shadow-none">
+                                        <div className="p-3">
+                                            <div className="d-flex justify-content-between">
+                                                <div>
+                                                    <h5>
+                                                        <Link to={`/event-details/${item.id}`} className="text-dark">
+                                                            {item.title}
+                                                        </Link>
+                                                    </h5>
+                                                </div>
+                                                <div>
+                                                    <Link to={`/edit-event/${item.id}`}>
+                                                        <i
+                                                            className="bx bx-edit align-middle fw-20 text-primary me-2"
+                                                            title="Edit"
+                                                            style={{ cursor: "pointer" }}
+                                                        ></i>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                            <p className="text-muted mb-0">
+                                                {new Date(item.date).toLocaleDateString("en-GB", {
+                                                    day: "2-digit",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })}
+                                            </p>
                                         </div>
-                                        <div>
-                                            <Link to={`/edit-event/${item.id}`}>
-                                                <i
-                                                    className="bx bx-edit align-middle fw-20 text-primary me-2"
-                                                    title="Edit"
-                                                    style={{ cursor: "pointer" }}
-                                                ></i>
-                                            </Link>
+
+                                        <div className="position-relative">
+                                            <img
+                                                src={item.featured_image || "default.jpg"}
+                                                alt={item.title}
+                                                className="img-thumbnail fixed-size-img"
+                                            />
                                         </div>
-                                    </div>
-                                    <p className="text-muted mb-0">
-                                        {new Date(item.date).toLocaleDateString("en-GB", {
-                                            day: "2-digit",
-                                            month: "short",
-                                            year: "numeric",
-                                        })}
-                                    </p>
-                                </div>
 
-                                <div className="position-relative">
-                                    <img
-                                        src={item.featured_image || "default.jpg"}
-                                        alt={item.title}
-                                        className="img-thumbnail fixed-size-img"
-                                    />
-                                </div>
+                                        <div className="p-3">
+                                            <ul className="list-inline d-flex justify-content">
+                                                <li className="list-inline-item me-3">
+                                                    <span className="text-muted">
+                                                        <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
+                                                        {item.category?.name || "General"}
+                                                    </span>
+                                                </li>
+                                                <li className="list-inline-item me-3">
+                                                    <span className="text-muted">
+                                                        <i className="bx bx-user align-middle text-muted me-1"></i>
+                                                        {item.user?.name || "Admin"}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                            <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                                            <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                <Col sm={10} md={10} lg={10}>
+                                                    <Link to={`/event-details/${item.id}`} className="text-primary">
+                                                        Read more <i className="mdi mdi-arrow-right"></i>
+                                                    </Link>
+                                                </Col>
+                                                <Col sm={2} md={2} lg={2} className="text-end fs-4">
+                                                    {loading.delete === item.id ? (
+                                                        <Spinner size="sm" color="danger" />
+                                                    ) : (
+                                                        <i className="bx bx-trash align-middle text-danger me-2"
+                                                            title="Delete"
+                                                            style={{ cursor: 'pointer' }}
+                                                            onClick={() => handleDelete(item.id)}
+                                                        />
+                                                    )}
+                                                </Col>
+                                            </Row>
+                                        </div>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
 
-                                <div className="p-3">
-                                    <ul className="list-inline d-flex justify-content">
-                                        <li className="list-inline-item me-3">
-                                            <span className="text-muted">
-                                                <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
-                                                {item.category?.name || "General"}
-                                            </span>
-                                        </li>
-                                        <li className="list-inline-item me-3">
-                                            <span className="text-muted">
-                                                <i className="bx bx-user align-middle text-muted me-1"></i>
-                                                {item.user?.name || "Admin"}
-                                            </span>
-                                        </li>
+                        {/* Pagination */}
+                        <div className="text-center mt-4">
+                            <ul className="pagination justify-content-end">
+                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
+                                </li>
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                                        <button className="page-link" onClick={() => setCurrentPage(index + 1)}>{index + 1}</button>
+                                    </li>
+                                ))}
+                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>&raquo;</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </>
+                )}
 
-                                    </ul>
-                                    <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
-                                   <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                         <Col sm={10} md={10} lg={10}>
-                                            <Link to={`/event-details/${item.id}`} className="text-primary">
-                                                Read more <i className="mdi mdi-arrow-right"></i>
-                                            </Link>
-                                        </Col>
-                                      <Col sm={2} md={2} lg={2} className="text-end fs-4">
-                                            <i className="bx bx-trash align-middle text-danger me-2"
-                                                title="Delete"
-                                                style={{ cursor: 'pointer' }}
-                                                onClick={() => handleDelete(item.id)}
-                                            >
-                                            
-                                            </i>
-                                        </Col>
-                                    </Row>
-                                </div>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
-
-                {/* Pagination */}
-                <div className="text-center mt-4">
-                    <ul className="pagination justify-content-end">
-                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
-                        </li>
-                        {Array.from({ length: totalPages }, (_, index) => (
-                            <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(index + 1)}>{index + 1}</button>
-                            </li>
-                        ))}
-                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>&raquo;</button>
-                        </li>
-                    </ul>
-                </div>
-
-                {/* Add Event Modal - identical to Add Job Modal */}
+                {/* Add Event Modal */}
                 <Modal isOpen={modal} toggle={toggleModal} size="lg">
-                    <ModalHeader toggle={toggleModal}>Add News</ModalHeader>
+                    <ModalHeader toggle={toggleModal}>Add Event</ModalHeader>
                     <ModalBody>
                         <form onSubmit={handleSubmit}>
                             <Container fluid>
@@ -353,7 +381,6 @@ document.title=" Event | City of Selma";
 
                                         <Col lg={12} className="mt-3">
                                             <label className="form-label">Description</label>
-
                                             <CKEditor
                                                 editor={ClassicEditor}
                                                 data={formData.description}
@@ -362,7 +389,6 @@ document.title=" Event | City of Selma";
                                                     setFormData({ ...formData, description: content });
                                                 }}
                                             />
-
                                             {errors.description && (
                                                 <span className="text-danger">{errors.description}</span>
                                             )}
@@ -370,18 +396,26 @@ document.title=" Event | City of Selma";
 
                                         <Col lg={12} className="mt-3">
                                             <label className="form-label">Category</label>
-                                            <select
-                                                className="form-control"
-                                                name="category_id"
-                                                value={formData.category_id}
-                                                onChange={handleChange}
-                                            >
-                                                <option value="">Select Category</option>
-                                                {categories.map((cat) => (
-                                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                                ))}
-                                            </select>
-                                            {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
+                                            {loading.categories ? (
+                                                <div className="text-center">
+                                                    <Spinner size="sm" />
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <select
+                                                        className="form-control"
+                                                        name="category_id"
+                                                        value={formData.category_id}
+                                                        onChange={handleChange}
+                                                    >
+                                                        <option value="">Select Category</option>
+                                                        {categories.map((cat) => (
+                                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                                        ))}
+                                                    </select>
+                                                    {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
+                                                </>
+                                            )}
                                         </Col>
 
                                         <Col lg={12} className="mt-3">
@@ -483,9 +517,14 @@ document.title=" Event | City of Selma";
                                             {errors.status && <span className="text-danger">{errors.status}</span>}
                                         </Col>
 
-
                                         <Col lg={12} className="mt-4 text-center">
-                                            <Button type="submit" color="primary">Submit</Button>
+                                            <Button type="submit" color="primary" disabled={loading.submit}>
+                                                {loading.submit ? (
+                                                    <>
+                                                        <Spinner size="sm" className="me-2" /> Submitting...
+                                                    </>
+                                                ) : "Submit"}
+                                            </Button>
                                         </Col>
                                     </Col>
                                 </Row>

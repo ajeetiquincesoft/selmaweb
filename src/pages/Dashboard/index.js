@@ -185,7 +185,7 @@ const Dashboard = props => {
                   </Row>
                 </CardBody>
               </Card>
-              <MonthlyEarning />
+               <SocialSource />
             </Col>
             <Col xl="8">
               <Row>
@@ -255,7 +255,7 @@ const Dashboard = props => {
               <Card>
                 <CardBody>
                   <div className="d-sm-flex flex-wrap">
-                    <h4 className="card-title mb-4">Email Sent</h4>
+                    <h4 className="card-title mb-4">Jobs , Event & News Graph</h4>
                     <div className="ms-auto">
                       <ul className="nav nav-pills">
                         <li className="nav-item">
@@ -285,7 +285,7 @@ const Dashboard = props => {
               </Card>
             </Col>
           </Row>
-
+{/* 
           <Row>
             <Col xl="4">
               <SocialSource />
@@ -297,7 +297,7 @@ const Dashboard = props => {
             <Col xl="4">
               <TopCities />
             </Col>
-          </Row>
+          </Row> */}
 
           <Row>
             <Col lg="6">
@@ -321,7 +321,7 @@ const Dashboard = props => {
                         latestevents.map((event, index) => (
                           <tr key={event.id}>
                             <th scope="row">{index + 1}</th>
-                            <td>{event.title}</td>
+                            <td>{event.title.length > 20 ? event.title.slice(0, 20) + '...' : event.title}</td>
                             <td>{event.address}</td>
                             <td>{moment(event.date).format("MMM DD, YYYY")}</td>
                             <td>{moment(event.time, "HH:mm:ss").format("hh:mm A")}</td>
@@ -366,8 +366,8 @@ const Dashboard = props => {
                         latestnews.map((news, index) => (
                           <tr key={news.id}>
                             <th scope="row">{index + 1}</th>
-                            <td>{news.title}</td>
-                            <td>{news.shortdescription}</td>
+                            <td>{news.title.length > 20 ? news.title.slice(0, 20) + '...' : news.title}</td>
+                            <td>{news.shortdescription.length > 20 ? news.shortdescription.slice(0, 20) + '...' : news.shortdescription}</td>
                             <td>{moment(news.published_at).format("MMM DD, YYYY")}</td>
                             <td>
                               <Link
@@ -412,7 +412,7 @@ const Dashboard = props => {
                         latestjobs.map((job, index) => (
                           <tr key={job.id}>
                             <th scope="row">{index + 1}</th>
-                            <td>{job.title}</td>
+                            <td>{job.title.length > 20 ? job.title.slice(0, 20) + '...' : job.title}</td>
                             <td>{job.link}</td>
                             <td>{moment(job.published_at).format("MMM DD, YYYY")}</td>
                             <td>

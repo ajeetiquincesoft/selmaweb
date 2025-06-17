@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  Card, Col, Row, Button, Modal, ModalHeader, ModalBody, Container, Alert
+  Card, Col, Row, Button, Modal, ModalHeader, ModalBody, Container, Alert, Spinner
 } from "reactstrap";
 import classnames from "classnames";
 import axios from "axios";
 import BASE_URL from "path"; // Update to your actual BASE_URL
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
 import "../../custom.css";
 
 const ParkCreationList = () => {
@@ -23,6 +22,13 @@ const ParkCreationList = () => {
   const [facilities, setFacilities] = useState([
     { name: "", address: "", amenities: [] }
   ]);
+  const [loading, setLoading] = useState({
+    initial: true,
+    parks: false,
+    categories: false,
+    submit: false,
+    delete: false
+  });
 
   const [formData, setFormData] = useState({
     title: "",
@@ -45,23 +51,32 @@ const ParkCreationList = () => {
       const { token } = JSON.parse(storedUser);
       setToken(token);
     }
-    fetchCategories();
-    fetchParkData(currentPage);
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      fetchCategories();
+      fetchParkData(currentPage);
+    }
   }, [token, currentPage]);
 
   const fetchCategories = async () => {
     try {
+      setLoading(prev => ({ ...prev, categories: true }));
       const response = await axios.get(`${BASE_URL}/auth/getAllParksAndRecreationCategories`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCategories(response.data.data || []);
     } catch (err) {
       console.error("Failed to fetch categories", err);
+    } finally {
+      setLoading(prev => ({ ...prev, categories: false }));
     }
   };
 
   const fetchParkData = async (page = 1) => {
     try {
+      setLoading(prev => ({ ...prev, parks: true, initial: page === 1 }));
       const response = await axios.get(`${BASE_URL}/auth/getAllParksAndRecreation`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { limit: 6, page }
@@ -71,6 +86,8 @@ const ParkCreationList = () => {
       setTotalPages(response.data.pagination.totalPages);
     } catch (err) {
       console.error("Failed to fetch parks", err);
+    } finally {
+      setLoading(prev => ({ ...prev, parks: false, initial: false }));
     }
   };
 
@@ -105,7 +122,6 @@ const ParkCreationList = () => {
     }));
   };
 
-  // Handle facilities changes
   const handleFacilityChange = (index, e) => {
     const { name, value } = e.target;
     const updatedFacilities = [...facilities];
@@ -113,33 +129,28 @@ const ParkCreationList = () => {
     setFacilities(updatedFacilities);
   };
 
-  // Handle amenities changes
   const handleAmenityChange = (facilityIndex, amenityIndex, value) => {
     const updatedFacilities = [...facilities];
     updatedFacilities[facilityIndex].amenities[amenityIndex] = value;
     setFacilities(updatedFacilities);
   };
 
-  // Add new facility
   const addFacility = () => {
     setFacilities([...facilities, { name: "", address: "", amenities: [""] }]);
   };
 
-  // Remove facility
   const removeFacility = (index) => {
     const updatedFacilities = [...facilities];
     updatedFacilities.splice(index, 1);
     setFacilities(updatedFacilities);
   };
 
-  // Add new amenity to a facility
   const addAmenity = (facilityIndex) => {
     const updatedFacilities = [...facilities];
     updatedFacilities[facilityIndex].amenities.push("");
     setFacilities(updatedFacilities);
   };
 
-  // Remove amenity from a facility
   const removeAmenity = (facilityIndex, amenityIndex) => {
     const updatedFacilities = [...facilities];
     updatedFacilities[facilityIndex].amenities.splice(amenityIndex, 1);
@@ -171,6 +182,7 @@ const ParkCreationList = () => {
     e.preventDefault();
     if (!validate()) return;
 
+    setLoading(prev => ({ ...prev, submit: true }));
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (key === "images") {
@@ -184,7 +196,6 @@ const ParkCreationList = () => {
       }
     });
 
-    // Add facilities as JSON string
     data.append("facilities", JSON.stringify(facilities));
 
     try {
@@ -205,6 +216,8 @@ const ParkCreationList = () => {
     } catch (error) {
       console.error("API error:", error);
       setAlertMsg({ type: "danger", message: "Something Went Wrong!" });
+    } finally {
+      setLoading(prev => ({ ...prev, submit: false }));
     }
   };
 
@@ -213,9 +226,11 @@ const ParkCreationList = () => {
     div.innerHTML = html;
     return div.textContent || div.innerText || "";
   };
+
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this park?")) {
       try {
+        setLoading(prev => ({ ...prev, delete: id }));
         const response = await axios.post(`${BASE_URL}/auth/deleteParksAndRecreationById`, { id }, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -225,10 +240,24 @@ const ParkCreationList = () => {
         fetchParkData();
       } catch (error) {
         console.error("Error deleting park:", error);
+      } finally {
+        setLoading(prev => ({ ...prev, delete: false }));
       }
     }
   };
-document.title = "Parks & Recreation   | City of Selma";
+
+  document.title = "Parks & Recreation | City of Selma";
+
+  if (loading.initial) {
+    return (
+      <div className="page-content">
+        <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+          <Spinner color="primary" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page-content">
       <Col xl={12}>
@@ -248,87 +277,97 @@ document.title = "Parks & Recreation   | City of Selma";
           </Col>
         </Row>
 
-        <Row>
-          {parks.map((item, index) => (
-            <Col key={index} sm={4}>
-              <Card className="p-1 border shadow-none">
-                <div className="p-3">
-                  <div className="d-flex justify-content-between">
-                    <div>
-                      <h5>
-                        <Link to={`/park-details/${item.id}`} className="text-dark">{item.title}</Link>
-                      </h5>
-                    </div>
-                    <div>
-                      <Link to={`/edit-park/${item.id}`}>
-                        <i
-                          className="bx bx-edit align-middle fw-20 text-primary me-2"
-                          title="Edit"
-                          style={{ cursor: "pointer" }}
-                        ></i>
-                      </Link>
-                    </div>
-                  </div>
+        {loading.parks ? (
+          <div className="text-center my-5">
+            <Spinner color="primary" />
+            <p>Loading parks...</p>
+          </div>
+        ) : (
+          <>
+            <Row>
+              {parks.map((item, index) => (
+                <Col key={index} sm={4}>
+                  <Card className="p-1 border shadow-none">
+                    <div className="p-3">
+                      <div className="d-flex justify-content-between">
+                        <div>
+                          <h5>
+                            <Link to={`/park-details/${item.id}`} className="text-dark">{item.title}</Link>
+                          </h5>
+                        </div>
+                        <div>
+                          <Link to={`/edit-park/${item.id}`}>
+                            <i
+                              className="bx bx-edit align-middle fw-20 text-primary me-2"
+                              title="Edit"
+                              style={{ cursor: "pointer" }}
+                            ></i>
+                          </Link>
+                        </div>
+                      </div>
 
-                  <p className="text-muted mb-0">
-                    {new Date(item.createdAt).toLocaleDateString("en-GB")}
-                  </p>
-                </div>
-                <div className="position-relative">
-                  <img
-                    src={item.featured_image || "default.jpg"}
-                    alt={item.title}
-                    className="img-thumbnail fixed-size-img"
-                  />
-                </div>
-                <div className="p-3">
-                  <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
-                  <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Col sm={10} md={10} lg={10}>
-                      <Link to={`/park-details/${item.id}`} className="text-primary">
-                        Read more <i className="mdi mdi-arrow-right"></i>
-                      </Link>
-                    </Col>
-                     <Col sm={2} md={2} lg={2} className="text-end fs-4">
-                      <i
-                        className="bx bx-trash text-danger"
-                        title="Delete"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleDelete(item.id)}
-                      >
-                        
-                      </i>
-                    </Col>
-                  </Row>
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                      <p className="text-muted mb-0">
+                        {new Date(item.createdAt).toLocaleDateString("en-GB")}
+                      </p>
+                    </div>
+                    <div className="position-relative">
+                      <img
+                        src={item.featured_image || "default.jpg"}
+                        alt={item.title}
+                        className="img-thumbnail fixed-size-img"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                      <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <Col sm={10} md={10} lg={10}>
+                          <Link to={`/park-details/${item.id}`} className="text-primary">
+                            Read more <i className="mdi mdi-arrow-right"></i>
+                          </Link>
+                        </Col>
+                        <Col sm={2} md={2} lg={2} className="text-end fs-4">
+                          {loading.delete === item.id ? (
+                            <Spinner size="sm" color="danger" />
+                          ) : (
+                            <i
+                              className="bx bx-trash text-danger"
+                              title="Delete"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleDelete(item.id)}
+                            />
+                          )}
+                        </Col>
+                      </Row>
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
 
-        {/* Pagination */}
-        <div className="text-center mt-4">
-          <ul className="pagination justify-content-end">
-            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
-            </li>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <li
-                key={index}
-                className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
-              >
-                <button className="page-link" onClick={() => setCurrentPage(index + 1)}>
-                  {index + 1}
-                </button>
-              </li>
-            ))}
-            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>&raquo;</button>
-            </li>
-          </ul>
-        </div>
+            {/* Pagination */}
+            <div className="text-center mt-4">
+              <ul className="pagination justify-content-end">
+                <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
+                </li>
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <li
+                    key={index}
+                    className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
+                  >
+                    <button className="page-link" onClick={() => setCurrentPage(index + 1)}>
+                      {index + 1}
+                    </button>
+                  </li>
+                ))}
+                <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>&raquo;</button>
+                </li>
+              </ul>
+            </div>
+          </>
+        )}
       </Col>
-
 
       <Modal isOpen={modal} toggle={toggleModal} size="lg">
         <ModalHeader toggle={toggleModal}>Add Park</ModalHeader>
@@ -458,20 +497,28 @@ document.title = "Parks & Recreation   | City of Selma";
                   {/* Category Dropdown */}
                   <div className="mt-3">
                     <label className="form-label">Category</label>
-                    <select
-                      className="form-control"
-                      name="category_id"
-                      value={formData.category_id}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select Category</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
+                    {loading.categories ? (
+                      <div className="text-center">
+                        <Spinner size="sm" />
+                      </div>
+                    ) : (
+                      <>
+                        <select
+                          className="form-control"
+                          name="category_id"
+                          value={formData.category_id}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select Category</option>
+                          {categories.map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
+                      </>
+                    )}
                   </div>
 
                   {/* Status Dropdown */}
@@ -510,8 +557,12 @@ document.title = "Parks & Recreation   | City of Selma";
                   ))}
                   {/* Submit Button */}
                   <div className="text-center mt-4">
-                    <Button type="submit" color="primary">
-                      Submit
+                    <Button type="submit" color="primary" disabled={loading.submit}>
+                      {loading.submit ? (
+                        <>
+                          <Spinner size="sm" className="me-2" /> Submitting...
+                        </>
+                      ) : "Submit"}
                     </Button>
                   </div>
                 </Col>

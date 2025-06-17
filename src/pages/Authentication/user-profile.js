@@ -46,6 +46,7 @@ const ChangePassword = () => {
         }
       });
       const userData = response.data;
+      console.log(userData);
       setProfileImage(userData.meta.profile_pic);
       profileValidation.setValues({
         name: userData.name || '',

@@ -10,6 +10,7 @@ import {
     ModalBody,
     Container,
     Alert,
+    Spinner
 } from "reactstrap";
 import axios from "axios";
 import classnames from "classnames";
@@ -27,6 +28,12 @@ const RecyclingAndGarbageList = () => {
     const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState({
+        initial: true,
+        data: false,
+        submit: false,
+        delete: false
+    });
 
     const [formData, setFormData] = useState({
         title: "",
@@ -52,6 +59,7 @@ const RecyclingAndGarbageList = () => {
 
     const fetchRecyclingData = async (page = 1) => {
         try {
+            setLoading(prev => ({ ...prev, data: true, initial: page === 1 }));
             const response = await axios.get(`${BASE_URL}/auth/getAllRecyclingAndGarbage?status=all`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -66,6 +74,8 @@ const RecyclingAndGarbageList = () => {
             setTotalPages(response.data.pagination.totalPages);
         } catch (err) {
             console.error("Failed to fetch Recycling & Garbage data", err);
+        } finally {
+            setLoading(prev => ({ ...prev, data: false, initial: false }));
         }
     };
 
@@ -108,12 +118,15 @@ const RecyclingAndGarbageList = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
+        
+        setLoading(prev => ({ ...prev, submit: true }));
         const data = new FormData();
         data.append("title", formData.title);
         data.append("description", formData.description);
         data.append("shortdescription", formData.shortdescription);
         data.append("image", formData.image);
         data.append("status", formData.status);
+        
         try {
             const response = await axios.post(`${BASE_URL}/auth/addRecyclingAndGarbage`, data, {
                 headers: {
@@ -124,19 +137,21 @@ const RecyclingAndGarbageList = () => {
             setAlertMsg({ type: "success", message: "News added successfully!" });
             fetchRecyclingData(currentPage);
             setTimeout(() => {
-
                 setModal(false);
                 setAlertMsg({ type: "", message: "" });
             }, 2000);
         } catch (error) {
             console.error("API error:", error);
             setAlertMsg({ type: "danger", message: "Something Went Wrong!" });
+        } finally {
+            setLoading(prev => ({ ...prev, submit: false }));
         }
     };
 
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this item?")) {
             try {
+                setLoading(prev => ({ ...prev, delete: id }));
                 const response = await axios.post(`${BASE_URL}/auth/deleteRecyclingAndGarbage`, { id }, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -146,10 +161,24 @@ const RecyclingAndGarbageList = () => {
                 fetchRecyclingData(currentPage);
             } catch (error) {
                 console.error("Error deleting item:", error);
+            } finally {
+                setLoading(prev => ({ ...prev, delete: false }));
             }
         }
     };
-    document.title = "Recycling & Garbage  | City of Selma";
+
+    document.title = "Recycling & Garbage | City of Selma";
+
+    if (loading.initial) {
+        return (
+            <div className="page-content">
+                <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+                    <Spinner color="primary" />
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="page-content">
             <Col xl={12} lg={12}>
@@ -169,92 +198,108 @@ const RecyclingAndGarbageList = () => {
                     </Col>
                 </Row>
 
-                <Row>
-                    {getnews.map((item, index) => (
-                        <Col key={index} sm={4}>
-                            <Card className="p-1 border shadow-none">
-                                <div className="p-3">
-                                    <div className="d-flex justify-content-between">
-                                        <div>
-                                            <h5>
-                                                <Link to={`/recycling-garbage-details/${item.id}`} className="text-dark">
-                                                    {item.title}
-                                                </Link>
-                                            </h5>
+                {loading.data ? (
+                    <div className="text-center my-5">
+                        <Spinner color="primary" />
+                        <p>Loading recycling & garbage data...</p>
+                    </div>
+                ) : (
+                    <>
+                        <Row>
+                            {getnews.map((item, index) => (
+                                <Col key={index} sm={4}>
+                                    <Card className="p-1 border shadow-none">
+                                        <div className="p-3">
+                                            <div className="d-flex justify-content-between">
+                                                <div>
+                                                    <h5>
+                                                        <Link to={`/recycling-garbage-details/${item.id}`} className="text-dark">
+                                                            {item.title}
+                                                        </Link>
+                                                    </h5>
+                                                </div>
+                                                <div>
+                                                    <Link to={`/edit-recycling-garbage/${item.id}`}>
+                                                        <i
+                                                            className="bx bx-edit align-middle fw-20 text-primary me-2"
+                                                            title="Edit"
+                                                            style={{ cursor: "pointer" }}
+                                                        ></i>
+                                                    </Link>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-muted mb-0">
+                                                {new Date(item.createdAt).toLocaleDateString("en-GB")}
+                                            </p>
                                         </div>
-                                        <div>
-                                            <Link to={`/edit-recycling-garbage/${item.id}`}>
-                                                <i
-                                                    className="bx bx-edit align-middle fw-20 text-primary me-2"
-                                                    title="Edit"
-                                                    style={{ cursor: "pointer" }}
-                                                ></i>
-                                            </Link>
+
+                                        <div className="position-relative">
+                                            <img
+                                                src={item.image || "default.jpg"}
+                                                alt={item.title}
+                                                className="img-thumbnail fixed-size-img"
+                                            />
                                         </div>
-                                    </div>
 
-                                    <p className="text-muted mb-0">
-                                        {new Date(item.createdAt).toLocaleDateString("en-GB")}
-                                    </p>
-                                </div>
+                                        <div className="p-3">
+                                            <ul className="list-inline d-flex justify-content">
+                                                <li className="list-inline-item me-3">
+                                                    <span className="text-muted">
+                                                        <i className="bx bx-purchase-tag-alt me-1"></i>
+                                                        {item.category?.name || "General"}
+                                                    </span>
+                                                </li>
+                                                <li className="list-inline-item me-3">
+                                                    <span className="text-muted">
+                                                        <i className="bx bx-user me-1"></i>
+                                                        {item.author?.name || "Admin"}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                            <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                                            <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                <Col sm={10} md={10} lg={10}>
+                                                    <Link to={`/recycling-garbage-details/${item.id}`} className="text-primary">
+                                                        Read more <i className="mdi mdi-arrow-right"></i>
+                                                    </Link>
+                                                </Col>
+                                                <Col sm={2} md={2} lg={2} className="text-end fs-4">
+                                                    {loading.delete === item.id ? (
+                                                        <Spinner size="sm" color="danger" />
+                                                    ) : (
+                                                        <i 
+                                                            className="bx bx-trash text-danger" 
+                                                            title="Delete" 
+                                                            style={{ cursor: 'pointer' }} 
+                                                            onClick={() => handleDelete(item.id)}
+                                                        />
+                                                    )}
+                                                </Col>
+                                            </Row>
+                                        </div>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
 
-                                <div className="position-relative">
-                                    <img
-                                        src={item.image || "default.jpg"}
-                                        alt={item.title}
-                                        className="img-thumbnail fixed-size-img"
-                                    />
-                                </div>
-
-                                <div className="p-3">
-                                    <ul className="list-inline d-flex justify-content">
-                                        <li className="list-inline-item me-3">
-                                            <span className="text-muted">
-                                                <i className="bx bx-purchase-tag-alt me-1"></i>
-                                                {item.category?.name || "General"}
-                                            </span>
-                                        </li>
-                                        <li className="list-inline-item me-3">
-                                            <span className="text-muted">
-                                                <i className="bx bx-user me-1"></i>
-                                                {item.author?.name || "Admin"}
-                                            </span>
-                                        </li>
-                                    </ul>
-                                    <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
-                                    <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                        <Col sm={10} md={10} lg={10}>
-                                            <Link to={`/recycling-garbage-details/${item.id}`} className="text-primary">
-                                                Read more <i className="mdi mdi-arrow-right"></i>
-                                            </Link>
-                                        </Col>
-                                        <Col sm={2} md={2} lg={2} className="text-end fs-4">
-                                            <i className="bx bx-trash text-danger" title="Delete" style={{ cursor: 'pointer' }} onClick={() => handleDelete(item.id)}>
-
-                                            </i>
-                                        </Col>
-                                    </Row>
-                                </div>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
-
-                <div className="text-center mt-4">
-                    <ul className="pagination justify-content-end">
-                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
-                        </li>
-                        {Array.from({ length: totalPages }, (_, index) => (
-                            <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(index + 1)}>{index + 1}</button>
-                            </li>
-                        ))}
-                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>&raquo;</button>
-                        </li>
-                    </ul>
-                </div>
+                        <div className="text-center mt-4">
+                            <ul className="pagination justify-content-end">
+                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
+                                </li>
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                                        <button className="page-link" onClick={() => setCurrentPage(index + 1)}>{index + 1}</button>
+                                    </li>
+                                ))}
+                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>&raquo;</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </>
+                )}
             </Col>
 
             {/* Modal */}
@@ -297,7 +342,13 @@ const RecyclingAndGarbageList = () => {
                                         {errors.status && <span className="text-danger">{errors.status}</span>}
                                     </Col>
                                     <Col lg={12} className="mt-4 text-center">
-                                        <Button type="submit" color="primary">Submit</Button>
+                                        <Button type="submit" color="primary" disabled={loading.submit}>
+                                            {loading.submit ? (
+                                                <>
+                                                    <Spinner size="sm" className="me-2" /> Submitting...
+                                                </>
+                                            ) : "Submit"}
+                                        </Button>
                                     </Col>
                                 </Col>
                             </Row>
