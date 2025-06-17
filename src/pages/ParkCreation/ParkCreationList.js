@@ -35,7 +35,7 @@ const ParkCreationList = () => {
     link: "",
     date: "",
     time: "",
-    organizer: "",
+    organizor: "",
     published_at: ""
   });
 
@@ -87,7 +87,7 @@ const ParkCreationList = () => {
       link: "",
       date: "",
       time: "",
-      organizer: "",
+      organizor: "",
       published_at: ""
     });
     setModal(!modal);
@@ -157,7 +157,7 @@ const ParkCreationList = () => {
     if (!formData.link) newErrors.link = "Link is required";
     if (!formData.date) newErrors.date = "Date is required";
     if (!formData.time) newErrors.time = "Time is required";
-    if (!formData.organizer) newErrors.organizer = "Organizer is required";
+    if (!formData.organizor) newErrors.organizor = "Organizer is required";
     if (!formData.published_at) newErrors.published_at = "Publish date/time required";
     if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
     if (!formData.images.length) newErrors.images = "At least one image is required";
@@ -283,20 +283,20 @@ const ParkCreationList = () => {
                 </div>
                 <div className="p-3">
                   <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
-                  <Row>
-                    <Col sm={9}>
+                  <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <Col sm={10} md={10} lg={10}>
                       <Link to={`/park-details/${item.id}`} className="text-primary">
                         Read more <i className="mdi mdi-arrow-right"></i>
                       </Link>
                     </Col>
-                    <Col sm={3}>
+                     <Col sm={2} md={2} lg={2} className="text-end fs-4">
                       <i
                         className="bx bx-trash text-danger"
                         title="Delete"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleDelete(item.id)}
                       >
-                        Delete
+                        
                       </i>
                     </Col>
                   </Row>
@@ -308,7 +308,7 @@ const ParkCreationList = () => {
 
         {/* Pagination */}
         <div className="text-center mt-4">
-          <ul className="pagination justify-content-center">
+          <ul className="pagination justify-content-end">
             <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
               <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
             </li>
@@ -345,7 +345,7 @@ const ParkCreationList = () => {
                     { label: "Link", type: "text", name: "link" },
                     { label: "Date", type: "date", name: "date" },
                     { label: "Time", type: "time", name: "time" },
-                    { label: "Organizer", type: "text", name: "organizer" },
+                    { label: "Organizer", type: "text", name: "organizor" },
                     { label: "Published At", type: "datetime-local", name: "published_at" },
                   ].map((field, idx) => (
                     <div className="mt-3" key={idx}>

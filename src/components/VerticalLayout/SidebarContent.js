@@ -229,6 +229,25 @@ const SidebarContent = props => {
               </ul>
             </li>
 
+
+            <li>
+              <Link to="/#" className="has-arrow" >
+                <i className='bx bx-cog'></i>
+                <span>{props.t("Pages")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/profile">{props.t("Profile Update")}</Link>
+                </li>
+                <li>
+                  <Link to="/logout">
+                    {props.t("Logout")}
+                  </Link>
+                </li>
+              </ul>
+            </li>
+
+
             <li>
               <Link to="/calendar" >
                 <i className="bx bxs-bell"></i>

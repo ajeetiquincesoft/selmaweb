@@ -190,7 +190,7 @@ const ParkCreationCategory = () => {
                                             <td className="d-flex align-items-center gap-2">
                                                 {cat.image && (
                                                     <img
-                                                        src={`http://192.168.10.140:3000/uploads/${cat.image}`}
+                                                        src={`https://selmaapi.webstage247.com/uploads/${cat.image}`}
                                                         alt={cat.name}
                                                         style={{
                                                             width: "40px",

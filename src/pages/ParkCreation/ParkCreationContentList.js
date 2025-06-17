@@ -11,6 +11,7 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const initialFormData = {
+  id: "",
   image: null,
   mission: "",
   vision: "",
@@ -48,8 +49,19 @@ const ParkCreationContent = () => {
         params: { limit: 1, page, status: 'all' }
       });
 
-      // Save only the first item of the data array
-      setContent(res.data.data?.[0] || {});
+      const fetched = res.data.data?.[0] || {};
+      setContent(fetched);
+
+      setFormData({
+        id: fetched.id || "",
+        image: null,
+        mission: fetched.mission || "",
+        vision: fetched.vision || "",
+        address: fetched.address || "",
+        hours: fetched.hours || "",
+        contacts: fetched.contacts || "",
+        status: fetched.status?.toString() || "",
+      });
 
       setCurrentPage(res.data.pagination.currentPage);
       setTotalPages(res.data.pagination.totalPages);
@@ -69,7 +81,7 @@ const ParkCreationContent = () => {
   };
 
   const validate = () => {
-    const requiredFields = ["image", "mission", "vision", "address", "hours", "contacts", "status"];
+    const requiredFields = ["mission", "vision", "address", "hours", "contacts", "status"];
     const newErrors = {};
     requiredFields.forEach(field => {
       if (!formData[field]) newErrors[field] = `${field} is required`;
@@ -83,19 +95,22 @@ const ParkCreationContent = () => {
     if (!validate()) return;
 
     const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => data.append(key, value));
+
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === "image" && !value) return;
+      data.append(key, value);
+    });
 
     try {
-      await axios.post(`${BASE_URL}/auth/addparksandrecreationcontent`, data, {
+      await axios.post(`${BASE_URL}/auth/updateParksAndRecreationContent`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
-      setAlertMsg({ type: "success", message: "Content added successfully!" });
+      setAlertMsg({ type: "success", message: "Content updated successfully!" });
       fetchContent(currentPage);
       setTimeout(() => {
-        setFormData(initialFormData);
         setModal(false);
         setAlertMsg({ type: "", message: "" });
       }, 2000);
@@ -105,33 +120,24 @@ const ParkCreationContent = () => {
     }
   };
 
-  const stripHtml = (html) => {
-    const div = document.createElement("div");
-    div.innerHTML = html;
-    return div.textContent || div.innerText || "";
-  };
-
   return (
     <div className="page-content">
       <Container fluid>
         <Row className="justify-content-between mb-3">
           <Col xs="auto">
             <ul className="breadcrumb">
-              <li>
-                <Link to="/"><a href="/">Home /</a></Link>
-              </li>
+              <li><Link to="/">Home /</Link></li>
               <li className="active">Parks & Recreation Content</li>
             </ul>
           </Col>
           <Col xs="auto">
             <Button color="primary" onClick={toggleModal}>
-              <i className={`mdi ${content ? 'mdi-pencil' : 'mdi-plus'} me-1`}></i>
-              {content ? 'Update Content' : 'Add Content'}
+              <i className={`mdi mdi-pencil me-1`}></i>
+              Update Content
             </Button>
           </Col>
         </Row>
 
-        {console.log(content)}
         <Row>
           <Col lg={12}>
             <Card>
@@ -209,10 +215,9 @@ const ParkCreationContent = () => {
           </Col>
         </Row>
 
-
         {/* Modal */}
         <Modal isOpen={modal} toggle={toggleModal} size="lg">
-          <ModalHeader toggle={toggleModal}>Add Park & Recreation</ModalHeader>
+          <ModalHeader toggle={toggleModal}>Update Park & Recreation</ModalHeader>
           <ModalBody>
             <form onSubmit={handleSubmit}>
               <Container fluid>
@@ -223,49 +228,50 @@ const ParkCreationContent = () => {
                     )}
                   </Col>
 
-                  {[
-                    { label: "Image", name: "image", type: "file" },
-                    { label: "Address", name: "address", type: "text" },
-                    { label: "Hours", name: "hours", type: "text" },
-                    { label: "Contacts", name: "contacts", type: "text" },
-                  ].map(({ label, name, type }) => (
-                    <Col lg={12} className="mt-3" key={name}>
-                      <label className="form-label">{label}</label>
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Image</label>
+                    {content.image && (
+                      <img src={content.image} alt="" className="img-thumbnail mb-2" style={{ maxHeight: "150px" }} />
+                    )}
+                    <input
+                      className="form-control"
+                      type="file"
+                      name="image"
+                      onChange={handleChange}
+                    />
+                  </Col>
+
+                  {["address", "hours", "contacts"].map((field) => (
+                    <Col lg={12} className="mt-3" key={field}>
+                      <label className="form-label">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
                       <input
                         className="form-control"
-                        type={type}
-                        name={name}
+                        type="text"
+                        name={field}
+                        value={formData[field]}
                         onChange={handleChange}
                       />
-                      {errors[name] && <span className="text-danger">{errors[name]}</span>}
+                      {errors[field] && <span className="text-danger">{errors[field]}</span>}
                     </Col>
                   ))}
 
-                  <Col lg={12} className="mt-3">
-                    <label className="form-label">Mission</label>
-                    <CKEditor
-                      editor={ClassicEditor}
-                      data={formData.mission}
-                      onChange={(event, editor) => {
-                        const data = editor.getData();
-                        setFormData(prev => ({ ...prev, mission: data }));
-                      }}
-                    />
-                    {errors.mission && <span className="text-danger">{errors.mission}</span>}
-                  </Col>
+                  {["mission", "vision"].map((field) => (
+                    <Col lg={12} className="mt-3" key={field}>
+                      <label className="form-label">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+                      <CKEditor
+                        editor={ClassicEditor}
+                        data={formData[field]}
+                        onChange={(event, editor) => {
+                          const data = editor.getData();
+                          setFormData((prev) => ({ ...prev, [field]: data }));
+                        }}
+                      />
+                      {errors[field] && <span className="text-danger">{errors[field]}</span>}
+                    </Col>
+                  ))}
 
-                  <Col lg={12} className="mt-3">
-                    <label className="form-label">Vision</label>
-                    <CKEditor
-                      editor={ClassicEditor}
-                      data={formData.vision}
-                      onChange={(event, editor) => {
-                        const data = editor.getData();
-                        setFormData(prev => ({ ...prev, vision: data }));
-                      }}
-                    />
-                    {errors.vision && <span className="text-danger">{errors.vision}</span>}
-                  </Col>
+                  <input type="hidden" name="id" value={formData.id || ''} />
+                  {errors.id && <span className="text-danger">{errors.id}</span>}
 
                   <Col lg={12} className="mt-3">
                     <label className="form-label">Status</label>
@@ -284,7 +290,7 @@ const ParkCreationContent = () => {
                   </Col>
 
                   <Col lg={12} className="mt-4 text-center">
-                    <Button type="submit" color="primary">Submit</Button>
+                    <Button type="submit" color="primary">Update</Button>
                   </Col>
                 </Row>
               </Container>

@@ -104,7 +104,7 @@ const RecyclingGarbageContent = () => {
     });
 
     try {
-      const res=await axios.post(`${BASE_URL}/auth/updateRecyclingAndGarbageContent`, data, {
+      const res = await axios.post(`${BASE_URL}/auth/updateRecyclingAndGarbageContent`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -205,7 +205,6 @@ const RecyclingGarbageContent = () => {
                   )}
 
                   {[{ label: "Image", name: "image", type: "file" },
-                  { label: "Short Description", name: "shortdescription", type: "text" },
                   ].map(({ label, name, type }) => (
                     <Col lg={12} className="mt-3" key={name}>
                       <label className="form-label">{label}</label>
@@ -221,6 +220,18 @@ const RecyclingGarbageContent = () => {
 
                   <input type="hidden" name="id" value={formData.id || ''} />
                   {errors.id && <span className="text-danger">{errors.id}</span>}
+
+                  <Col lg={12} className="mt-3">
+                    <label className="form-label">Short Description</label>
+                    <textarea
+                      className="form-control"
+                      name="shortdescription"
+                      value={formData.shortdescription}
+                      onChange={handleChange}
+                      rows={4}
+                    />
+                      {errors.shortdescription && <span className="text-danger">{errors.shortdescription}</span>}
+                  </Col>
 
                   <Col lg={12} className="mt-3">
                     <label className="form-label">Description</label>

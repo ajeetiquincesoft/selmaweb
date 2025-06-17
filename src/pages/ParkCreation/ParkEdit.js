@@ -30,7 +30,7 @@ const EditPark = () => {
         link: "",
         date: "",
         time: "",
-        organizer: "",
+        organizor: "",
         published_at: ""
     });
 
@@ -78,7 +78,7 @@ const EditPark = () => {
                 link: parkData.link || "",
                 date: parkData.date || "",
                 time: parkData.time || "",
-                organizer: parkData.organizer || "",
+                organizor: parkData.organizor || "",
                 published_at: parkData.published_at ? new Date(parkData.published_at).toISOString().slice(0, 16) : "",
                 featured_image: null,
                 images: []
@@ -178,7 +178,7 @@ const EditPark = () => {
         if (!formData.link.trim()) newErrors.link = "Link is required";
         if (!formData.date) newErrors.date = "Date is required";
         if (!formData.time) newErrors.time = "Time is required";
-        if (!formData.organizer.trim()) newErrors.organizer = "Organizer is required";
+        if (!formData.organizor.trim()) newErrors.organizor = "Organizer is required";
         if (!formData.published_at) newErrors.published_at = "Publish date/time required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.status) newErrors.status = "Status is required";
@@ -352,13 +352,13 @@ const EditPark = () => {
                                         <label className="form-label">Organizer*</label>
                                         <input
                                             type="text"
-                                            className={`form-control ${errors.organizer ? "is-invalid" : ""}`}
-                                            name="organizer"
-                                            value={formData.organizer}
+                                            className={`form-control ${errors.organizor ? "is-invalid" : ""}`}
+                                            name="organizor"
+                                            value={formData.organizor}
                                             onChange={handleChange}
                                         />
-                                        {errors.organizer && (
-                                            <div className="invalid-feedback">{errors.organizer}</div>
+                                        {errors.organizor && (
+                                            <div className="invalid-feedback">{errors.organizor}</div>
                                         )}
                                     </div>
 

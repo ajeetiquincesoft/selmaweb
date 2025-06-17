@@ -222,15 +222,15 @@ const RecyclingAndGarbageList = () => {
                                         </li>
                                     </ul>
                                     <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
-                                    <Row>
-                                        <Col sm={9}>
+                                 <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        <Col sm={10} md={10} lg={10}>
                                             <Link to={`/recycling-garbage-details/${item.id}`} className="text-primary">
                                                 Read more <i className="mdi mdi-arrow-right"></i>
                                             </Link>
                                         </Col>
-                                        <Col sm={3}>
+                                       <Col sm={2} md={2} lg={2} className="text-end fs-4">
                                             <i className="bx bx-trash text-danger" title="Delete" style={{ cursor: 'pointer' }} onClick={() => handleDelete(item.id)}>
-                                                Delete
+                                            
                                             </i>
                                         </Col>
                                     </Row>
@@ -241,7 +241,7 @@ const RecyclingAndGarbageList = () => {
                 </Row>
 
                 <div className="text-center mt-4">
-                    <ul className="pagination justify-content-center">
+                    <ul className="pagination justify-content-end">
                         <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
                         </li>
