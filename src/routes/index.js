@@ -149,6 +149,12 @@ import RecyclingGarbageList from "../pages/RecyclingGarbage/RecyclingGarbageList
 import RecyclingGarbageDetails from "../pages/RecyclingGarbage/RecyclingGarbageDetails";
 import EditRecyclingGarbage from "../pages/RecyclingGarbage/EditRecyclingGarbage";
 
+//Pages
+import PageCategories from "../pages/Page/PageCategories";
+import PageList from "../pages/Page/PageList";
+import PageDetails from "../pages/Page/PageDetails";
+
+
 // Forms
 import FormElements from "../pages/Forms/FormElements";
 import FormLayouts from "../pages/Forms/FormLayouts";
@@ -304,6 +310,11 @@ const authProtectedRoutes = [
   { path: "/recycling-garbage-list", component: <RecyclingGarbageList /> },
   { path: "/recycling-garbage-details/:id", component: <RecyclingGarbageDetails /> },
   { path: "/edit-recycling-garbage/:id", component: <EditRecyclingGarbage /> },
+
+  //Pages
+  { path: "/page-categories", component: <PageCategories /> },
+  { path: "/page-list", component: <PageList /> },
+  { path: "/page-details/:id", component: <PageDetails /> },
 
   // Contacts
   { path: "/contacts-grid", component: <ContactsGrid /> },

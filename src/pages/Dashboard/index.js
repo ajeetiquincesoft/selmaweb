@@ -1,6 +1,30 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Button, Card, CardBody, Input, Modal, ModalHeader, ModalBody, ModalFooter, Table } from "reactstrap";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Card,
+  CardBody,
+  CardTitle,
+  Input,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Table
+} from "reactstrap";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import classNames from "classnames";
@@ -25,6 +49,7 @@ import TopCities from "./TopCities";
 import LatestTranaction from "./LatestTranaction";
 import avatar1 from "../../assets/images/users/avatar-1.jpg"
 import profileImg from "../../assets/images/profile-img.png"
+import Logo from "../../assets/images/logo_circle.png"
 
 
 //Import Breadcrumb
@@ -49,6 +74,8 @@ const Dashboard = props => {
   const [latestjobs, setLatestJobs] = useState([]);
   const [latestnews, setLatestNews] = useState([]);
   const [latestevents, setLatestEvent] = useState([]);
+  const [chartData, setChartData] = useState([]);
+  const [profileImage, setProfileImage] = useState("");
 
 
   useEffect(() => {
@@ -56,14 +83,31 @@ const Dashboard = props => {
     if (storedUser) {
       const { token } = JSON.parse(storedUser);
       setToken(token);
+
     }
   }, []); // run once on mount
 
   useEffect(() => {
     if (token) {
+      fetchUserData(token)
       fetchDashboardData();
     }
   }, [token]); // run only when token is set
+
+
+  const fetchUserData = async (token) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/auth/getauthuser`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const userData = response.data;
+      setProfileImage(userData.meta.profile_pic);
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -72,60 +116,38 @@ const Dashboard = props => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(JSON.stringify(response.data?.data?.latest?.events));
-      // console.log('---->all data  '+data,user,latest,monthlyStats);
-      const { data, user, latest, monthlyStats } = response?.data;
+      const { data, user, latest } = response?.data;
 
       setDashboard(data);
       setUser(user);
       setLatestJobs(data?.latest?.jobs || []);
       setLatestNews(data?.latest?.news || []);
       setLatestEvent(data?.latest?.events || []);
+      const monthlyStats = data?.monthlyStats;
 
+      if (data?.monthlyStats) {
+        const { jobs = [], news = [], events = [] } = data.monthlyStats;
+
+        const transformedChartData = jobs.map((jobItem, index) => ({
+          month: jobItem.month,
+          jobs: jobItem.count || 0,
+          news: news[index]?.count || 0,
+          events: events[index]?.count || 0,
+        }));
+        setChartData(transformedChartData);
+      }
     } catch (err) {
       console.error("Failed to fetch categories", err);
     }
   };
-
-  const DashboardProperties = createSelector(
-    (state) => state.Dashboard,
-    (dashboard) => ({
-      chartsData: dashboard.chartsData
-    })
-  );
-
-  const {
-    chartsData
-  } = useSelector(DashboardProperties);
-
-
-
   useEffect(() => {
     setTimeout(() => {
       setSubscribeModal(true);
     }, 2000);
   }, []);
 
-  const [periodData, setPeriodData] = useState([]);
-  const [periodType, setPeriodType] = useState("yearly");
-
-  useEffect(() => {
-    setPeriodData(chartsData);
-  }, [chartsData]);
-
-  const onChangeChartPeriod = pType => {
-    setPeriodType(pType);
-    dispatch(onGetChartsData(pType));
-  };
-
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(onGetChartsData("yearly"));
-  }, [dispatch]);
-
   //meta title
   document.title = "Dashboard | City of selma";
-
   return (
     <React.Fragment>
       <div className="page-content">
@@ -154,7 +176,7 @@ const Dashboard = props => {
                     <Col sm="4">
                       <div className="avatar-md profile-user-wid mb-4">
                         <img
-                          src={avatar1}
+                          src={profileImage}
                           alt=""
                           className="img-thumbnail rounded-circle"
                         />
@@ -185,7 +207,99 @@ const Dashboard = props => {
                   </Row>
                 </CardBody>
               </Card>
-               <SocialSource />
+              <Card>
+                <CardBody>
+                  <CardTitle className="mb-4">Social Source</CardTitle>
+                  <div className="text-center">
+                    <div className="avatar-sm mx-auto mb-4">
+                      <span className="avatar-title rounded-circle bg-primary-subtle font-size-24">
+                        <img src={Logo} alt="Logo" />
+                      </span>
+                    </div>
+                    <p className="font-16 text-muted mb-2"></p>
+
+                    <p className="text-muted">
+                      Selma is located high on the banks of the Alabama River in Dallas County of which it is the county seat.
+                      The city is best known for the Battle of Selma and for the Selma to Montgomery Marches.
+                    </p>
+                    <Link to="#" className="text-primary font-16">
+                      Learn more <i className="mdi mdi-chevron-right"></i>
+                    </Link>
+                  </div>
+                  <Row className="mt-4">
+                    <Col xs={4} >
+                      <a
+                        href="https://www.facebook.com/SELMACITYHALL"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-decoration-none text-dark"
+                      >
+                        <div className="social-source text-center mt-3">
+                          <div className="avatar-xs mx-auto mb-3">
+                            <span className={"avatar-title rounded-circle bg-primary font-size-16"}>
+                              <i className={"mdi mdi-facebook text-white"}></i>
+                            </span>
+                          </div>
+                          <h5 className="font-size-15">Facebook</h5>
+                          {/* <p className="text-muted mb-0">{social.description} sales</p> */}
+                        </div>
+                      </a>
+                    </Col>
+                    <Col xs={4}>
+                      <a
+                        href="https://x.com/cityofselma?lang=en"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-decoration-none text-dark"
+                      >
+                        <div className="social-source text-center mt-3">
+                          <div className="avatar-xs mx-auto mb-3">
+
+                            <span className={"avatar-title rounded-circle bg-info font-size-16"}>
+                              <i className={"mdi mdi-twitter text-white"}></i>
+                            </span>
+                          </div>
+                          <h5 className="font-size-15">Twitter</h5>
+                          {/* <p className="text-muted mb-0">{social.description} sales</p> */}
+                        </div>
+                      </a>
+                    </Col>
+                    <Col xs={4} >
+                      <a
+                        href="https://www.instagram.com/cityofselma/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-decoration-none text-dark"
+                      >
+                        <div className="social-source text-center mt-3">
+                          <div className="avatar-xs mx-auto mb-3">
+
+                            <span className={"avatar-title rounded-circle bg-pink font-size-16"}>
+                              <i className={"mdi mdi-instagram text-white"}></i>
+                            </span>
+                          </div>
+                          <h5 className="font-size-15">Instagram</h5>
+                          {/* <p className="text-muted mb-0">{social.description} sales</p> */}
+                        </div>
+                      </a>
+                    </Col>
+                    {/* {(socials || [])?.map((social, key) => (
+                      <Col xs={4} key={"_li_" + key}>
+                        <div className="social-source text-center mt-3">
+                          <div className="avatar-xs mx-auto mb-3">
+
+                            <span className={"avatar-title rounded-circle " + social.bgColor + " font-size-16"}>
+                              <i className={"mdi " + social.iconClass + " text-white"}></i>
+                            </span>
+                          </div>
+                          <h5 className="font-size-15">{social.title}</h5>
+                          <p className="text-muted mb-0">{social.description} sales</p>
+                        </div>
+                      </Col>
+                    ))} */}
+                  </Row>
+                </CardBody>
+              </Card>
             </Col>
             <Col xl="8">
               <Row>
@@ -256,36 +370,27 @@ const Dashboard = props => {
                 <CardBody>
                   <div className="d-sm-flex flex-wrap">
                     <h4 className="card-title mb-4">Jobs , Event & News Graph</h4>
-                    <div className="ms-auto">
-                      <ul className="nav nav-pills">
-                        <li className="nav-item">
-                          <Link to="#" className={classNames({ active: periodType === "weekly" }, "nav-link")}
-                            onClick={() => { onChangeChartPeriod("weekly"); }} id="one_month">
-                            Week
-                          </Link>{" "}
-                        </li>
-                        <li className="nav-item">
-                          <Link to="#" className={classNames({ active: periodType === "monthly" }, "nav-link")}
-                            onClick={() => { onChangeChartPeriod("monthly"); }} id="one_month">
-                            Month
-                          </Link>
-                        </li>
-                        <li className="nav-item">
-                          <Link to="#" className={classNames({ active: periodType === "yearly" }, "nav-link")}
-                            onClick={() => { onChangeChartPeriod("yearly"); }} id="one_month">
-                            Year
-                          </Link>
-                        </li>
-                      </ul>
+                    <div className="container mt-4">
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                          <CartesianGrid vertical={false} horizontal={true} strokeDasharray="3 3" />
+                          <XAxis dataKey="month" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="jobs" stackId="a" fill="#556ee6" barSize={7} name="Jobs" />
+                          <Bar dataKey="news" stackId="a" fill="#f1b44c" barSize={7} name="News" />
+                          <Bar dataKey="events" stackId="a" fill="#34c38f" barSize={7} name="Events" />
+                        </BarChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
-                  {/* <div className="clearfix"></div> */}
-                  <StackedColumnChart periodData={periodData} dataColors='["--bs-primary", "--bs-warning", "--bs-success"]' />
+                  {/* <StackedColumnChart periodData={periodData} dataColors='["--bs-primary", "--bs-warning", "--bs-success"]' /> */}
                 </CardBody>
               </Card>
             </Col>
           </Row>
-{/* 
+          {/* 
           <Row>
             <Col xl="4">
               <SocialSource />

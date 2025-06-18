@@ -14,6 +14,7 @@ import {
   ModalHeader,
   ModalBody,
   Table,
+  Spinner
 } from "reactstrap";
 import BASE_URL from "path"; // Replace with actual BASE_URL
 import Breadcrumbs from "../../components/Common/Breadcrumb";
@@ -25,6 +26,12 @@ const NewsCategories = () => {
   const [categories, setCategories] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [currentId, setCurrentId] = useState(null);
+  const [loading, setLoading] = useState({
+    initial: true,
+    categories: false,
+    submit: false,
+    delete: false
+  });
 
   const toggleModal = () => setModalOpen(!modalOpen);
 
@@ -34,12 +41,12 @@ const NewsCategories = () => {
       const { token } = JSON.parse(storedUser);
       setToken(token);
     }
-
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
     try {
+      setLoading(prev => ({ ...prev, categories: true }));
       const response = await axios.get(`${BASE_URL}/auth/getallnewscategory`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -48,6 +55,8 @@ const NewsCategories = () => {
       setCategories(response.data.data || []);
     } catch (err) {
       console.error("Failed to fetch categories", err);
+    } finally {
+      setLoading(prev => ({ ...prev, categories: false, initial: false }));
     }
   };
 
@@ -86,6 +95,7 @@ const NewsCategories = () => {
     if (!validate()) return;
 
     try {
+      setLoading(prev => ({ ...prev, submit: true }));
       if (editMode && currentId) {
         await axios.post(
           `${BASE_URL}/auth/updatenewscategory`,
@@ -121,12 +131,15 @@ const NewsCategories = () => {
         error.message ||
         "Something went wrong!";
       setAlertMsg({ type: "danger", message: "Error: " + errMsg });
+    } finally {
+      setLoading(prev => ({ ...prev, submit: false }));
     }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure to delete this category?")) return;
     try {
+      setLoading(prev => ({ ...prev, delete: id }));
       await axios.post(
         `${BASE_URL}/auth/deletenewscategory`,
         { id: id },
@@ -136,6 +149,8 @@ const NewsCategories = () => {
       fetchCategories();
     } catch (err) {
       setAlertMsg({ type: "danger", message: "Failed to delete category!" });
+    } finally {
+      setLoading(prev => ({ ...prev, delete: false }));
     }
   };
 
@@ -145,7 +160,19 @@ const NewsCategories = () => {
     setCurrentId(cat.id);
     setModalOpen(true);
   };
-document.title="News Category | City of Selma";
+
+  document.title="News Category | City of Selma";
+
+  if (loading.initial) {
+    return (
+      <div className="page-content">
+        <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+          <Spinner color="primary" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page-content">
       <Container fluid>
@@ -169,50 +196,61 @@ document.title="News Category | City of Selma";
 
         <Row>
           <Col>
-            <Table  responsive className="align-middle table-nowrap mb-0 table table-hover">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Category Name</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {categories.length > 0 ? (
-                  categories.map((cat, index) => (
-                    <tr key={cat.id}>
-                      <td>{index + 1}</td>
-                      <td>{cat.name}</td>
-                      <td>{cat.status === "1" ? "Active" : "Pending"}</td>
-                      <td>
-                        <Button
-                          color="warning"
-                          size="sm"
-                          className="me-2"
-                          onClick={() => handleEdit(cat)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          color="danger"
-                          size="sm"
-                          onClick={() => handleDelete(cat.id)}
-                        >
-                          Delete
-                        </Button>
+            {loading.categories ? (
+              <div className="text-center my-5">
+                <Spinner color="primary" />
+                <p>Loading categories...</p>
+              </div>
+            ) : (
+              <Table responsive className="align-middle table-nowrap mb-0 table table-hover">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Category Name</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categories.length > 0 ? (
+                    categories.map((cat, index) => (
+                      <tr key={cat.id}>
+                        <td>{index + 1}</td>
+                        <td>{cat.name}</td>
+                        <td>{cat.status === "1" ? "Active" : "Pending"}</td>
+                        <td>
+                          <Button
+                            color="warning"
+                            size="sm"
+                            className="me-2"
+                            onClick={() => handleEdit(cat)}
+                          >
+                            Edit
+                          </Button>
+                          {loading.delete === cat.id ? (
+                            <Spinner size="sm" color="danger" />
+                          ) : (
+                            <Button
+                              color="danger"
+                              size="sm"
+                              onClick={() => handleDelete(cat.id)}
+                            >
+                              Delete
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="text-center">
+                        No categories found.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4" className="text-center">
-                      No categories found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </Table>
+                  )}
+                </tbody>
+              </Table>
+            )}
           </Col>
         </Row>
 
@@ -252,8 +290,12 @@ document.title="News Category | City of Selma";
                 )}
               </div>
               <div className="text-end">
-                <Button color="primary" type="submit">
-                  {editMode ? "Update" : "Submit"}
+                <Button color="primary" type="submit" disabled={loading.submit}>
+                  {loading.submit ? (
+                    <>
+                      <Spinner size="sm" className="me-2" /> {editMode ? "Updating..." : "Submitting..."}
+                    </>
+                  ) : editMode ? "Update" : "Submit"}
                 </Button>
               </div>
             </form>

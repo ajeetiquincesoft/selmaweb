@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import {
   Card,
@@ -15,11 +16,10 @@ import {
   Table,
   Spinner
 } from "reactstrap";
-import BASE_URL from "path"; // Replace with your actual BASE_URL
+import BASE_URL from "path"; // Replace with actual BASE_URL
 import Breadcrumbs from "../../components/Common/Breadcrumb";
-import { Link } from "react-router-dom";
 
-const JobCategories = () => {
+const PageCategories = () => {
   const [token, setToken] = useState(null);
   const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
   const [modalOpen, setModalOpen] = useState(false);
@@ -32,13 +32,6 @@ const JobCategories = () => {
     submit: false,
     delete: false
   });
-
-  const [formData, setFormData] = useState({
-    name: "",
-    status: ""
-  });
-
-  const [errors, setErrors] = useState({});
 
   const toggleModal = () => setModalOpen(!modalOpen);
 
@@ -54,18 +47,25 @@ const JobCategories = () => {
   const fetchCategories = async () => {
     try {
       setLoading(prev => ({ ...prev, categories: true }));
-      const response = await axios.get(`${BASE_URL}/auth/getalljobcategory`, {
+      const response = await axios.get(`${BASE_URL}/auth/getallpagescategory`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setCategories(response.data.data || []);
     } catch (err) {
-      console.error("Failed to fetch job categories", err);
+      console.error("Failed to fetch page categories", err);
     } finally {
       setLoading(prev => ({ ...prev, categories: false, initial: false }));
     }
   };
+
+  const [formData, setFormData] = useState({
+    name: "",
+    status: "",
+  });
+
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -98,7 +98,7 @@ const JobCategories = () => {
       setLoading(prev => ({ ...prev, submit: true }));
       if (editMode && currentId) {
         await axios.post(
-          `${BASE_URL}/auth/updatejobcategory`,
+          `${BASE_URL}/auth/updatePagesCategory`,
           { ...formData, id: currentId },
           {
             headers: {
@@ -107,10 +107,10 @@ const JobCategories = () => {
             },
           }
         );
-        setAlertMsg({ type: "success", message: "Job Category updated successfully!" });
+        setAlertMsg({ type: "success", message: "Page Category updated successfully!" });
       } else {
         await axios.post(
-          `${BASE_URL}/auth/addjobcategory`,
+          `${BASE_URL}/auth/addpagescategory`,
           formData,
           {
             headers: {
@@ -119,7 +119,7 @@ const JobCategories = () => {
             },
           }
         );
-        setAlertMsg({ type: "success", message: "Job Category added successfully!" });
+        setAlertMsg({ type: "success", message: "Page Category added successfully!" });
       }
 
       resetForm();
@@ -137,10 +137,11 @@ const JobCategories = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure to delete this job category?")) return;
+    if (!window.confirm("Are you sure to delete this category?")) return;
     try {
       setLoading(prev => ({ ...prev, delete: id }));
-      await axios.post(`${BASE_URL}/auth/deletejobcategory`,
+      await axios.post(
+        `${BASE_URL}/auth/deletepagecategory`,
         { id: id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -160,7 +161,7 @@ const JobCategories = () => {
     setModalOpen(true);
   };
 
-  document.title="Job Category | City of Selma";
+  document.title = "Page Category | City of Selma";
 
   if (loading.initial) {
     return (
@@ -181,10 +182,10 @@ const JobCategories = () => {
               <li>
                 <Link to="/"><a href="/">Home /</a></Link>
               </li>
-              <li className="active">Job Category</li>
+              <li className="active">Page Category</li>
             </ul>
             <Button color="primary" onClick={() => { resetForm(); toggleModal(); }}>
-              Add Job Category
+              Add Category
             </Button>
           </Col>
         </Row>
@@ -198,7 +199,7 @@ const JobCategories = () => {
             {loading.categories ? (
               <div className="text-center my-5">
                 <Spinner color="primary" />
-                <p>Loading job categories...</p>
+                <p>Loading categories...</p>
               </div>
             ) : (
               <Table responsive className="align-middle table-nowrap mb-0 table table-hover">
@@ -255,7 +256,7 @@ const JobCategories = () => {
 
         <Modal isOpen={modalOpen} toggle={toggleModal}>
           <ModalHeader toggle={toggleModal}>
-            {editMode ? "Edit Job Category" : "Add Job Category"}
+            {editMode ? "Edit Page Category" : "Add Page Category"}
           </ModalHeader>
           <ModalBody>
             <form onSubmit={handleSubmit}>
@@ -305,4 +306,4 @@ const JobCategories = () => {
   );
 };
 
-export default JobCategories;
+export default PageCategories;

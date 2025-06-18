@@ -1,39 +1,57 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import {
   Dropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
 } from "reactstrap";
-
-//i18n
 import { withTranslation } from "react-i18next";
-// Redux
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import withRouter from "components/Common/withRouter";
-
-// users
+import axios from "axios"; // ✅ Missing import
+import BASE_URL from "path";
 import user1 from "../../../assets/images/users/avatar-1.jpg";
 
-const ProfileMenu = props => {
-  // Declare a new state variable, which we'll call "menu"
+const ProfileMenu = (props) => {
   const [menu, setMenu] = useState(false);
-
-  const [username, setusername] = useState("Admin");
+  const [username, setUsername] = useState("Admin");
+  const [profileImage, setProfileImage] = useState("");
 
   useEffect(() => {
-    if (localStorage.getItem("authUser")) {
+    const storedUser = localStorage.getItem("authUser");
+    if (storedUser) {
+      const { token } = JSON.parse(storedUser);
+      fetchUserData(token);
+    }
+  }, []);
+
+  const fetchUserData = async (token) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/auth/getauthuser`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const userData = response.data;
+      setProfileImage(userData.meta.profile_pic);
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    }
+  };
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("authUser");
+    if (storedUser) {
+      const obj = JSON.parse(storedUser);
       if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
-        const obj = JSON.parse(localStorage.getItem("authUser"));
-        setusername(obj.displayName);
+        setUsername(obj.displayName);
       } else if (
         process.env.REACT_APP_DEFAULTAUTH === "fake" ||
         process.env.REACT_APP_DEFAULTAUTH === "jwt"
       ) {
-        const obj = JSON.parse(localStorage.getItem("authUser"));
-        setusername(obj.username);
+        setUsername(obj.username);
       }
     }
   }, [props.success]);
@@ -46,25 +64,25 @@ const ProfileMenu = props => {
         className="d-inline-block"
       >
         <DropdownToggle
-          className="btn header-item "
+          className="btn header-item"
           id="page-header-user-dropdown"
           tag="button"
         >
           <img
             className="rounded-circle header-profile-user"
-            src={user1}
+            src={profileImage || user1}
             alt="Header Avatar"
           />
-          <span className="d-none d-xl-inline-block ms-2 me-1">{username}</span>
+          <span className="d-none d-xl-inline-block ms-2 me-1">
+            {username}
+          </span>
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
           <DropdownItem tag="a" href="/profile">
-            {" "}
             <i className="bx bx-user font-size-16 align-middle me-1" />
-            {props.t("Profile")}{" "}
+            {props.t("Profile")}
           </DropdownItem>
-        
           <DropdownItem tag="a" href="#">
             <span className="badge bg-success float-end">11</span>
             <i className="bx bx-wrench font-size-16 align-middle me-1" />
@@ -83,10 +101,10 @@ const ProfileMenu = props => {
 
 ProfileMenu.propTypes = {
   success: PropTypes.any,
-  t: PropTypes.any
+  t: PropTypes.any,
 };
 
-const mapStatetoProps = state => {
+const mapStatetoProps = (state) => {
   const { error, success } = state.Profile;
   return { error, success };
 };

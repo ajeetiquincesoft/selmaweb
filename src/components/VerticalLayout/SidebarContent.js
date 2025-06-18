@@ -230,22 +230,20 @@ const SidebarContent = props => {
             </li>
 
 
-            {/* <li>
+            <li>
               <Link to="/#" className="has-arrow" >
                 <i className='bx bx-cog'></i>
                 <span>{props.t("Pages")}</span>
               </Link>
               <ul className="sub-menu">
                 <li>
-                  <Link to="/profile">{props.t("Profile Update")}</Link>
+                  <Link to="/page-List">{props.t("Page List")}</Link>
                 </li>
                 <li>
-                  <Link to="/logout">
-                    {props.t("Logout")}
-                  </Link>
+                  <Link to="/page-categories">{props.t("Page Categories")}</Link>
                 </li>
               </ul>
-            </li> */}
+            </li>
 
 
             <li>
