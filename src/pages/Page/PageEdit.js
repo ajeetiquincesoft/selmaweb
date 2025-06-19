@@ -18,6 +18,7 @@ import BASE_URL from "path"; // Replace with your actual BASE_URL import
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import "../../custom.css";
+import { Link } from "react-router-dom";
 
 const EditPage = () => {
     const { id } = useParams();
@@ -266,18 +267,17 @@ const EditPage = () => {
 
     return (
         <div className="page-content">
-            <Container fluid>
-                <Row className="mb-3">
-                    <Col>
-                        <h4 className="mb-0">Edit Page</h4>
-                    </Col>
-                    <Col className="text-end">
-                        <Button color="secondary" onClick={() => navigate("/page-list")}>
-                            Back to List
-                        </Button>
-                    </Col>
-                </Row>
-
+            <ul className="breadcrumb">
+                <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                </li>
+                <li>
+                    <Link to="/page-list"><a href="/">Page List /</a></Link>
+                </li>
+                <li className="active">Page Edit</li>
+            </ul>
+            <Container >
+               
                 {loading.page ? (
                     <div className="text-center my-5">
                         <Spinner color="primary" />
@@ -288,9 +288,7 @@ const EditPage = () => {
                         <Col xl={12}>
                             <Card>
                                 <CardBody>
-                                    {alertMsg.message && (
-                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
-                                    )}
+                                   
                                     <form onSubmit={handleSubmit}>
                                         <FormGroup>
                                             <Label>Title</Label>
