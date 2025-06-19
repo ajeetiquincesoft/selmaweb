@@ -77,22 +77,29 @@ const ParkDetails = () => {
   const facilities = typeof park.facilities === 'string'
     ? JSON.parse(park.facilities)
     : park.facilities || [];
-document.title = "Parks & Recreation Details  | City of Selma";
+  document.title = "Parks & Recreation Details  | City of Selma";
   return (
     <div className="page-content">
+      <ul className="breadcrumb">
+        <li>
+          <Link to="/"><a href="/">Home /</a></Link>
+        </li>
+        <li>
+          <Link to="/parks-recreation-list"><a href="/">Parks & Recreation List /</a></Link>
+        </li>
+        <li className="active">Parks & Recreation Details</li>
+      </ul>
+
       <Container>
-        <ul className="breadcrumb">
-          <li>
-            <Link to="/"><a href="/">Home /</a></Link>
-          </li>
-          <li>
-            <Link to="/parks-recreation-list"><a href="/">Parks & Recreation List /</a></Link>
-          </li>
-          <li className="active">Parks & Recreation Details</li>
-        </ul>
+        {/* Breadcrumb */}
+
+        {/* Main Info Card */}
+
+
         <Card className="p-4 mb-4 shadow-sm">
           <Row className="mb-4">
-            <Col md={6}>
+            {/* Featured Image */}
+            <Col md={6} className="d-flex justify-content-center align-items-center text-center">
               <img
                 src={park.featured_image || "default.jpg"}
                 alt={park.title}
@@ -100,74 +107,100 @@ document.title = "Parks & Recreation Details  | City of Selma";
                 style={{ maxHeight: "350px", objectFit: "cover" }}
               />
             </Col>
-            <Col md={6}>
-              <div className="d-flex justify-content-between align-items-start">
-                <div>
-                  <h2 className="mb-2">{park.title}</h2>
-                  <div className="d-flex gap-2 mb-3">
-                    <Badge color={park.status === "1" ? "success" : "warning"}>
-                      {park.status === "1" ? "Published" : park.status === "0" ? "Unpublished" : "Draft"}
-                    </Badge>
-                    <Badge color="info">
-                      {park.category?.name || "Uncategorized"}
-                    </Badge>
-                  </div>
-                </div>
-                <Link to={`/edit-park/${park.id}`} className="btn btn-sm btn-primary">
-                  Edit Park
-                </Link>
-              </div>
 
-              <Table bordered className="mb-4">
-                <tbody>
-                  <tr>
-                    <th width="30%">Created Date</th>
-                    <td>{new Date(park.createdAt).toLocaleDateString()}</td>
-                  </tr>
-                  <tr>
-                    <th>Short Description</th>
-                    <td>{park.shortdescription}</td>
-                  </tr>
-                </tbody>
-              </Table>
+            {/* Right Info Column */}
+            <Col md={6}>
+              <Row className="align-items-center mb-3">
+                <Col md={6}>
+                  <div className="mb-4">
+                    <Link to="#" className="badge bg-light font-size-12">
+                      <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
+                      Park
+                    </Link>
+                  </div>
+                </Col>
+                <Col md={6} className="text-md-end">
+                  <Link to={`/edit-park/${park.id}`} className="btn btn-sm btn-primary">
+                    Edit Park
+                  </Link>
+                </Col>
+              </Row>
+
+              <div className="bg-light p-3">
+                {/* Title and Date */}
+                <Row className="mb-3">
+                  <Col md={8}>
+                    <h4 className="mb-2">{park.title}</h4>
+                  </Col>
+                  <Col md={4} className="text-end">
+                    <h6 className="text-muted text-sm mb-2">Published Date</h6>
+                    <h5 className="font-size-15">
+                      {new Date(park.published_at).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </h5>
+                  </Col>
+                </Row>
+
+                {/* Short Description */}
+                <Row>
+                  <Col md={12}>
+                    <div className="text-muted mb-2">Short Description</div>
+                    <div dangerouslySetInnerHTML={{ __html: park.shortdescription }} />
+                  </Col>
+                </Row>
+
+                <hr style={{ border: "1px solid #c7c7c7" }} />
+
+                {/* Details Grid */}
+                <div className="text-center">
+                  <Row className="mb-3">
+                    <Col sm={3}>
+                      <p className="text-muted mb-2">Date</p>
+                      <h5 className="font-size-15">
+                        {new Date(park.date).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </h5>
+                    </Col>
+                    <Col sm={3}>
+                      <p className="text-muted mb-2">Time</p>
+                      <h5 className="font-size-15">{park.time}</h5>
+                    </Col>
+                    <Col sm={3}>
+                      <p className="text-muted mb-2">Organizer</p>
+                      <h5 className="font-size-15">{park.organizor}</h5>
+                    </Col>
+                    <Col sm={3}>
+                      <p className="text-muted mb-2">Link</p>
+                      <h5 className="font-size-15">{park.link}</h5>
+                    </Col>
+
+                  </Row>
+                </div>
+              </div>
             </Col>
           </Row>
+        </Card>
 
+
+
+
+
+
+        <Card className="p-4 mb-4 shadow-sm">
+          {/* Description */}
           <h4 className="mb-3">Description</h4>
           <Card className="p-3 mb-4 bg-light">
             <div dangerouslySetInnerHTML={{ __html: park.description }} />
           </Card>
+        </Card>
 
-          <h4 className="mb-3">Event Details</h4>
-          <Table bordered striped className="mb-4">
-            <tbody>
-              <tr>
-                <th width="30%">Date</th>
-                <td>{park.date}</td>
-              </tr>
-              <tr>
-                <th>Time</th>
-                <td>{park.time}</td>
-              </tr>
-              <tr>
-                <th>Organizer</th>
-                <td>{park.organizer}</td>
-              </tr>
-              <tr>
-                <th>Published At</th>
-                <td>{new Date(park.published_at).toLocaleString()}</td>
-              </tr>
-              <tr>
-                <th>Website Link</th>
-                <td>
-                  <a href={park.link} target="_blank" rel="noopener noreferrer">
-                    {park.link}
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </Table>
-
+        <Card className="p-4 mb-4 shadow-sm">
           {/* Facilities Section */}
           <h4 className="mb-3">Facilities</h4>
           {facilities.length > 0 ? (
@@ -205,29 +238,37 @@ document.title = "Parks & Recreation Details  | City of Selma";
             <Alert color="info">No facilities information available</Alert>
           )}
 
-          {/* Gallery Section */}
           {park.images && park.images.length > 0 && (
             <>
               <h4 className="mb-3 mt-4">Gallery</h4>
-              <Row>
+              <div
+                style={{
+                  display: "flex",
+                  overflowX: "auto",
+                  gap: "16px", // spacing between images
+                  paddingBottom: "10px"
+                }}
+              >
                 {park.images.map((image, index) => (
-                  <Col md={4} className="mb-3" key={index}>
+                  <div key={index} style={{ minWidth: "200px", flex: "0 0 auto" }}>
                     <Card className="h-100">
                       <img
                         src={image}
                         alt={`${park.title} ${index + 1}`}
                         className="img-fluid rounded"
-                        style={{ height: "200px", objectFit: "cover" }}
+                        style={{ height: "200px", width: "100%", objectFit: "contain" }}
                       />
                     </Card>
-                  </Col>
+                  </div>
                 ))}
-              </Row>
+              </div>
             </>
           )}
         </Card>
       </Container>
     </div>
+
+
   );
 };
 

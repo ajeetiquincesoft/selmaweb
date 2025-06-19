@@ -15,6 +15,7 @@ import BASE_URL from "path"; // Replace this with your actual BASE_URL import
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const NewsEdit = () => {
     const { id } = useParams();
@@ -23,6 +24,7 @@ const NewsEdit = () => {
     const [errors, setErrors] = useState({});
     const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         title: "",
@@ -153,7 +155,9 @@ const NewsEdit = () => {
 
             if (response.data.success) {
                 setAlertMsg({ message: "News updated successfully", type: "success" });
-                fetchNewsById(id);
+                setTimeout(() => {
+                    navigate("/news-list");
+                }, 2000); // Optional delay to show alert
             } else {
                 setAlertMsg({ message: "Failed to update news", type: "danger" });
             }
@@ -182,9 +186,6 @@ const NewsEdit = () => {
                             <Card>
                                 <CardBody>
                                     <h2 className="display-4 text-center">News </h2>
-                                    {alertMsg.message && (
-                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
-                                    )}
                                     <Col lg={12} className="mt-3">
                                         <label className="form-label">Title</label>
                                         <input
@@ -303,6 +304,9 @@ const NewsEdit = () => {
                                     <Col lg={12} className="mt-4 text-center">
                                         <Button type="submit" color="primary">Update</Button>
                                     </Col>
+                                    {alertMsg.message && (
+                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
+                                    )}
                                 </CardBody>
                             </Card>
                         </Col>

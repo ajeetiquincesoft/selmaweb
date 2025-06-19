@@ -247,7 +247,7 @@ const EditPark = () => {
             });
         }
     };
-document.title = "Parks & Recreation Edit  | City of Selma";
+    document.title = "Parks & Recreation Edit  | City of Selma";
     return (
         <div className="page-content">
             <ul className="breadcrumb">
@@ -265,11 +265,7 @@ document.title = "Parks & Recreation Edit  | City of Selma";
                 <Card className="p-4 shadow">
                     <h3 className="mb-4">Edit</h3>
 
-                    {alertMsg.message && (
-                        <Alert color={alertMsg.type} className="mb-4" toggle={() => setAlertMsg({ type: "", message: "" })}>
-                            {alertMsg.message}
-                        </Alert>
-                    )}
+
 
                     <form onSubmit={handleSubmit}>
                         <Row>
@@ -599,7 +595,11 @@ document.title = "Parks & Recreation Edit  | City of Selma";
                             <Col lg={12} className="mt-4 text-center">
                                 <Button type="submit" color="primary">Update</Button>
                             </Col>
-
+                            {alertMsg.message && (
+                                <Alert color={alertMsg.type} className="mb-4" toggle={() => setAlertMsg({ type: "", message: "" })}>
+                                    {alertMsg.message}
+                                </Alert>
+                            )}
                         </Row>
                     </form>
                 </Card>

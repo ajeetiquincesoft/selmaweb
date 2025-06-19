@@ -55,117 +55,151 @@ const EventDetails = () => {
     if (error) return <p>{error}</p>;
 
     document.title = "Event Details";
-document.title=" Event Details | City of Selma";
+    document.title = " Event Details | City of Selma";
     return (
         <div className="page-content">
-            <Container fluid>
-                <ul className="breadcrumb">
-                    <li>
-                        <Link to="/"><a href="/">Home /</a></Link>
-                    </li>
-                    <li>
-                        <Link to="/event-list"><a href="">Event List /</a></Link>
-                    </li>
-                    <li className="active">Event Details</li>
-                </ul>
+            <ul className="breadcrumb">
+                <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                </li>
+                <li>
+                    <Link to="/event-list"><a href="/">Event List /</a></Link>
+                </li>
+                <li className="active">Event Details</li>
+            </ul>
+            <Container>
+                {/* Breadcrumb */}
 
-                <Row>
-                    <Col lg={12}>
-                        <Card>
-                            <CardBody>
-                                <Row className="justify-content-center">
-                                    <Col xl={8}>
-                                        <div className='text-end'>
-                                            <Link to={`/edit-event/${event.id}`}>
-                                                <button className='btn btn-success'>Edit</button>
-                                            </Link>
-                                        </div>
-                                        <div className="text-center">
-                                            <div className="mb-4">
-                                                <Link to="#" className="badge bg-light font-size-12">
-                                                    <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
-                                                    Event
-                                                </Link>
-                                            </div>
-                                            <h4>{event.title}</h4>
-                                            <p className="text-muted mb-4">
-                                                <div dangerouslySetInnerHTML={{ __html: event.shortdescription }} />
-                                            </p>
-                                        </div>
 
-                                        <hr />
+                {/* Main Event Card */}
+                <Card className="p-4 mb-4 shadow-sm">
+                    <Row className="mb-4">
+                        {/* Featured Image */}
+                        <Col md={6} className="d-flex justify-content-center align-items-center text-center">
+                            <img
+                                src={event.featured_image || "default.jpg"}
+                                alt={event.title}
+                                className="img-fluid rounded"
+                                style={{ maxHeight: "350px", objectFit: "cover" }}
+                            />
+                        </Col>
 
-                                        <div className="text-center">
-                                            <Row>
-                                                <Col sm={3}>
-                                                    <p className="text-muted mb-2">Category</p>
-                                                    <h5 className="font-size-15">{event.category?.name}</h5>
-                                                </Col>
-                                                <Col sm={3}>
-                                                    <p className="text-muted mb-2">Date</p>
-                                                    <h5 className="font-size-15">
-                                                        {new Date(event.date).toLocaleDateString("en-GB", {
-                                                            day: "2-digit",
-                                                            month: "short",
-                                                            year: "numeric",
-                                                        })} @ {event.time}
-                                                    </h5>
-                                                </Col>
-                                                <Col sm={3}>
-                                                    <p className="text-muted mb-2">Posted by</p>
-                                                    <h5 className="font-size-15">{event.organizor}</h5>
+                        {/* Right Info Column */}
+                        <Col md={6}>
+                            <Row className="align-items-center mb-3">
+                                <Col md={6}>
+                                    <div className="mb-4">
+                                        <Link to="#" className="badge bg-light font-size-12">
+                                            <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
+                                            Event
+                                        </Link>
+                                    </div>
+                                </Col>
+                                <Col md={6} className="text-md-end">
+                                    <Link to={`/edit-event/${event.id}`} className="btn btn-sm btn-success">
+                                        Edit Event
+                                    </Link>
+                                </Col>
+                            </Row>
 
-                                                </Col>
-                                                <Col sm={3}>
-                                                    <p className="text-muted mb-2">Vanue </p>
-                                                    <h5 className="font-size-15">{event.address}</h5>
-
-                                                </Col>
-                                            </Row>
-                                        </div>
-
-                                        <hr />
-
-                                        <div className="my-5">
-                                            <img
-                                                src={event.featured_image}
-                                                alt=""
-                                                className="img-thumbnail mx-auto d-block"
-                                            />
-                                        </div>
-
-                                        <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', textAlign: 'center' }}>
-                                            {event.files && event.files.map((img, index) => (
-                                                <img
-                                                    key={index}
-                                                    src={img}
-                                                    alt={`event-img-${index}`}
-                                                    style={{
-                                                        width: '120px',
-                                                        height: '80px',
-                                                        objectFit: 'cover',
-                                                        display: 'inline-block',
-                                                        marginRight: '10px',
-                                                        borderRadius: '6px',
-                                                    }}
-                                                    className="img-thumbnail"
-                                                />
-                                            ))}
-                                        </div>
-
-                                        <hr />
-
-                                        <div className="mt-4">
-                                            <div dangerouslySetInnerHTML={{ __html: event.description }} />
-                                        </div>
+                            <div className="bg-light p-3">
+                                {/* Title and Date */}
+                                <Row className="mb-3">
+                                    <Col md={8}>
+                                        <h4 className="mb-2">{event.title}</h4>
+                                    </Col>
+                                    <Col md={4} className="text-end">
+                                        <h6 className="text-muted text-sm mb-2">Event Date & Time</h6>
+                                        <h5 className="font-size-15">
+                                            {new Date(event.date).toLocaleDateString("en-GB", {
+                                                day: "2-digit",
+                                                month: "short",
+                                                year: "numeric",
+                                            })}
+                                        </h5>
                                     </Col>
                                 </Row>
-                            </CardBody>
-                        </Card>
-                    </Col>
-                </Row>
+
+                                {/* Short Description */}
+                                <Row>
+                                    <Col md={12}>
+                                        <div className="text-muted mb-2">Short Description</div>
+                                        <div dangerouslySetInnerHTML={{ __html: event.shortdescription }} />
+                                    </Col>
+                                </Row>
+
+                                <hr style={{ border: "1px solid #c7c7c7" }} />
+
+                                {/* Details Grid */}
+                                <div className="text-center">
+                                    <Row className="mb-3">
+                                        <Col sm={3}>
+                                            <p className="text-muted mb-2">Category</p>
+                                            <h5 className="font-size-15">{event.category?.name}</h5>
+                                        </Col>
+                                        <Col sm={3}>
+                                            <p className="text-muted mb-2">Posted By</p>
+                                            <h5 className="font-size-15">{event.organizor}</h5>
+                                        </Col>
+                                        <Col sm={3}>
+                                            <p className="text-muted mb-2">Venue</p>
+                                            <h5 className="font-size-15">{event.address}</h5>
+                                        </Col>
+                                        <Col sm={3}>
+                                            <p className="text-muted mb-2">Created At</p>
+                                            <h5 className="font-size-15">
+                                                {new Date(event.createdAt).toLocaleDateString("en-GB", {
+                                                    day: "2-digit",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })}
+                                            </h5>
+                                        </Col>
+                                    </Row>
+                                </div>
+                            </div>
+                        </Col>
+                    </Row>
+                </Card>
+
+                {/* Description */}
+                <Card className="p-4 mb-4 shadow-sm">
+                    <h5 className="mb-3">Description</h5>
+                    <Card className="p-3 mb-4 bg-light">
+                        <div dangerouslySetInnerHTML={{ __html: event.description }} />
+                    </Card>
+                </Card>
+
+                {/* Event Images */}
+                {event.files && event.files.length > 0 && (
+                    <Card className="p-4 mb-4 shadow-sm">
+                        <h4 className="mb-3 mt-4">Event Gallery</h4>
+                        <div
+                            style={{
+                                display: "flex",
+                                overflowX: "auto",
+                                gap: "16px",
+                                paddingBottom: "10px"
+                            }}
+                        >
+                            {event.files.map((img, index) => (
+                                <div key={index} style={{ minWidth: "200px", flex: "0 0 auto" }}>
+                                    <Card className="h-100">
+                                        <img
+                                            src={img}
+                                            alt={`event-img-${index}`}
+                                            className="img-fluid rounded"
+                                            style={{ height: "200px", width: "100%", objectFit: "contain" }}
+                                        />
+                                    </Card>
+                                </div>
+                            ))}
+                        </div>
+                    </Card>
+                )}
             </Container>
         </div>
+
     );
 };
 

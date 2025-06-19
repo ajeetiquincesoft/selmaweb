@@ -237,7 +237,7 @@ const ParkCreationCategory = () => {
                                                     )}
                                                     <span>{cat.name}</span>
                                                 </td>
-                                                <td>{cat.status === "1" ? "Active" : "Pending"}</td>
+                                                <td>{cat.status == 1 ? "Active" : "Deactivate"}</td>
                                                 <td>
                                                     <Button
                                                         color="warning"
@@ -314,7 +314,7 @@ const ParkCreationCategory = () => {
                                 >
                                     <option value="">Select</option>
                                     <option value="1">Active</option>
-                                    <option value="0">Pending</option>
+                                    <option value="0">Deactivate</option>
                                 </select>
                                 {errors.status && (
                                     <small className="text-danger">{errors.status}</small>

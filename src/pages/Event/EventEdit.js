@@ -14,6 +14,7 @@ import {
 import BASE_URL from "path"; // Replace this with your actual BASE_URL import
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { useNavigate } from "react-router-dom";
 
 const EventEdit = () => {
     const { id } = useParams();
@@ -22,6 +23,7 @@ const EventEdit = () => {
     const [errors, setErrors] = useState({});
     const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         title: "",
@@ -60,6 +62,7 @@ const EventEdit = () => {
                 shortdescription: eventData.shortdescription || "",
                 description: eventData.description || "",
                 date: eventData.date || "",
+                address: eventData.address || "",
                 category_id: eventData.category_id || "",
                 status: String(eventData.status) || "",
                 featured_image: eventData.featured_image || "",
@@ -168,6 +171,9 @@ const EventEdit = () => {
             if (response.data.success) {
                 fetchEventById(id);
                 setAlertMsg({ message: "Event updated successfully", type: "success" });
+                setTimeout(() => {
+                    navigate("/event-list");
+                }, 2000); // Optional delay to show alert
 
             } else {
                 setAlertMsg({ message: "Failed to update event", type: "danger" });
@@ -177,7 +183,7 @@ const EventEdit = () => {
             setAlertMsg({ message: "Error updating event", type: "danger" });
         }
     };
-document.title=" Event Edit | City of Selma";
+    document.title = " Event Edit | City of Selma";
     return (
         <div className="page-content">
             <ul className="breadcrumb">
@@ -197,9 +203,7 @@ document.title=" Event Edit | City of Selma";
                             <Card>
                                 <CardBody>
                                     <h2 className="display-4 text-center">Event</h2>
-                                    {alertMsg.message && (
-                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
-                                    )}
+
 
                                     <Col lg={12} className="mt-3">
                                         <label className="form-label">Title</label>
@@ -355,6 +359,9 @@ document.title=" Event Edit | City of Selma";
                                     <Col lg={12} className="mt-4 text-center">
                                         <Button type="submit" color="primary">Update</Button>
                                     </Col>
+                                    {alertMsg.message && (
+                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
+                                    )}
                                 </CardBody>
                             </Card>
                         </Col>

@@ -14,7 +14,7 @@ import {
 import BASE_URL from "path"; // Replace with your actual base URL
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
+import { useNavigate } from "react-router-dom";
 const JobEdit = () => {
     const { id } = useParams();
     const [token, setToken] = useState(null);
@@ -22,6 +22,7 @@ const JobEdit = () => {
     const [errors, setErrors] = useState({});
     const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         title: "",
@@ -153,7 +154,9 @@ const JobEdit = () => {
             console.log(response);
             if (response.data.success) {
                 setAlertMsg({ message: "Job updated successfully", type: "success" });
-                fetchJobById(id);
+                setTimeout(() => {
+                    navigate("/job-list");
+                }, 2000); // Optional delay to show alert
             } else {
                 setAlertMsg({ message: "Failed to update job", type: "danger" });
             }
@@ -162,7 +165,7 @@ const JobEdit = () => {
             setAlertMsg({ message: "Error updating job", type: "danger" });
         }
     };
-document.title="Job Edit | City of Selma";
+    document.title = "Job Edit | City of Selma";
     return (
         <div className="page-content">
             <ul className="breadcrumb">
@@ -182,9 +185,7 @@ document.title="Job Edit | City of Selma";
                             <Card>
                                 <CardBody>
                                     <h3 className="display-5 text-center">Job</h3>
-                                    {alertMsg.message && (
-                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
-                                    )}
+
                                     <Col lg={12} className="mt-3">
                                         <label className="form-label">Title</label>
                                         <input
@@ -298,6 +299,9 @@ document.title="Job Edit | City of Selma";
                                     <Col lg={12} className="mt-4 text-center">
                                         <Button type="submit" color="primary">Update Job</Button>
                                     </Col>
+                                    {alertMsg.message && (
+                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
+                                    )}
                                 </CardBody>
                             </Card>
                         </Col>

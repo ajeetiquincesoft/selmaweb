@@ -73,127 +73,141 @@ const NewsDetails = () => {
     //meta title
     document.title = "News Details";
     return (
-        <>
-            <div className="page-content">
-                <Container fluid>
-                    <ul className="breadcrumb">
-                        <li>
-                            <Link to="/"><a href="/">Home /</a></Link>
-                        </li>
-                        <li>
-                            <Link to="/news-list"><a href="/">News List /</a></Link>
-                        </li>
-                        <li className="active">News Details</li>
-                    </ul>
-                    <Row>
-                        <Col lg={12}>
-                            <Card>
-                                <CardBody>
-                                    <div className="pt-3">
-                                        <Row className="justify-content-center">
-                                            <Col xl={8}>
-                                                <div>
-                                                    <div className='text-end'>
-                                                        <Link to={`/edit-news/${news.id}`}>
-                                                            <button className='btn btn-success'>Edit</button>
-                                                        </Link>
-                                                    </div>
+        <div className="page-content">
+            <ul className="breadcrumb">
+                <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                </li>
+                <li>
+                    <Link to="/news-list"><a href="/">News List /</a></Link>
+                </li>
+                <li className="active">News Details</li>
+            </ul>
+            <Container>
+                {/* Breadcrumb */}
 
-                                                    <div className="text-center">
-                                                        <div className="mb-4">
-                                                            <Link
-                                                                to="#"
-                                                                className="badge bg-light font-size-12"
-                                                            >
-                                                                <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
-                                                                News
-                                                            </Link>
-                                                        </div>
 
-                                                        <h4>{news.title}</h4>
-                                                        <p className="text-muted mb-4">
-                                                            <div dangerouslySetInnerHTML={{ __html: news.shortdescription }} />
-                                                        </p>
-                                                    </div>
+                {/* Main Card */}
+                <Card className="p-4 mb-4 shadow-sm">
+                    <Row className="mb-4">
+                        {/* Featured Image */}
+                        <Col md={6} className="d-flex justify-content-center align-items-center text-center">
+                            <img
+                                src={news.featured_image || "default.jpg"}
+                                alt={news.title}
+                                className="img-fluid rounded"
+                                style={{ maxHeight: "350px", objectFit: "cover" }}
+                            />
+                        </Col>
 
-                                                    <hr />
-                                                    <div className="text-center">
-                                                        <Row>
-                                                            <Col sm={4}>
-                                                                <div>
-                                                                    <p className="text-muted mb-2">Categories</p>
-                                                                    <h5 className="font-size-15">{news.category?.name}</h5>
-                                                                </div>
-                                                            </Col>
-                                                            <Col sm={4}>
-                                                                <div className="mt-4 mt-sm-0">
-                                                                    <p className="text-muted mb-2">Date</p>
-                                                                    <h5 className="font-size-15">
-
-                                                                        {new Date(news.createdAt).toLocaleDateString("en-GB", {
-                                                                            day: "2-digit",
-                                                                            month: "short",
-                                                                            year: "numeric",
-                                                                        })}
-                                                                    </h5>
-                                                                </div>
-                                                            </Col>
-                                                            <Col sm={4}>
-                                                                <div className="mt-4 mt-sm-0">
-                                                                    <p className="text-muted mb-2">Post by</p>
-                                                                    <h5 className="font-size-15">{news.author?.name}</h5>
-                                                                </div>
-                                                            </Col>
-                                                        </Row>
-                                                    </div>
-                                                    <hr />
-
-                                                    <div className="my-5">
-                                                        <img
-                                                            src={news.featured_image}
-                                                            alt=""
-                                                            className="img-thumbnail mx-auto d-block"
-                                                        />
-                                                    </div>
-                                                    <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', textAlign: 'center' }}>
-                                                        {news.images && news.images.map((item, index) => (
-                                                            <img
-                                                                key={index}
-                                                                src={item}
-                                                                alt={`news-img-${index}`}
-                                                                style={{
-                                                                    width: '120px',
-                                                                    height: '80px',
-                                                                    objectFit: 'cover',
-                                                                    display: 'inline-block',
-                                                                    marginRight: '10px',
-                                                                    borderRadius: '6px',
-                                                                }}
-                                                                className="img-thumbnail"
-                                                            />
-                                                        ))}
-                                                    </div>
-
-                                                    <hr />
-
-                                                    <div className="mt-4">
-                                                        <div className="">
-
-                                                            <div dangerouslySetInnerHTML={{ __html: news.description }} />
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </Col>
-                                        </Row>
+                        {/* News Info */}
+                        <Col md={6}>
+                            <Row className="align-items-center mb-3">
+                                <Col md={6}>
+                                    <div className="mb-4">
+                                        <Link to="#" className="badge bg-light font-size-12">
+                                            <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
+                                            News
+                                        </Link>
                                     </div>
-                                </CardBody>
-                            </Card>
+                                </Col>
+                                <Col md={6} className="text-md-end">
+                                    <Link to={`/edit-news/${news.id}`} className="btn btn-sm btn-success">
+                                        Edit News
+                                    </Link>
+                                </Col>
+                            </Row>
+
+                            <div className="bg-light p-3">
+                                <Row className="mb-3">
+                                    <Col md={8}>
+                                        <h4 className="mb-2">{news.title}</h4>
+                                    </Col>
+                                    <Col md={4} className="text-end">
+                                        <h6 className="text-muted text-sm mb-2">Published Date</h6>
+                                        <h5 className="font-size-15">
+                                            {new Date(news.createdAt).toLocaleDateString("en-GB", {
+                                                day: "2-digit",
+                                                month: "short",
+                                                year: "numeric",
+                                            })}
+                                        </h5>
+                                    </Col>
+                                </Row>
+
+                                <Row>
+                                    <Col md={12}>
+                                        <div dangerouslySetInnerHTML={{ __html: news.shortdescription }} />
+                                    </Col>
+                                </Row>
+
+                                <hr style={{ border: "1px solid #c7c7c7" }} />
+
+                                <div className="text-center">
+                                    <Row className="mb-3">
+                                        <Col sm={4}>
+                                            <p className="text-muted mb-2">Category</p>
+                                            <h5 className="font-size-15">{news.category?.name}</h5>
+                                        </Col>
+                                        <Col sm={4}>
+                                            <p className="text-muted mb-2">Created Date</p>
+                                            <h5 className="font-size-15">
+                                                {new Date(news.createdAt).toLocaleDateString("en-GB", {
+                                                    day: "2-digit",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })}
+                                            </h5>
+                                        </Col>
+                                        <Col sm={4}>
+                                            <p className="text-muted mb-2">Posted By</p>
+                                            <h5 className="font-size-15">{news.author?.name}</h5>
+                                        </Col>
+                                    </Row>
+                                </div>
+                            </div>
                         </Col>
                     </Row>
-                </Container>
-            </div>
-        </>
+                </Card>
+
+                {/* Description Section */}
+                <Card className="p-4 mb-4 shadow-sm">
+                    <h5 className="mb-3">Description</h5>
+                    <Card className="p-3 mb-4 bg-light">
+                        <div dangerouslySetInnerHTML={{ __html: news.description }} />
+                    </Card>
+                </Card>
+
+                {/* Images Section */}
+                {news.images && news.images.length > 0 && (
+                    <Card className="p-4 mb-4 shadow-sm">
+                        <h4 className="mb-3 mt-4">Images</h4>
+                        <div
+                            style={{
+                                display: "flex",
+                                overflowX: "auto",
+                                gap: "16px",
+                                paddingBottom: "10px"
+                            }}
+                        >
+                            {news.images.map((image, index) => (
+                                <div key={index} style={{ minWidth: "200px", flex: "0 0 auto" }}>
+                                    <Card className="h-100">
+                                        <img
+                                            src={image}
+                                            alt={`News ${index + 1}`}
+                                            className="img-fluid rounded"
+                                            style={{ height: "200px", width: "100%", objectFit: "contain" }}
+                                        />
+                                    </Card>
+                                </div>
+                            ))}
+                        </div>
+                    </Card>
+                )}
+            </Container>
+        </div>
+
     )
 }
 

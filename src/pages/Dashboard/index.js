@@ -167,6 +167,8 @@ const Dashboard = props => {
                       </div>
                     </Col>
                     <Col xs="5" className="align-self-end">
+
+                    
                       <img src={profileImg} alt="" className="img-fluid" />
                     </Col>
                   </Row>
@@ -222,9 +224,7 @@ const Dashboard = props => {
                       Selma is located high on the banks of the Alabama River in Dallas County of which it is the county seat.
                       The city is best known for the Battle of Selma and for the Selma to Montgomery Marches.
                     </p>
-                    <Link to="#" className="text-primary font-16">
-                      Learn more <i className="mdi mdi-chevron-right"></i>
-                    </Link>
+                    
                   </div>
                   <Row className="mt-4">
                     <Col xs={4} >

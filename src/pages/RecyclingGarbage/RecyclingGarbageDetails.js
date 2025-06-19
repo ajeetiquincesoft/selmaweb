@@ -45,57 +45,91 @@ const RecyclingGarbageDetails = () => {
             </Container>
         );
     }
-document.title = "Recycling & Garbage Details | City of Selma";
+    document.title = "Recycling & Garbage Details | City of Selma";
     return (
         <div className="page-content">
-            <Container className="">
-                <ul className="breadcrumb">
-                    <li>
-                        <Link to="/"><a href="/">Home /</a></Link>
-                    </li>
-                    <li>
-                        <Link to="/recycling-garbage-list"><a href="/">Recycling & Garbage list /</a></Link>
-                    </li>
-                    <li className="active">Recycling & Garbage Details</li>
-                </ul>
-                <Row className="justify-content-center">
-                    <Col lg={10}>
-                        <Card className="shadow rounded border-0">
+            <ul className="breadcrumb">
+                <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                </li>
+                <li>
+                    <Link to="/recycling-garbage-list"><a href="/">Recycling & Garbage List /</a></Link>
+                </li>
+                <li className="active">Recycling & Garbage Details</li>
+            </ul>
+            <Container>
+                {/* Breadcrumb */}
 
-                            <CardBody>
-                                <div className="text-end">
-                                    <Link to={`/edit-park/${data.id}`} className="btn btn-sm btn-primary">
+
+                {/* Main Card */}
+                <Card className="p-4 mb-4 shadow-sm">
+                    <Row className="mb-4">
+                        {/* Left: Image */}
+                        <Col md={6} className="d-flex justify-content-center align-items-center text-center">
+                            <img
+                                src={data.image || "default.jpg"}
+                                alt={data.title}
+                                className="img-fluid rounded"
+                                style={{ maxHeight: "350px", objectFit: "cover" }}
+                            />
+                        </Col>
+
+                        {/* Right: Info */}
+                        <Col md={6}>
+                            {/* Header Row */}
+                            <Row className="align-items-center mb-3">
+                                <Col md={6}>
+                                    <div className="mb-4">
+                                        <Link to="#" className="badge bg-light font-size-12">
+                                            <i className="bx bx-recycle align-middle text-muted me-1"></i>
+                                            Recycling & Garbage
+                                        </Link>
+                                    </div>
+                                </Col>
+                                <Col md={6} className="text-md-end">
+                                    <Link to={`/edit-recycling-garbage/${data.id}`} className="btn btn-sm btn-primary">
                                         Edit
                                     </Link>
-                                </div>
+                                </Col>
+                            </Row>
 
-                                <h2 className="mb-3 text-center">{data.title}</h2>
-                                <p className="text-muted text-center">
-                                    {new Date(data.createdAt).toLocaleDateString("en-GB", {
-                                        day: "2-digit",
-                                        month: "short",
-                                        year: "numeric",
-                                    })}{" "}
-                                    | <strong>{data.author?.name || "Admin"}</strong>
-                                </p>
+                            {/* Details Box */}
+                            <div className="bg-light p-3">
+                                <Row>
+                                    <Col sm={6}>
+                                        <p className="text-muted mb-2">Created Date</p>
+                                        <h5 className="font-size-15">
+                                            {new Date(data.createdAt).toLocaleDateString("en-GB", {
+                                                day: "2-digit",
+                                                month: "short",
+                                                year: "numeric",
+                                            })}
+                                        </h5>
+                                    </Col>
+                                    <Col sm={6}>
+                                        <p className="text-muted mb-2">Posted By</p>
+                                        <h5 className="font-size-15">{data.author?.name || "Admin"}</h5>
+                                    </Col>
+                                </Row>
+
+                                <hr style={{ border: "1px solid #c7c7c7" }} />
+
+                                <p className="text-muted mb-2">Short Description</p>
                                 <p>{data.shortdescription}</p>
-                                {data.image && (
-                                    <img
-                                        src={data.image}
-                                        alt={data.title}
-                                        className="img-fluid rounded text-center mb-4"
-                                    />
-                                )}
-                                <div
-                                    dangerouslySetInnerHTML={{ __html: data.description }}
-                                    className="mt-3"
-                                />
-                            </CardBody>
-                        </Card>
-                    </Col>
-                </Row>
+                            </div>
+                        </Col>
+                    </Row>
+                </Card>
+                <Card className="p-4 mb-4 shadow-sm">
+                    {/* Description Section */}
+                    <h4 className="mb-3">Description</h4>
+                    <Card className="p-3 bg-light">
+                        <div dangerouslySetInnerHTML={{ __html: data.description }} />
+                    </Card>
+                </Card>
             </Container>
-        </div>
+        </div >
+
     );
 };
 

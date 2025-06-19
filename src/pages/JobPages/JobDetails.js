@@ -56,116 +56,139 @@ const JobDetails = () => {
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
 
-document.title="Job Details | City of Selma";
+    document.title = "Job Details | City of Selma";
     return (
         <div className="page-content">
-            <Container fluid>
-                <ul className="breadcrumb">
-                    <li>
-                        <Link to="/"><a href="/">Home /</a></Link>
-                    </li>
-                    <li>
-                        <Link to="/job-list"><a href="/">Jobs List /</a></Link>
-                    </li>
-                    <li className="active">Job Details</li>
-                </ul>
-                <Row>
-                    <Col lg={12}>
-                        <Card>
-                            <CardBody>
-                                <div className="pt-3">
-                                    <Row className="justify-content-center">
-                                        <Col xl={8}>
+            <ul className="breadcrumb">
+                <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                </li>
+                <li>
+                    <Link to="/job-list"><a href="/">Jobs List /</a></Link>
+                </li>
+                <li className="active">Job Details</li>
+            </ul>
+            <Container>
+                {/* Breadcrumb */}
 
-                                            <div>
-                                                <div className='text-end'>
-                                                    <Link to={`/edit-job/${job.id}`}>
-                                                        <button className='btn btn-success'>Edit</button>
-                                                    </Link>
-                                                </div>
-                                                <div className="text-center">
-                                                    <div className="mb-4">
-                                                        <Link
-                                                            to="#"
-                                                            className="badge bg-light font-size-12"
-                                                        >
-                                                            <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
-                                                            Jobs
-                                                        </Link>
-                                                    </div>
-                                                    <h4>{job.title}</h4>
-                                                    <p className="text-muted mb-4">
-                                                        <div dangerouslySetInnerHTML={{ __html: job.shortdescription }} />
-                                                    </p>
-                                                </div>
 
-                                                <hr />
-                                                <div className="text-center">
-                                                    <Row>
-                                                        <Col sm={4}>
-                                                            <div>
-                                                                <p className="text-muted mb-2">Categories</p>
-                                                                <h5 className="font-size-15">{job.category?.name}</h5>
-                                                            </div>
-                                                        </Col>
-                                                        <Col sm={4}>
-                                                            <div className="mt-4 mt-sm-0">
-                                                                <p className="text-muted mb-2">Date</p>
-                                                                <h5 className="font-size-15">
+                {/* Main Job Card */}
+                <Card className="p-4 mb-4 shadow-sm">
+                    <Row className="mb-4">
+                        {/* Left Column: Featured Image */}
+                        <Col md={6} className="d-flex justify-content-center align-items-center text-center">
+                            <img
+                                src={job.featured_image || "default.jpg"}
+                                alt={job.title}
+                                className="img-fluid rounded"
+                                style={{ maxHeight: "350px", objectFit: "cover" }}
+                            />
+                        </Col>
 
-                                                                    {new Date(job.createdAt).toLocaleDateString("en-GB", {
-                                                                        day: "2-digit",
-                                                                        month: "short",
-                                                                        year: "numeric",
-                                                                    })}
-                                                                </h5>
-                                                            </div>
-                                                        </Col>
-                                                        <Col sm={4}>
-                                                            <div className="mt-4 mt-sm-0">
-                                                                <p className="text-muted mb-2">Post by</p>
-                                                                <h5 className="font-size-15">{job.user?.name}</h5>
-                                                            </div>
-                                                        </Col>
-                                                    </Row>
-                                                </div>
-                                                <hr />
+                        {/* Right Column: Job Info */}
+                        <Col md={6}>
+                            <Row className="align-items-center mb-3">
+                                <Col md={6}>
+                                    <div >
+                                        <Link to="#" className="badge bg-light font-size-12">
+                                            <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
+                                            Job
+                                        </Link>
+                                    </div>
+                                </Col>
+                                <Col md={6} className="text-md-end">
+                                    <Link to={`/edit-job/${job.id}`} className="btn btn-sm btn-success">
+                                        Edit Job
+                                    </Link>
+                                </Col>
+                            </Row>
 
-                                                <div className="my-5">
-                                                    <img
-                                                        src={job.featured_image}
-                                                        alt=""
-                                                        className="img-thumbnail mx-auto d-block"
-                                                    />
-                                                </div>
-                                                <hr />
+                            <div className="bg-light p-3">
+                                {/* Title and Date */}
+                                <Row className="mb-3">
+                                    <Col md={8}>
+                                        <h4 className="mb-2">{job.title}</h4>
+                                    </Col>
+                                    <Col md={4} className="text-end">
+                                        <h6 className="text-muted text-sm mb-2">Published Date</h6>
+                                        <h5 className="font-size-15">
+                                            {new Date(job.createdAt).toLocaleDateString("en-GB", {
+                                                day: "2-digit",
+                                                month: "short",
+                                                year: "numeric",
+                                            })}
+                                        </h5>
+                                    </Col>
+                                </Row>
 
-                                                <div className="mt-4">
-                                                    <div className="">
+                                {/* Short Description */}
+                                <Row>
+                                    <Col md={12}>
+                                        <div dangerouslySetInnerHTML={{ __html: job.shortdescription }} />
+                                    </Col>
+                                </Row>
 
-                                                        <div dangerouslySetInnerHTML={{ __html: job.description }} />
-                                                    </div>
-                                                </div>
-                                                <hr />
-                                                <div className="mt-4 mt-sm-0">
-                                                    <p className="text-muted mb-2">Job Link </p>
-                                                    <h5 className="font-size-15">{job.link}</h5>
-                                                </div>
-                                                <hr />
-                                                <div className="mt-4 mt-sm-0">
-                                                    <p className="text-muted mb-2">Job Apply Link </p>
-                                                    <h5 className="font-size-15">{job.apply_link}</h5>
-                                                </div>
-                                            </div>
+                                <hr style={{ border: "1px solid #c7c7c7" }} />
+
+                                {/* Category, Date, Poster */}
+                                <div className="text-center">
+                                    <Row className="mb-3">
+                                        <Col sm={4}>
+                                            <p className="text-muted mb-2">Category</p>
+                                            <h5 className="font-size-15">{job.category?.name}</h5>
+                                        </Col>
+                                        <Col sm={4}>
+                                            <p className="text-muted mb-2">Created Date</p>
+                                            <h5 className="font-size-15">
+                                                {new Date(job.createdAt).toLocaleDateString("en-GB", {
+                                                    day: "2-digit",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })}
+                                            </h5>
+                                        </Col>
+                                        <Col sm={4}>
+                                            <p className="text-muted mb-2">Posted By</p>
+                                            <h5 className="font-size-15">{job.user?.name}</h5>
                                         </Col>
                                     </Row>
                                 </div>
-                            </CardBody>
-                        </Card>
-                    </Col>
-                </Row>
+                            </div>
+                        </Col>
+                    </Row>
+                </Card>
+
+                {/* Description Section */}
+                <Card className="p-4 mb-4 shadow-sm">
+                    <h5 className="mb-3">Description</h5>
+                    <Card className="p-3 mb-4 bg-light">
+                        <div dangerouslySetInnerHTML={{ __html: job.description }} />
+                    </Card>
+                </Card>
+
+                {/* Job Link Section */}
+                <Card className="p-2 mb-4 shadow-sm">
+                    <Row>
+
+                        <Col sm={6} className='text-center'>
+                            <div className='bg-light p-4'>
+                                <p className="text-muted mb-2">Job Link</p>
+                                <h5 className="font-size-15">{job.link}</h5>
+                            </div>
+
+                        </Col>
+                        <Col sm={6} className='text-center'>
+                            <div className='bg-light p-4'>
+                                <p className="text-muted mb-2">Job Apply Link</p>
+                                <h5 className="font-size-15">{job.apply_link}</h5>
+                            </div>
+
+                        </Col>
+                    </Row>
+                </Card>
             </Container>
         </div>
+
     );
 };
 
