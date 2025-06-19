@@ -22,7 +22,7 @@ import "./assets/scss/theme.scss";
 // import { initFirebaseBackend } from "./helpers/firebase_helper";
 
 import fakeBackend from "./helpers/AuthType/fakeBackend";
-
+import useIdleLogout  from "./helpers/useIdleLogout";
 // Activating fake backend
 fakeBackend();
 
@@ -57,6 +57,7 @@ const getLayout = (layoutType) => {
 };
 
 const App = () => {
+  useIdleLogout();
 
   const LayoutProperties = createSelector(
     (state) => state.Layout,
