@@ -64,8 +64,13 @@ const PageList = () => {
             setToken(token);
         }
         fetchCategories();
-        fetchPages(currentPage);
-    }, [token, currentPage]);
+    }, []);
+
+    useEffect(() => {
+        if (token) {
+            fetchPages(currentPage);
+        }
+    }, [currentPage, token]);
 
     const fetchCategories = async () => {
         try {
@@ -91,12 +96,11 @@ const PageList = () => {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    limit: 15,
+                    limit: 4,
                     page: page
                 },
             });
             setPages(response.data.data || []);
-            setCurrentPage(response.data.pagination.currentPage);
             setTotalPages(response.data.pagination.totalPages);
         } catch (err) {
             console.error("Failed to fetch pages", err);
@@ -170,16 +174,8 @@ const PageList = () => {
         const newErrors = {};
         if (!formData.title) newErrors.title = "Title is required";
         if (!formData.description) newErrors.description = "Description is required";
-        if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
-        if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
-        if (!formData.category_id) newErrors.category_id = "Category is required";
+        if (!formData.category_id) newErrors.category_id = "category_id is required";
         if (!formData.status) newErrors.status = "Status is required";
-
-        councilMembers.forEach((member, index) => {
-            if (!member.name) newErrors[`council_name_${index}`] = "Name is required";
-            if (!member.designation) newErrors[`council_designation_${index}`] = "Designation is required";
-        });
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -212,11 +208,11 @@ const PageList = () => {
         }
 
         data.append("category_id", formData.category_id);
-        data.append("name", formData.name);
-        data.append("designation", formData.designation);
-        data.append("address", formData.address);
-        data.append("hours", formData.hours);
-        data.append("contacts", formData.contacts);
+        data.append("name", formData.name || "");
+        data.append("designation", formData.designation || "");
+        data.append("address", formData.address || "");
+        data.append("hours", formData.hours || "");
+        data.append("contacts", formData.contacts || "");
         data.append("status", formData.status);
         data.append("published_at", today);
 
@@ -231,7 +227,7 @@ const PageList = () => {
                     },
                 }
             );
-            
+
             setAlertMsg({ type: "success", message: "Page added successfully!" });
             fetchPages(currentPage);
             setTimeout(() => {
@@ -260,7 +256,7 @@ const PageList = () => {
                         }
                     }
                 );
-                fetchPages();
+                fetchPages(currentPage);
             } catch (error) {
                 console.error("Error deleting page:", error);
             } finally {
@@ -407,7 +403,11 @@ const PageList = () => {
                                 <div className="text- mt-4">
                                     <ul className="pagination justify-content-end">
                                         <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                            <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>
+                                            <button
+                                                className="page-link"
+                                                onClick={() => setCurrentPage(prev => prev - 1)}
+                                                disabled={currentPage === 1}
+                                            >
                                                 &laquo;
                                             </button>
                                         </li>
@@ -416,13 +416,20 @@ const PageList = () => {
                                                 key={index + 1}
                                                 className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
                                             >
-                                                <button className="page-link" onClick={() => setCurrentPage(index + 1)}>
+                                                <button
+                                                    className="page-link"
+                                                    onClick={() => setCurrentPage(index + 1)}
+                                                >
                                                     {index + 1}
                                                 </button>
                                             </li>
                                         ))}
                                         <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                            <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>
+                                            <button
+                                                className="page-link"
+                                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                                disabled={currentPage === totalPages}
+                                            >
                                                 &raquo;
                                             </button>
                                         </li>
@@ -574,42 +581,51 @@ const PageList = () => {
                                     <i className="bx bx-plus"></i> Add Member
                                 </Button>
                             </FormGroup>
+
                             <FormGroup>
-                                <Label>Address</Label>
-                                <Input
-                                    type="textarea"
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleChange}
-                                    rows={2}
+                                <Label>Contacts</Label>
+                                <CKEditor
+                                    editor={ClassicEditor}
+                                    data={formData.contacts}
+                                    onChange={(event, editor) => {
+                                        const content = editor.getData();
+                                        setFormData({ ...formData, contacts: content });
+                                    }}
                                 />
+                                {errors.contacts && (
+                                    <div className="invalid-feedback d-block">{errors.contacts}</div>
+                                )}
                             </FormGroup>
 
-                            <Row>
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label>Contacts</Label>
-                                        <Input
-                                            type="text"
-                                            name="contacts"
-                                            value={formData.contacts}
-                                            onChange={handleChange}
-                                        />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label>Hours</Label>
-                                        <Input
-                                            type="text"
-                                            name="hours"
-                                            value={formData.hours}
-                                            onChange={handleChange}
-                                        />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
+                            <FormGroup>
+                                <Label>Address</Label>
+                                <CKEditor
+                                    editor={ClassicEditor}
+                                    data={formData.address}
+                                    onChange={(event, editor) => {
+                                        const content = editor.getData();
+                                        setFormData({ ...formData, address: content });
+                                    }}
+                                />
+                                {errors.address && (
+                                    <div className="invalid-feedback d-block">{errors.address}</div>
+                                )}
+                            </FormGroup>
 
+                            <FormGroup>
+                                <Label>Hours</Label>
+                                <CKEditor
+                                    editor={ClassicEditor}
+                                    data={formData.hours}
+                                    onChange={(event, editor) => {
+                                        const content = editor.getData();
+                                        setFormData({ ...formData, hours: content });
+                                    }}
+                                />
+                                {errors.hours && (
+                                    <div className="invalid-feedback d-block">{errors.hours}</div>
+                                )}
+                            </FormGroup>
                             <Row>
                                 <Col md={6}>
                                     <FormGroup>

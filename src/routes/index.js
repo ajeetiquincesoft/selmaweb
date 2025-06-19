@@ -153,6 +153,7 @@ import EditRecyclingGarbage from "../pages/RecyclingGarbage/EditRecyclingGarbage
 import PageCategories from "../pages/Page/PageCategories";
 import PageList from "../pages/Page/PageList";
 import PageDetails from "../pages/Page/PageDetails";
+import PageEdit from "../pages/Page/PageEdit";
 
 
 // Forms
@@ -315,6 +316,7 @@ const authProtectedRoutes = [
   { path: "/page-categories", component: <PageCategories /> },
   { path: "/page-list", component: <PageList /> },
   { path: "/page-details/:id", component: <PageDetails /> },
+  { path: "/edit-page/:id", component: <PageEdit /> },
 
   // Contacts
   { path: "/contacts-grid", component: <ContactsGrid /> },

@@ -238,7 +238,9 @@ const EditPark = () => {
                 });
 
             setAlertMsg({ type: "success", message: "Park updated successfully!" });
-            setTimeout(() => navigate(-1), 1500);
+            setTimeout(() => {
+                navigate("/parks-recreation-list");
+            }, 2000); // Optional delay to show alert
         } catch (error) {
             console.error("API error:", error);
             setAlertMsg({
@@ -264,9 +266,6 @@ const EditPark = () => {
 
                 <Card className="p-4 shadow">
                     <h3 className="mb-4">Edit</h3>
-
-
-
                     <form onSubmit={handleSubmit}>
                         <Row>
                             <Col md={12}>

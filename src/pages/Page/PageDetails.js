@@ -125,8 +125,8 @@ const PageDetails = () => {
                   </div>
                 </Col>
                 <Col md={6} className="text-md-end">
-                  <Link to={`/edit-park/${page.id}`} className="btn btn-sm btn-primary">
-                    Edit Park
+                  <Link to={`/edit-page/${page.id}`} className="btn btn-sm btn-primary">
+                    Edit Page
                   </Link>
                 </Col>
               </Row>
@@ -186,20 +186,6 @@ const PageDetails = () => {
                   <hr style={{ border: "1px solid #c7c7c7" }} />
 
                   {/* Designation, Address, Contacts */}
-                  <Row>
-                    <Col sm={4}>
-                      <p className="text-muted mb-2">Designation</p>
-                      <h5 className="font-size-15">{page.designation}</h5>
-                    </Col>
-                    <Col sm={4}>
-                      <p className="text-muted mb-2">Address</p>
-                      <h5 className="font-size-15">{page.address}</h5>
-                    </Col>
-                    <Col sm={4}>
-                      <p className="text-muted mb-2">Contacts</p>
-                      <h5 className="font-size-15">{page.contacts}</h5>
-                    </Col>
-                  </Row>
                 </div>
               </div>
             </Col>
@@ -214,6 +200,29 @@ const PageDetails = () => {
           </Card>
         </Card>
 
+        <Card className="p-4 mb-4 shadow-sm">
+          <Row>
+            <Col sm={6}>
+              <p className="text-muted mb-2">Designation</p>
+              <h5 className="font-size-15">{page.designation}</h5>
+            </Col>
+            <Col sm={6}>
+              <p className="text-muted mb-2">Address</p>
+              <div dangerouslySetInnerHTML={{ __html: page.address }} />
+            </Col>
+          </Row>
+          <hr style={{ border: "1px solid #c7c7c7" }} />
+          <Row>
+            <Col sm={6}>
+              <p className="text-muted mb-2">Contacts</p>
+              <div dangerouslySetInnerHTML={{ __html: page.contacts }} />
+            </Col>
+            <Col sm={6}>
+              <p className="text-muted mb-2">Hours</p>
+              <div dangerouslySetInnerHTML={{ __html: page.hours }} />
+            </Col>
+          </Row>
+        </Card>
 
         <Card className="p-4 mb-4 shadow-sm">
           {page.counsil_members && page.counsil_members.length > 0 ? (
@@ -285,6 +294,8 @@ const PageDetails = () => {
           )}
 
         </Card>
+
+
       </Container>
     </div >
   );

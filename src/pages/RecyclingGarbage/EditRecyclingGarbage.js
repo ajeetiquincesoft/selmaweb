@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams,Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
     Container,
     Row,
@@ -22,7 +22,6 @@ const EditRecyclingGarbage = () => {
     const [errors, setErrors] = useState({});
     const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
     const [loading, setLoading] = useState(true);
-
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         title: "",
@@ -130,18 +129,18 @@ const EditRecyclingGarbage = () => {
             setAlertMsg({ type: "danger", message: "Something went wrong." });
         }
     };
-document.title = "Recycling & Garbage Edit  | City of Selma";
+    document.title = "Recycling & Garbage Edit  | City of Selma";
     return (
         <div className="page-content">
-             <ul className="breadcrumb">
-                    <li>
-                        <Link to="/"><a href="/">Home /</a></Link>
-                    </li>
-                    <li>
-                        <Link to="/recycling-garbage-list"><a href="/">Recycling & Garbage list /</a></Link>
-                    </li>
-                    <li className="active">Recycling & Garbage Edit</li>
-                </ul>
+            <ul className="breadcrumb">
+                <li>
+                    <Link to="/"><a href="/">Home /</a></Link>
+                </li>
+                <li>
+                    <Link to="/recycling-garbage-list"><a href="/">Recycling & Garbage list /</a></Link>
+                </li>
+                <li className="active">Recycling & Garbage Edit</li>
+            </ul>
             <Container>
                 <form onSubmit={handleSubmit}>
                     <Row className="d-flex justify-content-center">
@@ -149,9 +148,7 @@ document.title = "Recycling & Garbage Edit  | City of Selma";
                             <Card>
                                 <CardBody>
                                     <h3 className="display-4 text-center">Recycling & Garbage</h3>
-                                    {alertMsg.message && (
-                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
-                                    )}
+
                                     <Col lg={12} className="mt-3">
                                         <label className="form-label">Title</label>
                                         <input
@@ -228,6 +225,9 @@ document.title = "Recycling & Garbage Edit  | City of Selma";
                                     <Col lg={12} className="mt-4 text-center">
                                         <Button type="submit" color="primary">Submit</Button>
                                     </Col>
+                                    {alertMsg.message && (
+                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
+                                    )}
                                 </CardBody>
                             </Card>
                         </Col>
