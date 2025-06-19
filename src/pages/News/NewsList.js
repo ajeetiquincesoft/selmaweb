@@ -139,9 +139,9 @@ const NewsList = () => {
     const newErrors = {};
     if (!formData.title) newErrors.title = "Title is required";
     if (!formData.description) newErrors.description = "Description is required";
-    if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
+    // if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
     if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
-    if (!formData.images || formData.images.length === 0) newErrors.images = "At least one image is required";
+    // if (!formData.images || formData.images.length === 0) newErrors.images = "At least one image is required";
     if (!formData.category_id) newErrors.category_id = "Category is required";
     if (!formData.status) newErrors.status = "Status is required";
     setErrors(newErrors);
@@ -151,13 +151,18 @@ const NewsList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    
+
     setLoading(prev => ({ ...prev, submit: true }));
-    const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+      now.getDate()
+    ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
+      now.getMinutes()
+    ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
     const data = new FormData();
     data.append("title", formData.title);
     data.append("description", formData.description);
-    data.append("shortdescription", formData.shortdescription);
+    data.append("shortdescription", formData.shortdescription || "");
     data.append("featured_image", formData.featured_image);
 
     for (let i = 0; i < formData.images.length; i++) {
@@ -166,7 +171,7 @@ const NewsList = () => {
 
     data.append("category_id", formData.category_id);
     data.append("status", formData.status);
-    data.append("published_at", today);
+    data.append("published_at", dateTimeString);
 
     try {
       const response = await axios.post(
@@ -255,7 +260,9 @@ const NewsList = () => {
                                 <div>
                                   <h5>
                                     <Link to={`/news-details/${item.id}`} className="text-dark">
-                                      {item.title}
+                                      {item.title.length > 60
+                                        ? item.title.substring(0, 60) + "..."
+                                        : item.title}
                                     </Link>
                                   </h5>
                                 </div>
@@ -302,7 +309,11 @@ const NewsList = () => {
                                   </span>
                                 </li>
                               </ul>
-                              <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                              <p>
+                                {stripHtml(item.shortdescription).length > 120
+                                  ? stripHtml(item.shortdescription).substring(0, 120) + "..."
+                                  : stripHtml(item.shortdescription)}
+                              </p>
                               <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                 <Col sm={10} md={10} lg={10}>
                                   <div>

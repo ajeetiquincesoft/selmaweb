@@ -173,32 +173,32 @@ const EditPark = () => {
         console.log('aasd');
         const newErrors = {};
         if (!formData.title.trim()) newErrors.title = "Title is required";
-        if (!formData.shortdescription.trim()) newErrors.shortdescription = "Short description is required";
+        // if (!formData.shortdescription.trim()) newErrors.shortdescription = "Short description is required";
         if (!formData.description.trim()) newErrors.description = "Description is required";
-        if (!formData.link.trim()) newErrors.link = "Link is required";
-        if (!formData.date) newErrors.date = "Date is required";
-        if (!formData.time) newErrors.time = "Time is required";
-        if (!formData.organizor.trim()) newErrors.organizor = "Organizer is required";
-        if (!formData.published_at) newErrors.published_at = "Publish date/time required";
+        // if (!formData.link.trim()) newErrors.link = "Link is required";
+        // if (!formData.date) newErrors.date = "Date is required";
+        // if (!formData.time) newErrors.time = "Time is required";
+        // if (!formData.organizor.trim()) newErrors.organizor = "Organizer is required";
+        // if (!formData.published_at) newErrors.published_at = "Publish date/time required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.status) newErrors.status = "Status is required";
 
         // Validate facilities
-        if (facilities.length === 0) {
-            newErrors.facilities = "At least one facility is required";
-        } else {
-            facilities.forEach((facility, index) => {
-                if (!facility.name.trim()) {
-                    newErrors[`facility_${index}_name`] = "Facility name is required";
-                }
-                if (!facility.address.trim()) {
-                    newErrors[`facility_${index}_address`] = "Facility address is required";
-                }
-                if (facility.amenities.length === 0 || facility.amenities.some(a => !a.trim())) {
-                    newErrors[`facility_${index}_amenities`] = "At least one valid amenity is required";
-                }
-            });
-        }
+        // if (facilities.length === 0) {
+        //     newErrors.facilities = "At least one facility is required";
+        // } else {
+        //     facilities.forEach((facility, index) => {
+        //         if (!facility.name.trim()) {
+        //             newErrors[`facility_${index}_name`] = "Facility name is required";
+        //         }
+        //         if (!facility.address.trim()) {
+        //             newErrors[`facility_${index}_address`] = "Facility address is required";
+        //         }
+        //         if (facility.amenities.length === 0 || facility.amenities.some(a => !a.trim())) {
+        //             newErrors[`facility_${index}_amenities`] = "At least one valid amenity is required";
+        //         }
+        //     });
+        // }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -208,7 +208,13 @@ const EditPark = () => {
         console.log('aasd');
         e.preventDefault();
         if (!validate()) return;
-
+        const now = new Date();
+        const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+            now.getDate()
+        ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
+            now.getMinutes()
+        ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        
         const data = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
             if (key === "images") {
@@ -226,6 +232,9 @@ const EditPark = () => {
         existingImages.forEach(image => data.append("existing_images[]", image));
         removedImages.forEach(image => data.append("removed_images[]", image));
         data.append("id", id);
+
+
+        data.append("published_at", dateTimeString);
 
         try {
             await axios.post(`${BASE_URL}/auth/updateParksAndRecreation`,

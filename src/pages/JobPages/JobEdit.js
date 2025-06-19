@@ -117,12 +117,12 @@ const JobEdit = () => {
         const newErrors = {};
         if (!formData.title) newErrors.title = "Title is required";
         if (!formData.description) newErrors.description = "Description is required";
-        if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
+        // if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
         if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.status) newErrors.status = "Status is required";
-        if (!formData.link) newErrors.link = "link is required";
-        if (!formData.apply_link) newErrors.apply_link = "apply link is required";
+        // if (!formData.link) newErrors.link = "link is required";
+        // if (!formData.apply_link) newErrors.apply_link = "apply link is required";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -131,19 +131,26 @@ const JobEdit = () => {
         e.preventDefault();
 
         if (!validate()) return;
+        const now = new Date();
+        const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+            now.getDate()
+        ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
+            now.getMinutes()
+        ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
         const formPayload = new FormData();
         formPayload.append("id", id);
         formPayload.append("title", formData.title);
-        formPayload.append("shortdescription", formData.shortdescription);
+        formPayload.append("shortdescription", formData.shortdescription || "");
         formPayload.append("description", formData.description);
         formPayload.append("category_id", formData.category_id);
         formPayload.append("status", formData.status);
-        formPayload.append("link", formData.link);
-        formPayload.append("apply_link", formData.apply_link);
+        formPayload.append("link", formData.link || "");
+        formPayload.append("apply_link", formData.apply_link || "");
         if (formData.featured_image instanceof File) {
             formPayload.append("featured_image", formData.featured_image);
         }
+        formPayload.append("published_at", dateTimeString);
         try {
             const response = await axios.post(`${BASE_URL}/auth/updatejob`, formPayload, {
                 headers: {
@@ -151,7 +158,6 @@ const JobEdit = () => {
                     "Content-Type": "multipart/form-data",
                 },
             });
-            console.log(response);
             if (response.data.success) {
                 setAlertMsg({ message: "Job updated successfully", type: "success" });
                 setTimeout(() => {

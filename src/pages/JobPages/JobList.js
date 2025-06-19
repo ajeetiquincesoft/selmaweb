@@ -117,10 +117,10 @@ const JobList = () => {
     const newErrors = {};
     if (!formData.title) newErrors.title = "Title is required";
     if (!formData.description) newErrors.description = "Description is required";
-    if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
+    // if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
     if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
-    if (!formData.link) newErrors.link = "Link is required";
-    if (!formData.apply_link) newErrors.apply_link = "Apply link is required";
+    // if (!formData.link) newErrors.link = "Link is required";
+    // if (!formData.apply_link) newErrors.apply_link = "Apply link is required";
     if (!formData.category_id) newErrors.category_id = "Category is required";
     if (!formData.status) newErrors.status = "Status is required";
     setErrors(newErrors);
@@ -130,10 +130,16 @@ const JobList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+      now.getDate()
+    ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
+      now.getMinutes()
+    ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => data.append(key, value));
-    data.append("published_at", today);
+    data.append("published_at", dateTimeString);
 
     try {
       await axios.post(`${BASE_URL}/auth/addjob`, data, {
@@ -170,7 +176,7 @@ const JobList = () => {
       }
     }
   };
-document.title="Jobs List | City of Selma";
+  document.title = "Jobs List | City of Selma";
   return (
     <div className="page-content">
       <Container fluid>
@@ -202,7 +208,9 @@ document.title="Jobs List | City of Selma";
                     <div>
                       <h5>
                         <Link to={`/job-details/${item.id}`} className="text-dark">
-                          {item.title}
+                          {item.title.length > 60
+                            ? item.title.substring(0, 60) + "..."
+                            : item.title}
                         </Link>
                       </h5>
                     </div>
@@ -249,7 +257,11 @@ document.title="Jobs List | City of Selma";
                       </span>
                     </li>
                   </ul>
-                  <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                  <p>
+                    {stripHtml(item.shortdescription).length > 120
+                      ? stripHtml(item.shortdescription).substring(0, 120) + "..."
+                      : stripHtml(item.shortdescription)}
+                  </p>
                   <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <Col sm={10} md={10} lg={10}>
                       <div>

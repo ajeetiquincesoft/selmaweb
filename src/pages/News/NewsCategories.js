@@ -217,7 +217,7 @@ const NewsCategories = () => {
                       <tr key={cat.id}>
                         <td>{index + 1}</td>
                         <td>{cat.name}</td>
-                        <td>{cat.status == 1 ? "Active" : "Deactivate"}</td>
+                        <td>{cat.status == 1 ? "Active" : "Inactive"}</td>
                         <td>
                           <Button
                             color="warning"
@@ -283,7 +283,7 @@ const NewsCategories = () => {
                 >
                   <option value="">Select</option>
                   <option value="1">Active</option>
-                  <option value="0">Deactivate</option>
+                  <option value="0">Inactive</option>
                 </select>
                 {errors.status && (
                   <small className="text-danger">{errors.status}</small>

@@ -97,7 +97,7 @@ const ParkCreationList = () => {
       description: "",
       shortdescription: "",
       featured_image: null,
-      address:"",
+      address: "",
       images: [],
       category_id: "",
       status: "",
@@ -160,18 +160,18 @@ const ParkCreationList = () => {
   const validate = () => {
     const newErrors = {};
     if (!formData.title) newErrors.title = "Title is required";
-    if (!formData.shortdescription)
-      newErrors.shortdescription = "Short description is required";
+    // if (!formData.shortdescription)
+    //   newErrors.shortdescription = "Short description is required";
     if (!formData.description) newErrors.description = "Description is required";
-    if (facilities.length === 0 || facilities.some(f => !f.name || !f.address || f.amenities.length === 0))
-      newErrors.facilities = "At least one facility with name, address, and amenities is required";
-    if (!formData.link) newErrors.link = "Link is required";
-    if (!formData.date) newErrors.date = "Date is required";
-    if (!formData.time) newErrors.time = "Time is required";
-    if (!formData.organizor) newErrors.organizor = "Organizer is required";
-    if (!formData.published_at) newErrors.published_at = "Publish date/time required";
+    // if (facilities.length === 0 || facilities.some(f => !f.name || !f.address || f.amenities.length === 0))
+    //   newErrors.facilities = "At least one facility with name, address, and amenities is required";
+    // if (!formData.link) newErrors.link = "Link is required";
+    // if (!formData.date) newErrors.date = "Date is required";
+    // if (!formData.time) newErrors.time = "Time is required";
+    // if (!formData.organizor) newErrors.organizor = "Organizer is required";
+    // if (!formData.published_at) newErrors.published_at = "Publish date/time required";
     if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
-    if (!formData.images.length) newErrors.images = "At least one image is required";
+    // if (!formData.images.length) newErrors.images = "At least one image is required";
     if (!formData.category_id) newErrors.category_id = "Category is required";
     if (!formData.status) newErrors.status = "Status is required";
     setErrors(newErrors);
@@ -181,6 +181,12 @@ const ParkCreationList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
+    const now = new Date();
+    const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+      now.getDate()
+    ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
+      now.getMinutes()
+    ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
     setLoading(prev => ({ ...prev, submit: true }));
     const data = new FormData();
@@ -195,7 +201,7 @@ const ParkCreationList = () => {
         data.append(key, value);
       }
     });
-
+    data.append("published_at", dateTimeString);
     data.append("facilities", JSON.stringify(facilities));
 
     try {
@@ -292,7 +298,11 @@ const ParkCreationList = () => {
                       <div className="d-flex justify-content-between">
                         <div>
                           <h5>
-                            <Link to={`/park-details/${item.id}`} className="text-dark">{item.title}</Link>
+                            <Link to={`/park-details/${item.id}`} className="text-dark">
+                              {item.title.length > 60
+                                ? item.title.substring(0, 60) + "..."
+                                : item.title}
+                            </Link>
                           </h5>
                         </div>
                         <div>
@@ -318,7 +328,11 @@ const ParkCreationList = () => {
                       />
                     </div>
                     <div className="p-3">
-                      <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                      <p>
+                        {stripHtml(item.shortdescription).length > 120
+                          ? stripHtml(item.shortdescription).substring(0, 120) + "..."
+                          : stripHtml(item.shortdescription)}
+                      </p>
                       <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <Col sm={10} md={10} lg={10}>
                           <Link to={`/park-details/${item.id}`} className="text-primary">
@@ -385,7 +399,6 @@ const ParkCreationList = () => {
                     { label: "Date", type: "date", name: "date" },
                     { label: "Time", type: "time", name: "time" },
                     { label: "Organizer", type: "text", name: "organizor" },
-                    { label: "Published At", type: "datetime-local", name: "published_at" },
                   ].map((field, idx) => (
                     <div className="mt-3" key={idx}>
                       <label className="form-label">{field.label}</label>

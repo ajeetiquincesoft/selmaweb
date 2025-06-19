@@ -119,7 +119,7 @@ const ParkCreationContent = () => {
       setAlertMsg({ type: "danger", message: "Something went wrong!" });
     }
   };
-document.title = "Parks & Recreation Content Page | City of Selma";
+  document.title = "Parks & Recreation Content Page | City of Selma";
   return (
     <div className="page-content">
       <Container fluid>
@@ -168,21 +168,21 @@ document.title = "Parks & Recreation Content Page | City of Selma";
                             <Col sm={4}>
                               <div>
                                 <p className="text-muted mb-2">address</p>
-                                <h5 className="font-size-15">{content.address}</h5>
+                                <div dangerouslySetInnerHTML={{ __html: content.address }} />
                               </div>
                             </Col>
                             <Col sm={4}>
                               <div className="mt-4 mt-sm-0">
                                 <p className="text-muted mb-2">hours</p>
                                 <h5 className="font-size-15">
-                                  {content.hours}
+                                  <div dangerouslySetInnerHTML={{ __html: content.hours }} />
                                 </h5>
                               </div>
                             </Col>
                             <Col sm={4}>
                               <div className="mt-4 mt-sm-0">
                                 <p className="text-muted mb-2">Contacts</p>
-                                <h5 className="font-size-15">{content.contacts}</h5>
+                                <div dangerouslySetInnerHTML={{ __html: content.contacts }} />
                               </div>
                             </Col>
                           </Row>
@@ -244,12 +244,13 @@ document.title = "Parks & Recreation Content Page | City of Selma";
                   {["address", "hours", "contacts"].map((field) => (
                     <Col lg={12} className="mt-3" key={field}>
                       <label className="form-label">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                      <input
-                        className="form-control"
-                        type="text"
-                        name={field}
-                        value={formData[field]}
-                        onChange={handleChange}
+                      <CKEditor
+                        editor={ClassicEditor}
+                        data={formData[field]}
+                        onChange={(event, editor) => {
+                          const data = editor.getData();
+                          setFormData((prev) => ({ ...prev, [field]: data }));
+                        }}
                       />
                       {errors[field] && <span className="text-danger">{errors[field]}</span>}
                     </Col>

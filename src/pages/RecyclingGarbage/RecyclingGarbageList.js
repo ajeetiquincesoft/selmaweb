@@ -118,7 +118,7 @@ const RecyclingAndGarbageList = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
-        
+
         setLoading(prev => ({ ...prev, submit: true }));
         const data = new FormData();
         data.append("title", formData.title);
@@ -126,7 +126,7 @@ const RecyclingAndGarbageList = () => {
         data.append("shortdescription", formData.shortdescription);
         data.append("image", formData.image);
         data.append("status", formData.status);
-        
+
         try {
             const response = await axios.post(`${BASE_URL}/auth/addRecyclingAndGarbage`, data, {
                 headers: {
@@ -134,7 +134,7 @@ const RecyclingAndGarbageList = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            setAlertMsg({ type: "success", message: "News added successfully!" });
+            setAlertMsg({ type: "success", message: "Data added successfully!" });
             fetchRecyclingData(currentPage);
             setTimeout(() => {
                 setModal(false);
@@ -214,7 +214,9 @@ const RecyclingAndGarbageList = () => {
                                                 <div>
                                                     <h5>
                                                         <Link to={`/recycling-garbage-details/${item.id}`} className="text-dark">
-                                                            {item.title}
+                                                            {item.title.length > 60
+                                                                ? item.title.substring(0, 60) + "..."
+                                                                : item.title}
                                                         </Link>
                                                     </h5>
                                                 </div>
@@ -257,7 +259,11 @@ const RecyclingAndGarbageList = () => {
                                                     </span>
                                                 </li>
                                             </ul>
-                                            <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                                            <p>
+                                                {stripHtml(item.shortdescription).length > 120
+                                                    ? stripHtml(item.shortdescription).substring(0, 120) + "..."
+                                                    : stripHtml(item.shortdescription)}
+                                            </p>
                                             <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                 <Col sm={10} md={10} lg={10}>
                                                     <Link to={`/recycling-garbage-details/${item.id}`} className="text-primary">
@@ -268,10 +274,10 @@ const RecyclingAndGarbageList = () => {
                                                     {loading.delete === item.id ? (
                                                         <Spinner size="sm" color="danger" />
                                                     ) : (
-                                                        <i 
-                                                            className="bx bx-trash text-danger" 
-                                                            title="Delete" 
-                                                            style={{ cursor: 'pointer' }} 
+                                                        <i
+                                                            className="bx bx-trash text-danger"
+                                                            title="Delete"
+                                                            style={{ cursor: 'pointer' }}
                                                             onClick={() => handleDelete(item.id)}
                                                         />
                                                     )}

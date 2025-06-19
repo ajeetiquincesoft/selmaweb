@@ -135,11 +135,11 @@ const EventList = () => {
         const newErrors = {};
 
         if (!formData.title) newErrors.title = "Title is required";
-        if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
+        // if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
         if (!formData.description) newErrors.description = "Description is required";
         if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
-        if (!formData.files || formData.files.length === 0) newErrors.files = "At least one image is required";
-        if (!formData.link) newErrors.link = "Link is required";
+        // if (!formData.files || formData.files.length === 0) newErrors.files = "At least one image is required";
+        // if (!formData.link) newErrors.link = "Link is required";
         if (!formData.address) newErrors.address = "address is required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.date) newErrors.date = "Date is required";
@@ -155,9 +155,14 @@ const EventList = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
-        
         setLoading(prev => ({ ...prev, submit: true }));
-        const today = new Date().toISOString().split("T")[0];
+        const now = new Date();
+        const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+            now.getDate()
+        ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
+            now.getMinutes()
+        ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
         const data = new FormData();
         data.append("title", formData.title);
         data.append("description", formData.description);
@@ -166,14 +171,14 @@ const EventList = () => {
         for (let i = 0; i < formData.files.length; i++) {
             data.append("files", formData.files[i]);
         }
-        data.append("link", formData.link);
+        data.append("link", formData.link || "");
         data.append("address", formData.address);
         data.append("category_id", formData.category_id);
         data.append("date", formData.date);
         data.append("time", formData.time);
         data.append("organizor", formData.organizor);
         data.append("status", formData.status);
-        data.append("published_at", today);
+        data.append("published_at", dateTimeString);
 
         try {
             await axios.post(`${BASE_URL}/auth/addevent`,
@@ -217,7 +222,7 @@ const EventList = () => {
         }
     };
 
-    document.title=" Event | City of Selma";
+    document.title = " Event | City of Selma";
     return (
         <div className="page-content">
             <Container fluid>
@@ -253,7 +258,9 @@ const EventList = () => {
                                                 <div>
                                                     <h5>
                                                         <Link to={`/event-details/${item.id}`} className="text-dark">
-                                                            {item.title}
+                                                            {item.title.length > 60
+                                                                ? item.title.substring(0, 60) + "..."
+                                                                : item.title}
                                                         </Link>
                                                     </h5>
                                                 </div>
@@ -299,7 +306,11 @@ const EventList = () => {
                                                     </span>
                                                 </li>
                                             </ul>
-                                            <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                                            <p>
+                                                {stripHtml(item.shortdescription).length > 120
+                                                    ? stripHtml(item.shortdescription).substring(0, 120) + "..."
+                                                    : stripHtml(item.shortdescription)}
+                                            </p>
                                             <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                 <Col sm={10} md={10} lg={10}>
                                                     <Link to={`/event-details/${item.id}`} className="text-primary">

@@ -114,9 +114,9 @@ const EventEdit = () => {
     const validate = () => {
         const newErrors = {};
         if (!formData.title) newErrors.title = "Title is required";
-        if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
+        // if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
         if (!formData.description) newErrors.description = "Description is required";
-        if (!formData.link) newErrors.link = "Link is required";
+        // if (!formData.link) newErrors.link = "Link is required";
         if (!formData.address) newErrors.address = "Address is required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.date) newErrors.date = "Date is required";
@@ -131,13 +131,19 @@ const EventEdit = () => {
         e.preventDefault();
 
         if (!validate()) return;
+        const now = new Date();
+        const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+            now.getDate()
+        ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
+            now.getMinutes()
+        ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
         const formPayload = new FormData();
-        const today = new Date().toISOString().split("T")[0];
+
         formPayload.append("id", id);
         formPayload.append("title", formData.title);
         formPayload.append("description", formData.description);
-        formPayload.append("shortdescription", formData.shortdescription);
+        formPayload.append("shortdescription", formData.shortdescription || "");
         if (formData.featured_image instanceof File) {
             formPayload.append("featured_image", formData.featured_image);
         }
@@ -149,14 +155,14 @@ const EventEdit = () => {
                 }
             });
         }
-        formPayload.append("link", formData.link);
+        formPayload.append("link", formData.link || "");
         formPayload.append("address", formData.address);
         formPayload.append("category_id", formData.category_id);
         formPayload.append("date", formData.date);
         formPayload.append("time", formData.time);
         formPayload.append("organizor", formData.organizor);
         formPayload.append("status", formData.status);
-        formPayload.append("published_at", today);
+        formPayload.append("published_at", dateTimeString);
 
         try {
             const response = await axios.post(`${BASE_URL}/auth/updateevent`,

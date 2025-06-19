@@ -96,7 +96,7 @@ const PageList = () => {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    limit: 4,
+                    limit: 15,
                     page: page
                 },
             });
@@ -174,6 +174,7 @@ const PageList = () => {
         const newErrors = {};
         if (!formData.title) newErrors.title = "Title is required";
         if (!formData.description) newErrors.description = "Description is required";
+        if (!formData.featured_image) newErrors.featured_image = "featured_image is required";
         if (!formData.category_id) newErrors.category_id = "category_id is required";
         if (!formData.status) newErrors.status = "Status is required";
         setErrors(newErrors);
@@ -185,7 +186,12 @@ const PageList = () => {
         if (!validate()) return;
 
         setLoading(prev => ({ ...prev, submit: true }));
-        const today = new Date().toISOString().split("T")[0];
+        const now = new Date();
+        const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+            now.getDate()
+        ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
+            now.getMinutes()
+        ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
         const data = new FormData();
 
         // Add council members in the required format
@@ -200,7 +206,7 @@ const PageList = () => {
         // Add other form data
         data.append("title", formData.title);
         data.append("description", formData.description);
-        data.append("shortdescription", formData.shortdescription);
+        data.append("shortdescription", formData.shortdescription || "");
         data.append("featured_image", formData.featured_image);
 
         for (let i = 0; i < formData.images.length; i++) {
@@ -214,7 +220,7 @@ const PageList = () => {
         data.append("hours", formData.hours || "");
         data.append("contacts", formData.contacts || "");
         data.append("status", formData.status);
-        data.append("published_at", today);
+        data.append("published_at", dateTimeString);
 
         try {
             const response = await axios.post(
@@ -330,7 +336,9 @@ const PageList = () => {
                                                         <div>
                                                             <h5>
                                                                 <Link to={`/page-details/${item.id}`} className="text-dark">
-                                                                    {item.title}
+                                                                    {item.title.length > 60
+                                                                        ? item.title.substring(0, 60) + "..."
+                                                                        : item.title}
                                                                 </Link>
                                                             </h5>
                                                         </div>
@@ -377,7 +385,11 @@ const PageList = () => {
                                                             </span>
                                                         </li>
                                                     </ul>
-                                                    <p>{stripHtml(item.shortdescription).substring(0, 100)}...</p>
+                                                    <p>
+                                                        {stripHtml(item.shortdescription).length > 120
+                                                            ? stripHtml(item.shortdescription).substring(0, 120) + "..."
+                                                            : stripHtml(item.shortdescription)}
+                                                    </p>
                                                     <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                         <Col sm={10} md={10} lg={10}>
                                                             <div>

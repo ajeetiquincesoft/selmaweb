@@ -182,6 +182,13 @@ const EditPage = () => {
         if (!validate()) return;
 
         setLoading(prev => ({ ...prev, submit: true }));
+        const now = new Date();
+        const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+            now.getDate()
+        ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
+            now.getMinutes()
+        ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
         const data = new FormData();
 
         // Add council members in the required format
@@ -224,7 +231,7 @@ const EditPage = () => {
         data.append("hours", formData.hours || "");
         data.append("contacts", formData.contacts || "");
         data.append("status", formData.status);
-        data.append("published_at", formData.published_at || new Date().toISOString().split('T')[0]);
+        data.append("published_at", dateTimeString);
         data.append("id", id);
 
         try {
@@ -591,6 +598,9 @@ const EditPage = () => {
                                                 )}
                                             </Button>
                                         </div>
+                                        {alertMsg.message && (
+                                            <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
+                                        )}
                                     </form>
                                 </CardBody>
                             </Card>

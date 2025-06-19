@@ -111,9 +111,9 @@ const NewsEdit = () => {
         const newErrors = {};
         if (!formData.title) newErrors.title = "Title is required";
         if (!formData.description) newErrors.description = "Description is required";
-        if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
+        // if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
         if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
-        if (!formData.images || formData.images.length === 0) newErrors.images = "At least one image is required";
+        // if (!formData.images || formData.images.length === 0) newErrors.images = "At least one image is required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.status) newErrors.status = "Status is required";
         setErrors(newErrors);
@@ -122,11 +122,17 @@ const NewsEdit = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const now = new Date();
+        const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+            now.getDate()
+        ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
+            now.getMinutes()
+        ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
         const formPayload = new FormData();
         formPayload.append("id", id); // this is critical!
         formPayload.append("title", formData.title);
-        formPayload.append("shortdescription", formData.shortdescription);
+        formPayload.append("shortdescription", formData.shortdescription || "");
         formPayload.append("description", formData.description);
         formPayload.append("category_id", formData.category_id);
         formPayload.append("status", formData.status);
@@ -144,6 +150,7 @@ const NewsEdit = () => {
                 }
             });
         }
+        formPayload.append("published_at", dateTimeString);
 
         try {
             const response = await axios.post(`${BASE_URL}/auth/updatenews`, formPayload, {
