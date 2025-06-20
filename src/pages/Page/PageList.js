@@ -576,7 +576,7 @@ const PageList = () => {
                                                     />
                                                 </FormGroup>
                                             </Col>
-                                            <Col md={1} className="d-flex align-items-end">
+                                            <Col md={1} className="d-flex align-items-center" style={{ marginTop: "10px" }}>
                                                 <Button
                                                     color="danger"
                                                     size="sm"

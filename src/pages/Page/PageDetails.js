@@ -103,13 +103,19 @@ const PageDetails = () => {
         <Card className="p-4 mb-4 shadow-sm">
           <Row className="mb-4">
             {/* Left Column: Featured Image */}
-            <Col md={6} className="d-flex justify-content-center align-items-center text-center">
+            <Col md={6} className="d-flex flex-column align-items-center text-center">
               <img
                 src={page.featured_image || "default.jpg"}
                 alt={page.title}
                 className="img-fluid rounded"
                 style={{ maxHeight: "350px", objectFit: "cover" }}
               />
+
+              {/* Content below the image */}
+              <div className="mt-3">
+                <h4 className="text-muted mb-1">{page.name}</h4>
+                <h5 className="font-size-15 mb-0">{page.designation}</h5>
+              </div>
             </Col>
 
             {/* Right Column: Page Details */}
@@ -163,11 +169,11 @@ const PageDetails = () => {
                 {/* Category, Created Date, Author */}
                 <div className="text-center">
                   <Row className="mb-3">
-                    <Col sm={4}>
+                    <Col sm={6}>
                       <p className="text-muted mb-2">Category</p>
                       <h5 className="font-size-15">{page.category?.name}</h5>
                     </Col>
-                    <Col sm={4}>
+                    <Col sm={6}>
                       <p className="text-muted mb-2">Created Date</p>
                       <h5 className="font-size-15">
                         {new Date(page.createdAt).toLocaleDateString("en-GB", {
@@ -177,10 +183,7 @@ const PageDetails = () => {
                         })}
                       </h5>
                     </Col>
-                    <Col sm={4}>
-                      <p className="text-muted mb-2">Posted By</p>
-                      <h5 className="font-size-15">{page.name}</h5>
-                    </Col>
+
                   </Row>
 
                   <hr style={{ border: "1px solid #c7c7c7" }} />
@@ -200,34 +203,38 @@ const PageDetails = () => {
           </Card>
         </Card>
 
-        <Card className="p-4 mb-4 shadow-sm">
-          <Row>
-            <Col sm={6}>
-              <p className="text-muted mb-2">Designation</p>
-              <h5 className="font-size-15">{page.designation}</h5>
-            </Col>
-            <Col sm={6}>
-              <p className="text-muted mb-2">Address</p>
-              <div dangerouslySetInnerHTML={{ __html: page.address }} />
-            </Col>
-          </Row>
-          <hr style={{ border: "1px solid #c7c7c7" }} />
-          <Row>
-            <Col sm={6}>
-              <p className="text-muted mb-2">Contacts</p>
-              <div dangerouslySetInnerHTML={{ __html: page.contacts }} />
-            </Col>
-            <Col sm={6}>
-              <p className="text-muted mb-2">Hours</p>
-              <div dangerouslySetInnerHTML={{ __html: page.hours }} />
-            </Col>
-          </Row>
-        </Card>
+        {(page.address || page.contacts || page.hours) && (
+          <Card className="p-4 mb-4 shadow-sm">
+            <Row>
+              {page.address && (
+                <Col sm={4}>
+                  <p className="text-muted mb-2">Address</p>
+                  <div dangerouslySetInnerHTML={{ __html: page.address }} />
+                </Col>
+              )}
 
-        <Card className="p-4 mb-4 shadow-sm">
-          {page.counsil_members && page.counsil_members.length > 0 ? (
-            <>
-              <h4 className="mb-3 mt-4">Councillor Members</h4>
+              {page.contacts && (
+                <Col sm={4}>
+                  <p className="text-muted mb-2">Contacts</p>
+                  <div dangerouslySetInnerHTML={{ __html: page.contacts }} />
+                </Col>
+              )}
+
+              {page.hours && (
+                <Col sm={4}>
+                  <p className="text-muted mb-2">Hours</p>
+                  <div dangerouslySetInnerHTML={{ __html: page.hours }} />
+                </Col>
+              )}
+            </Row>
+          </Card>
+        )}
+
+
+        {page.counsil_members && page.counsil_members.length > 0 ? (
+          <>
+            <Card className="p-4 mb-4 shadow-sm">
+              <h4 className="mb-3 mt-4">Counsilm Members</h4>
               <div className="table-responsive  bg-light">
                 <table className="table table-bordered bg-light align-middle text-center">
                   <thead className="table-light">
@@ -259,44 +266,48 @@ const PageDetails = () => {
                   </tbody>
                 </table>
               </div>
-            </>
-          ) : (
-            <div className="mt-4">
-              <h5 className="text-muted">No Councillor Members Found</h5>
-            </div>
-          )}
+            </Card>
+          </>
 
-          {page.images && page.images.length > 0 && (
+        ) : (
+          <div className="mt-4">
+
+          </div>
+        )
+        }
+
+        {
+          page.images && page.images.length > 0 && (
             <>
-              <h4 className="mb-3 mt-4">Images</h4>
-              <div
-                style={{
-                  display: "flex",
-                  overflowX: "auto",
-                  gap: "16px", // spacing between images
-                  paddingBottom: "10px"
-                }}
-              >
-                {page.images.map((image, index) => (
-                  <div key={index} style={{ minWidth: "200px", flex: "0 0 auto" }}>
-                    <Card className="h-100">
-                      <img
-                        src={image}
-                        alt={`${page.title} ${index + 1}`}
-                        className="img-fluid rounded"
-                        style={{ height: "200px", width: "100%", objectFit: "contain" }}
-                      />
-                    </Card>
-                  </div>
-                ))}
-              </div>
+              <Card className="p-4 mb-4 shadow-sm">
+                <h4 className="mb-3 mt-4">Images</h4>
+                <div
+                  style={{
+                    display: "flex",
+                    overflowX: "auto",
+                    gap: "16px", // spacing between images
+                    paddingBottom: "10px"
+                  }}
+                >
+                  {page.images.map((image, index) => (
+                    <div key={index} style={{ minWidth: "200px", flex: "0 0 auto" }}>
+                      <Card className="h-100">
+                        <img
+                          src={image}
+                          alt={`${page.title} ${index + 1}`}
+                          className="img-fluid rounded"
+                          style={{ height: "200px", width: "100%", objectFit: "contain" }}
+                        />
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              </Card>
             </>
-          )}
+          )
+        }
 
-        </Card>
-
-
-      </Container>
+      </Container >
     </div >
   );
 };
