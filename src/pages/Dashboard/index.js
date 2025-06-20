@@ -256,10 +256,10 @@ const Dashboard = props => {
                           <div className="avatar-xs mx-auto mb-3">
 
                             <span className={"avatar-title rounded-circle bg-info font-size-16"}>
-                              <i className={"mdi mdi-twitter text-white"}></i>
+                             x
                             </span>
                           </div>
-                          <h5 className="font-size-15">Twitter</h5>
+                          <h5 className="font-size-15">X</h5>
                           {/* <p className="text-muted mb-0">{social.description} sales</p> */}
                         </div>
                       </a>

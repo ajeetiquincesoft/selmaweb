@@ -30,12 +30,22 @@
   margin-top: -30px;
   margin-left: 73%;
 }
+
 .fixed-size-img {
   width: 100%;
-  height: 220px !important; /* or any fixed height you want */
-  object-fit: cover; /* Keeps aspect ratio but fills box */
+  height: 220px !important;
+  /* or any fixed height you want */
+  object-fit: cover;
+  /* Keeps aspect ratio but fills box */
 }
-.fw-20
-{
+
+.fw-20 {
   font-size: 20px;
+}
+
+.ck.ck-balloon-panel,
+.ck.ck-tooltip,
+.ck.ck-dropdown__panel,
+.ck.ck-editor__editable_inline {
+  z-index: 1060 !important;
 }

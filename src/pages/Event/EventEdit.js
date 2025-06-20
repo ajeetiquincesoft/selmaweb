@@ -30,7 +30,7 @@ const EventEdit = () => {
         shortdescription: "",
         description: "",
         featured_image: null,
-        files: [],
+        images: [],
         link: "",
         address: "",
         category_id: "",
@@ -48,7 +48,7 @@ const EventEdit = () => {
         }
         fetchCategories();
         fetchEventById(id);
-    }, []);
+    }, [id]);
 
     const fetchEventById = async (eventId) => {
         try {
@@ -66,12 +66,11 @@ const EventEdit = () => {
                 category_id: eventData.category_id || "",
                 status: String(eventData.status) || "",
                 featured_image: eventData.featured_image || "",
-                files: eventData.files || [],
+                images: eventData.files || [],
                 link: eventData.link || "",
                 time: eventData.time || "",
                 organizor: eventData.organizor || "",
             };
-            console.log(updatedFormData);
             setFormData(updatedFormData);
             setLoading(false);
         } catch (err) {
@@ -96,27 +95,26 @@ const EventEdit = () => {
         const { name, value, type, files } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]:
-                type === "file"
-                    ? name === "files"
-                        ? files
-                        : files[0]
-                    : value,
+            [name]: type === "file"
+                ? name === "images"
+                    ? [...(prev.images || []), ...Array.from(files)] // Add new files to existing images
+                    : files[0]
+                : value,
         }));
     };
 
     const handleRemoveImage = (index) => {
-        const newImages = [...formData.images];
-        newImages.splice(index, 1);
-        setFormData({ ...formData, files: newImages });
+        setFormData(prev => {
+            const newImages = [...prev.images];
+            newImages.splice(index, 1);
+            return { ...prev, images: newImages };
+        });
     };
 
     const validate = () => {
         const newErrors = {};
         if (!formData.title) newErrors.title = "Title is required";
-        // if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
         if (!formData.description) newErrors.description = "Description is required";
-        // if (!formData.link) newErrors.link = "Link is required";
         if (!formData.address) newErrors.address = "Address is required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.date) newErrors.date = "Date is required";
@@ -144,17 +142,26 @@ const EventEdit = () => {
         formPayload.append("title", formData.title);
         formPayload.append("description", formData.description);
         formPayload.append("shortdescription", formData.shortdescription || "");
+
+        // Handle featured image
         if (formData.featured_image instanceof File) {
             formPayload.append("featured_image", formData.featured_image);
         }
 
-        if (formData.files && formData.files.length > 0) {
-            Array.from(formData.files).forEach((img) => {
-                if (img instanceof File) {
-                    formPayload.append("files", img);
-                }
-            });
+        // Separate existing images (strings) from new images (File objects)
+        const existingImages = formData.images.filter(img => typeof img === 'string');
+        const newImages = formData.images.filter(img => img instanceof File);
+
+        // Send existing images that weren't removed
+        if (existingImages.length > 0) {
+            formPayload.append("existing_images", JSON.stringify(existingImages));
         }
+
+        // Send new images
+        newImages.forEach(img => {
+            formPayload.append("files", img);
+        });
+
         formPayload.append("link", formData.link || "");
         formPayload.append("address", formData.address);
         formPayload.append("category_id", formData.category_id);
@@ -175,20 +182,22 @@ const EventEdit = () => {
                 });
 
             if (response.data.success) {
-                fetchEventById(id);
                 setAlertMsg({ message: "Event updated successfully", type: "success" });
                 setTimeout(() => {
                     navigate("/event-list");
-                }, 2000); // Optional delay to show alert
-
+                }, 2000);
             } else {
-                setAlertMsg({ message: "Failed to update event", type: "danger" });
+                setAlertMsg({ message: response.data.message || "Failed to update event", type: "danger" });
             }
         } catch (error) {
             console.error("Update error", error);
-            setAlertMsg({ message: "Error updating event", type: "danger" });
+            setAlertMsg({
+                message: error.response?.data?.message || "Error updating event",
+                type: "danger"
+            });
         }
     };
+
     document.title = " Event Edit | City of Selma";
     return (
         <div className="page-content">
@@ -202,177 +211,198 @@ const EventEdit = () => {
                 <li className="active">Event Details</li>
             </ul>
             <Container>
+                {loading ? (
+                    <div className="text-center">Loading...</div>
+                ) : (
+                    <form onSubmit={handleSubmit}>
+                        <Row className="d-flex justify-content-center">
+                            <Col md={12}>
+                                <Card>
+                                    <CardBody>
+                                        <h2 className="display-4 text-center">Event</h2>
 
-                <form onSubmit={handleSubmit}>
-                    <Row className="d-flex justify-content-center">
-                        <Col md={12}>
-                            <Card>
-                                <CardBody>
-                                    <h2 className="display-4 text-center">Event</h2>
-
-
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Title</label>
-                                        <input
-                                            className="form-control"
-                                            type="text"
-                                            name="title"
-                                            value={formData.title}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.title && <span className="text-danger">{errors.title}</span>}
-                                    </Col>
-
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Short Description</label>
-                                        <textarea
-                                            className="form-control"
-                                            name="shortdescription"
-                                            value={formData.shortdescription}
-                                            onChange={handleChange}
-                                            rows={4}
-                                        />
-                                        {errors.shortdescription && (
-                                            <span className="text-danger">{errors.shortdescription}</span>
+                                        {alertMsg.message && (
+                                            <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
                                         )}
-                                    </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Description</label>
-                                        <CKEditor
-                                            editor={ClassicEditor}
-                                            data={formData.description}
-                                            onChange={(event, editor) => {
-                                                const data = editor.getData();
-                                                setFormData((prev) => ({ ...prev, description: data }));
-                                            }}
-                                        />
-                                        {errors.description && <span className="text-danger">{errors.description}</span>}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Title *</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                name="title"
+                                                value={formData.title}
+                                                onChange={handleChange}
+                                            />
+                                            {errors.title && <span className="text-danger">{errors.title}</span>}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Date</label>
-                                        <input
-                                            type="date"
-                                            className="form-control"
-                                            name="date"
-                                            value={formData.date?.split('T')[0] || ""}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.date && <span className="text-danger">{errors.date}</span>}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Short Description</label>
+                                            <textarea
+                                                className="form-control"
+                                                name="shortdescription"
+                                                value={formData.shortdescription}
+                                                onChange={handleChange}
+                                                rows={4}
+                                            />
+                                            {errors.shortdescription && (
+                                                <span className="text-danger">{errors.shortdescription}</span>
+                                            )}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Category</label>
-                                        <select
-                                            className="form-control"
-                                            name="category_id"
-                                            value={formData.category_id}
-                                            onChange={handleChange}
-                                        >
-                                            <option value="">Select Category</option>
-                                            {categories.map((cat) => (
-                                                <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                            ))}
-                                        </select>
-                                        {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Description *</label>
+                                            <CKEditor
+                                                editor={ClassicEditor}
+                                                data={formData.description}
+                                                onChange={(event, editor) => {
+                                                    const data = editor.getData();
+                                                    setFormData((prev) => ({ ...prev, description: data }));
+                                                }}
+                                            />
+                                            {errors.description && <span className="text-danger">{errors.description}</span>}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Link</label>
-                                        <input
-                                            className="form-control"
-                                            type="text"
-                                            name="link"
-                                            value={formData.link}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.link && <span className="text-danger">{errors.link}</span>}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Date *</label>
+                                            <input
+                                                type="date"
+                                                className="form-control"
+                                                name="date"
+                                                value={formData.date?.split('T')[0] || ""}
+                                                onChange={handleChange}
+                                            />
+                                            {errors.date && <span className="text-danger">{errors.date}</span>}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Address</label>
-                                        <input
-                                            className="form-control"
-                                            type="text"
-                                            name="address"
-                                            value={formData.address}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.address && <span className="text-danger">{errors.address}</span>}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Category *</label>
+                                            <select
+                                                className="form-control"
+                                                name="category_id"
+                                                value={formData.category_id}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="">Select Category</option>
+                                                {categories.map((cat) => (
+                                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                                ))}
+                                            </select>
+                                            {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Status</label>
-                                        <select
-                                            className="form-control"
-                                            name="status"
-                                            value={formData.status}
-                                            onChange={handleChange}
-                                        >
-                                            <option value="">Select Status</option>
-                                            <option value="0">Unpublished</option>
-                                            <option value="1">Published</option>
-                                            <option value="2">Draft</option>
-                                        </select>
-                                        {errors.status && <span className="text-danger">{errors.status}</span>}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Link</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                name="link"
+                                                value={formData.link}
+                                                onChange={handleChange}
+                                            />
+                                            {errors.link && <span className="text-danger">{errors.link}</span>}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Featured Image</label>
-                                        <input
-                                            className="form-control"
-                                            type="file"
-                                            name="featured_image"
-                                            onChange={handleChange}
-                                        />
-                                        {errors.featured_image && <span className="text-danger">{errors.featured_image}</span>}
-                                        {typeof formData.featured_image === "string" && (
-                                            <div className="mt-2">
-                                                <img src={formData.featured_image} alt="Preview" className="img-thumbnail" style={{ height: 100 }} />
-                                            </div>
-                                        )}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Address *</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleChange}
+                                            />
+                                            {errors.address && <span className="text-danger">{errors.address}</span>}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Files (multiple)</label>
-                                        <input
-                                            className="form-control"
-                                            type="file"
-                                            name="files"
-                                            onChange={handleChange}
-                                            multiple
-                                        />
-                                        {errors.files && <span className="text-danger">{errors.files}</span>}
-                                        {Array.isArray(formData.files) && formData.files.length > 0 && (
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Status *</label>
+                                            <select
+                                                className="form-control"
+                                                name="status"
+                                                value={formData.status}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="">Select Status</option>
+                                                <option value="0">Unpublished</option>
+                                                <option value="1">Published</option>
+                                                <option value="2">Draft</option>
+                                            </select>
+                                            {errors.status && <span className="text-danger">{errors.status}</span>}
+                                        </Col>
+
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Featured Image</label>
+                                            <input
+                                                className="form-control"
+                                                type="file"
+                                                name="featured_image"
+                                                onChange={handleChange}
+                                            />
+                                            {errors.featured_image && <span className="text-danger">{errors.featured_image}</span>}
+                                            {formData.featured_image && (
+                                                <div className="mt-2">
+                                                    <img
+                                                        src={typeof formData.featured_image === 'string'
+                                                            ? formData.featured_image
+                                                            : URL.createObjectURL(formData.featured_image)}
+                                                        alt="Featured Preview"
+                                                        className="img-thumbnail"
+                                                        style={{ height: 100 }}
+                                                    />
+                                                </div>
+                                            )}
+                                        </Col>
+
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Additional Images</label>
+                                            <input
+                                                className="form-control"
+                                                type="file"
+                                                name="images"
+                                                onChange={handleChange}
+                                                multiple
+                                                accept="image/*"
+                                            />
+                                            {errors.images && <span className="text-danger">{errors.images}</span>}
                                             <div className="d-flex flex-wrap gap-2 mt-2">
-                                                {formData.files.map((imgUrl, index) => (
+                                                {formData.images.map((img, index) => (
                                                     <div key={index} className="position-relative">
-                                                        <img src={imgUrl} alt={`img-${index}`} className="img-thumbnail" style={{ height: 100 }} />
-                                                        {/* <button
+                                                        <img
+                                                            src={typeof img === 'string'
+                                                                ? img
+                                                                : URL.createObjectURL(img)}
+                                                            alt={`Preview ${index}`}
+                                                            className="img-thumbnail"
+                                                            style={{ height: 100 }}
+                                                        />
+                                                        <button
                                                             type="button"
                                                             className="btn btn-sm btn-danger position-absolute top-0 end-0"
                                                             onClick={() => handleRemoveImage(index)}
                                                         >
                                                             ×
-                                                        </button> */}
+                                                        </button>
                                                     </div>
                                                 ))}
                                             </div>
-                                        )}
-                                    </Col>
+                                        </Col>
 
-                                    <Col lg={12} className="mt-4 text-center">
-                                        <Button type="submit" color="primary">Update</Button>
-                                    </Col>
-                                    {alertMsg.message && (
-                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
-                                    )}
-                                </CardBody>
-                            </Card>
-                        </Col>
-                    </Row>
-                </form>
+                                        <Col lg={12} className="mt-4 text-center">
+                                            <Button type="submit" color="primary" disabled={loading}>
+                                                {loading ? 'Updating...' : 'Update Event'}
+                                            </Button>
+                                        </Col>
+                                        {alertMsg.message && (
+                                            <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
+                                        )}
+                                    </CardBody>
+                                </Card>
+                            </Col>
+                        </Row>
+                    </form>
+                )}
             </Container>
         </div>
     );

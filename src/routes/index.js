@@ -155,6 +155,8 @@ import PageList from "../pages/Page/PageList";
 import PageDetails from "../pages/Page/PageDetails";
 import PageEdit from "../pages/Page/PageEdit";
 
+//PushNotifications
+import PushNotifications from "../pages/NotificationScreens/PushNotifications";
 
 // Forms
 import FormElements from "../pages/Forms/FormElements";
@@ -317,6 +319,9 @@ const authProtectedRoutes = [
   { path: "/page-list", component: <PageList /> },
   { path: "/page-details/:id", component: <PageDetails /> },
   { path: "/edit-page/:id", component: <PageEdit /> },
+
+  //Push Notification
+  { path: "/push-notification", component: <PushNotifications /> },
 
   // Contacts
   { path: "/contacts-grid", component: <ContactsGrid /> },

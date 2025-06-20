@@ -247,7 +247,7 @@ const SidebarContent = props => {
 
 
             <li>
-              <Link to="/#" >
+              <Link to="/push-notification" >
                 <i className="bx bxs-bell"></i>
                 <span>{props.t("Push Notifications")}</span>
               </Link>

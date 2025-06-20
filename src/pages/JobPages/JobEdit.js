@@ -147,6 +147,7 @@ const JobEdit = () => {
         formPayload.append("status", formData.status);
         formPayload.append("link", formData.link || "");
         formPayload.append("apply_link", formData.apply_link || "");
+        
         if (formData.featured_image instanceof File) {
             formPayload.append("featured_image", formData.featured_image);
         }

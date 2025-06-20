@@ -44,7 +44,8 @@ const NewsEdit = () => {
         }
         fetchCategories();
         fetchNewsById(id);
-    }, []);
+    }, [id]);
+
     const fetchNewsById = async (newsId) => {
         try {
             setLoading(true);
@@ -65,8 +66,7 @@ const NewsEdit = () => {
                 images: newsData.images || [],
             };
 
-            console.log(updatedFormData); // ✅ Logs the correct data
-            setFormData(updatedFormData); // ✅ Sets it to state
+            setFormData(updatedFormData);
             setLoading(false);
         } catch (err) {
             console.error("Failed to fetch news details", err);
@@ -74,7 +74,6 @@ const NewsEdit = () => {
             setLoading(false);
         }
     };
-
 
     const fetchCategories = async () => {
         try {
@@ -95,25 +94,24 @@ const NewsEdit = () => {
             ...prev,
             [name]: type === "file"
                 ? name === "images"
-                    ? files
+                    ? [...(prev.images || []), ...Array.from(files)] // Add new files to existing images
                     : files[0]
                 : value,
         }));
     };
 
     const handleRemoveImage = (index) => {
-        const newImages = [...formData.images];
-        newImages.splice(index, 1);
-        setFormData({ ...formData, images: newImages });
+        setFormData(prev => {
+            const newImages = [...prev.images];
+            newImages.splice(index, 1);
+            return { ...prev, images: newImages };
+        });
     };
 
     const validate = () => {
         const newErrors = {};
         if (!formData.title) newErrors.title = "Title is required";
         if (!formData.description) newErrors.description = "Description is required";
-        // if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
-        if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
-        // if (!formData.images || formData.images.length === 0) newErrors.images = "At least one image is required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.status) newErrors.status = "Status is required";
         setErrors(newErrors);
@@ -122,6 +120,8 @@ const NewsEdit = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validate()) return;
+
         const now = new Date();
         const dateTimeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
             now.getDate()
@@ -130,26 +130,32 @@ const NewsEdit = () => {
         ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
         const formPayload = new FormData();
-        formPayload.append("id", id); // this is critical!
+        formPayload.append("id", id);
         formPayload.append("title", formData.title);
         formPayload.append("shortdescription", formData.shortdescription || "");
         formPayload.append("description", formData.description);
         formPayload.append("category_id", formData.category_id);
         formPayload.append("status", formData.status);
 
-        // Append featured image if it's a file (user updated)
+        // Handle featured image
         if (formData.featured_image instanceof File) {
             formPayload.append("featured_image", formData.featured_image);
         }
 
-        // Append new images (if any)
-        if (formData.images && formData.images.length > 0) {
-            Array.from(formData.images).forEach((img) => {
-                if (img instanceof File) {
-                    formPayload.append("images", img);
-                }
-            });
+        // Separate existing images (strings) from new images (File objects)
+        const existingImages = formData.images.filter(img => typeof img === 'string');
+        const newImages = formData.images.filter(img => img instanceof File);
+
+        // Send existing images that weren't removed
+        if (existingImages.length > 0) {
+            formPayload.append("existing_images", JSON.stringify(existingImages));
         }
+
+        // Send new images
+        newImages.forEach(img => {
+            formPayload.append("images", img);
+        });
+
         formPayload.append("published_at", dateTimeString);
 
         try {
@@ -164,137 +170,163 @@ const NewsEdit = () => {
                 setAlertMsg({ message: "News updated successfully", type: "success" });
                 setTimeout(() => {
                     navigate("/news-list");
-                }, 2000); // Optional delay to show alert
+                }, 2000);
             } else {
-                setAlertMsg({ message: "Failed to update news", type: "danger" });
+                setAlertMsg({ message: response.data.message || "Failed to update news", type: "danger" });
             }
         } catch (error) {
             console.error("Update error", error);
-            setAlertMsg({ message: "Error updating news", type: "danger" });
+            setAlertMsg({
+                message: error.response?.data?.message || "Error updating news",
+                type: "danger"
+            });
         }
     };
+
     return (
         <div className="page-content">
             <ul className="breadcrumb">
                 <li>
-                    <Link to="/"><a href="/">Home /</a></Link>
+                    <Link to="/">Home /</Link>
                 </li>
                 <li>
-                    <Link to="/news-list"><a href="/">News List /</a></Link>
+                    <Link to="/news-list">News List /</Link>
                 </li>
                 <li className="active">News Edit</li>
             </ul>
 
             <Container>
+                {loading ? (
+                    <div className="text-center">Loading...</div>
+                ) : (
+                    <form onSubmit={handleSubmit}>
+                        <Row className="d-flex justify-content-center">
+                            <Col md={12} lg={12}>
+                                <Card>
+                                    <CardBody>
+                                        <h2 className="display-4 text-center">Edit News</h2>
 
-                <form onSubmit={handleSubmit}>
-                    <Row className="d-flex justify-content-center">
-                        <Col md={12} lg={12}>
-                            <Card>
-                                <CardBody>
-                                    <h2 className="display-4 text-center">News </h2>
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Title</label>
-                                        <input
-                                            className="form-control"
-                                            type="text"
-                                            name="title"
-                                            value={formData.title}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.title && <span className="text-danger">{errors.title}</span>}
-                                    </Col>
-
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Short Description</label>
-                                        <textarea
-                                            className="form-control"
-                                            name="shortdescription"
-                                            value={formData.shortdescription}
-                                            onChange={handleChange}
-                                            rows={4}
-                                        />
-                                        {errors.shortdescription && (
-                                            <span className="text-danger">{errors.shortdescription}</span>
+                                        {alertMsg.message && (
+                                            <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
                                         )}
-                                    </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Description</label>
-                                        <CKEditor
-                                            editor={ClassicEditor}
-                                            data={formData.description}
-                                            onChange={(event, editor) => {
-                                                const data = editor.getData();
-                                                setFormData((prev) => ({ ...prev, description: data }));
-                                            }}
-                                        />
-                                        {errors.description && <span className="text-danger">{errors.description}</span>}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Title *</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                name="title"
+                                                value={formData.title}
+                                                onChange={handleChange}
+                                            />
+                                            {errors.title && <span className="text-danger">{errors.title}</span>}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Category</label>
-                                        <select
-                                            className="form-control"
-                                            name="category_id"
-                                            value={formData.category_id}
-                                            onChange={handleChange}
-                                        >
-                                            <option value="">Select Category</option>
-                                            {categories.map((cat) => (
-                                                <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                            ))}
-                                        </select>
-                                        {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Short Description</label>
+                                            <textarea
+                                                className="form-control"
+                                                name="shortdescription"
+                                                value={formData.shortdescription}
+                                                onChange={handleChange}
+                                                rows={4}
+                                            />
+                                            {errors.shortdescription && (
+                                                <span className="text-danger">{errors.shortdescription}</span>
+                                            )}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Status</label>
-                                        <select
-                                            className="form-control" id={formData.status}
-                                            name="status"
-                                            value={formData.status}
-                                            onChange={handleChange}
-                                        >
-                                            <option value="">Select Status</option>
-                                            <option value="0">Unpublished</option>
-                                            <option value="1">Published</option>
-                                            <option value="2">Draft</option>
-                                        </select>
-                                        {errors.status && <span className="text-danger">{errors.status}</span>}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Description *</label>
+                                            <CKEditor
+                                                editor={ClassicEditor}
+                                                data={formData.description}
+                                                onChange={(event, editor) => {
+                                                    const data = editor.getData();
+                                                    setFormData(prev => ({ ...prev, description: data }));
+                                                }}
+                                            />
+                                            {errors.description && <span className="text-danger">{errors.description}</span>}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Featured Image</label>
-                                        <input
-                                            className="form-control"
-                                            type="file"
-                                            name="featured_image"
-                                            onChange={handleChange}
-                                        />
-                                        {errors.featured_image && <span className="text-danger">{errors.featured_image}</span>}
-                                        {typeof formData.featured_image === 'string' && (
-                                            <div className="mt-2">
-                                                <img src={formData.featured_image} alt="Preview" className="img-thumbnail" style={{ height: 100 }} />
-                                            </div>
-                                        )}
-                                    </Col>
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Category *</label>
+                                            <select
+                                                className="form-control"
+                                                name="category_id"
+                                                value={formData.category_id}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="">Select Category</option>
+                                                {categories.map((cat) => (
+                                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                                ))}
+                                            </select>
+                                            {errors.category_id && <span className="text-danger">{errors.category_id}</span>}
+                                        </Col>
 
-                                    <Col lg={12} className="mt-3">
-                                        <label className="form-label">Images (multiple)</label>
-                                        <input
-                                            className="form-control"
-                                            type="file"
-                                            name="images"
-                                            onChange={handleChange}
-                                            multiple
-                                        />
-                                        {errors.images && <span className="text-danger">{errors.images}</span>}
-                                        {Array.isArray(formData.images) && formData.images.length > 0 && (
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Status *</label>
+                                            <select
+                                                className="form-control"
+                                                name="status"
+                                                value={formData.status}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="">Select Status</option>
+                                                <option value="0">Unpublished</option>
+                                                <option value="1">Published</option>
+                                                <option value="2">Draft</option>
+                                            </select>
+                                            {errors.status && <span className="text-danger">{errors.status}</span>}
+                                        </Col>
+
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Featured Image</label>
+                                            <input
+                                                className="form-control"
+                                                type="file"
+                                                name="featured_image"
+                                                onChange={handleChange}
+                                                accept="image/*"
+                                            />
+                                            {errors.featured_image && <span className="text-danger">{errors.featured_image}</span>}
+                                            {formData.featured_image && (
+                                                <div className="mt-2">
+                                                    <img
+                                                        src={typeof formData.featured_image === 'string'
+                                                            ? formData.featured_image
+                                                            : URL.createObjectURL(formData.featured_image)}
+                                                        alt="Featured Preview"
+                                                        className="img-thumbnail"
+                                                        style={{ height: 100 }}
+                                                    />
+                                                </div>
+                                            )}
+                                        </Col>
+
+                                        <Col lg={12} className="mt-3">
+                                            <label className="form-label">Additional Images</label>
+                                            <input
+                                                className="form-control"
+                                                type="file"
+                                                name="images"
+                                                onChange={handleChange}
+                                                multiple
+                                                accept="image/*"
+                                            />
+                                            {errors.images && <span className="text-danger">{errors.images}</span>}
                                             <div className="d-flex flex-wrap gap-2 mt-2">
-                                                {formData.images.map((imgUrl, index) => (
+                                                {formData.images.map((img, index) => (
                                                     <div key={index} className="position-relative">
-                                                        <img src={imgUrl} alt={`img-${index}`} className="img-thumbnail" style={{ height: 100 }} />
+                                                        <img
+                                                            src={typeof img === 'string'
+                                                                ? img
+                                                                : URL.createObjectURL(img)}
+                                                            alt={`Preview ${index}`}
+                                                            className="img-thumbnail"
+                                                            style={{ height: 100 }}
+                                                        />
                                                         <button
                                                             type="button"
                                                             className="btn btn-sm btn-danger position-absolute top-0 end-0"
@@ -305,20 +337,22 @@ const NewsEdit = () => {
                                                     </div>
                                                 ))}
                                             </div>
-                                        )}
-                                    </Col>
+                                        </Col>
 
-                                    <Col lg={12} className="mt-4 text-center">
-                                        <Button type="submit" color="primary">Update</Button>
-                                    </Col>
-                                    {alertMsg.message && (
-                                        <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
-                                    )}
-                                </CardBody>
-                            </Card>
-                        </Col>
-                    </Row>
-                </form>
+                                        <Col lg={12} className="mt-4 text-center">
+                                            <Button type="submit" color="primary" disabled={loading}>
+                                                {loading ? 'Updating...' : 'Update News'}
+                                            </Button>
+                                        </Col>
+                                        {alertMsg.message && (
+                                            <Alert color={alertMsg.type}>{alertMsg.message}</Alert>
+                                        )}
+                                    </CardBody>
+                                </Card>
+                            </Col>
+                        </Row>
+                    </form>
+                )}
             </Container>
         </div>
     );
