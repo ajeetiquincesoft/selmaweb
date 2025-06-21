@@ -160,6 +160,7 @@ import PushNotifications from "../pages/NotificationScreens/PushNotifications";
 
 //Administration
 import RoleCategory from "../pages/Administration/RoleCategory";
+import ManageAdmin from "../pages/Administration/ManageAdmin";
 
 // Forms
 import FormElements from "../pages/Forms/FormElements";
@@ -328,6 +329,7 @@ const authProtectedRoutes = [
 
   //Administration
   { path: "/role-category", component: <RoleCategory /> },
+  { path: "/manage-admin", component: <ManageAdmin /> },
 
   // Contacts
   { path: "/contacts-grid", component: <ContactsGrid /> },

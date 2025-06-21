@@ -16,7 +16,7 @@ import {
   Table,
   Spinner
 } from "reactstrap";
-import BASE_URL from "path"; // Replace with actual BASE_URL
+import BASE_URL from "path"; // Replace with your actual BASE_URL
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const AdministrationCategories = () => {
@@ -42,12 +42,12 @@ const AdministrationCategories = () => {
       setToken(token);
     }
     fetchCategories();
-  }, []);
+  }, [token]);
 
   const fetchCategories = async () => {
     try {
       setLoading(prev => ({ ...prev, categories: true }));
-      const response = await axios.get(`${BASE_URL}/auth/getalladmincategory`, {
+      const response = await axios.get(`${BASE_URL}/auth/getallroles`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -61,31 +61,64 @@ const AdministrationCategories = () => {
   };
 
   const [formData, setFormData] = useState({
-    name: "",
+    role: "",
     status: "",
-    is_administrator: false,
+    permissions: {
+      news: false,
+      jobs: false,
+      event: false,
+      park: false,
+      recycling: false,
+      pages: false
+    }
   });
 
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value
+    }));
+  };
+
+  const handlePermissionChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      permissions: {
+        ...prev.permissions,
+        [name]: checked
+      }
     }));
   };
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.role.trim()) newErrors.role = "Role Name is required";
     if (!formData.status) newErrors.status = "Status is required";
+    const hasPermission = Object.values(formData.permissions).some(value => value === true);
+    if (!hasPermission) {
+      newErrors.permissions = "Please select at least one permission";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const resetForm = () => {
-    setFormData({ name: "", status: "", is_administrator: false });
+    setFormData({
+      role: "",
+      status: "",
+      permissions: {
+        news: false,
+        jobs: false,
+        event: false,
+        park: false,
+        recycling: false,
+        pages: false
+      }
+    });
     setErrors({});
     setEditMode(false);
     setCurrentId(null);
@@ -97,31 +130,28 @@ const AdministrationCategories = () => {
 
     try {
       setLoading(prev => ({ ...prev, submit: true }));
-      if (editMode && currentId) {
-        await axios.post(
-          `${BASE_URL}/auth/updateadmincategory`,
-          { ...formData, id: currentId },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setAlertMsg({ type: "success", message: "Administration Category updated successfully!" });
-      } else {
-        await axios.post(
-          `${BASE_URL}/auth/addadmincategory`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setAlertMsg({ type: "success", message: "Administration Category added successfully!" });
-      }
+
+      const payload = {
+        ...formData,
+        permissions: JSON.stringify(formData.permissions),
+        id: currentId
+      };
+
+      const url = editMode && currentId
+        ? `${BASE_URL}/auth/updaterole`
+        : `${BASE_URL}/auth/addrole`;
+
+      await axios.post(url, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setAlertMsg({
+        type: "success",
+        message: editMode ? "Administration Category updated successfully!" : "Administration Category added successfully!"
+      });
 
       resetForm();
       toggleModal();
@@ -142,7 +172,7 @@ const AdministrationCategories = () => {
     try {
       setLoading(prev => ({ ...prev, delete: id }));
       await axios.post(
-        `${BASE_URL}/auth/deleteadmincategory`,
+        `${BASE_URL}/auth/deleterole`,
         { id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -156,11 +186,28 @@ const AdministrationCategories = () => {
   };
 
   const handleEdit = (cat) => {
-    setFormData({ 
-      name: cat.name,
+    let permissions = {
+      news: false,
+      jobs: false,
+      event: false,
+      park: false,
+      recycling: false,
+      pages: false
+    };
+    if (cat.permissions) {
+      try {
+        permissions = JSON.parse(cat.permissions);
+      } catch (err) {
+        console.warn("Invalid permissions JSON", err);
+      }
+    }
+
+    setFormData({
+      role: cat.role,
       status: cat.status,
-      is_administrator: !!cat.is_administrator,
+      permissions
     });
+
     setEditMode(true);
     setCurrentId(cat.id);
     setModalOpen(true);
@@ -184,13 +231,11 @@ const AdministrationCategories = () => {
         <Row className="mb-3">
           <Col className="d-flex justify-content-between align-items-center">
             <ul className="breadcrumb">
-              <li>
-                <Link to="/"><a href="/">Home /</a></Link>
-              </li>
-              <li className="active">Administration Category</li>
+              <li><Link to="/">Home /</Link></li>
+              <li className="active">Administration Role</li>
             </ul>
             <Button color="primary" onClick={() => { resetForm(); toggleModal(); }}>
-              Add Category
+              Add Roles
             </Button>
           </Col>
         </Row>
@@ -211,9 +256,9 @@ const AdministrationCategories = () => {
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Category Name</th>
+                    <th>Name</th>
+                    <th>Permissions</th>
                     <th>Status</th>
-                    <th>Admin Role</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -222,37 +267,35 @@ const AdministrationCategories = () => {
                     categories.map((cat, index) => (
                       <tr key={cat.id}>
                         <td>{index + 1}</td>
-                        <td>{cat.name}</td>
-                        <td>{cat.status === 1 ? "Active" : "Inactive"}</td>
-                        <td>{cat.is_administrator ? "Yes" : "No"}</td>
+                        <td>{cat.role}</td>
+
                         <td>
-                          <Button
-                            color="warning"
-                            size="sm"
-                            className="me-2"
-                            onClick={() => handleEdit(cat)}
-                          >
-                            Edit
-                          </Button>
+                          {(() => {
+                            try {
+                              const perms = JSON.parse(cat.permissions || "{}");
+                              return Object.entries(perms)
+                                .filter(([_, v]) => v)
+                                .map(([k]) => k.charAt(0).toUpperCase() + k.slice(1))
+                                .join(", ");
+                            } catch {
+                              return "-";
+                            }
+                          })()}
+                        </td>
+                        <td>{cat.status === 1 ? "Active" : "Inactive"}</td>
+                        <td>
+                          <Button color="warning" size="sm" className="me-2" onClick={() => handleEdit(cat)}>Edit</Button>
                           {loading.delete === cat.id ? (
                             <Spinner size="sm" color="danger" />
                           ) : (
-                            <Button
-                              color="danger"
-                              size="sm"
-                              onClick={() => handleDelete(cat.id)}
-                            >
-                              Delete
-                            </Button>
+                            <Button color="danger" size="sm" onClick={() => handleDelete(cat.id)}>Delete</Button>
                           )}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="5" className="text-center">
-                        No categories found.
-                      </td>
+                      <td colSpan="5" className="text-center">No categories found.</td>
                     </tr>
                   )}
                 </tbody>
@@ -268,52 +311,70 @@ const AdministrationCategories = () => {
           <ModalBody>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label className="form-label">Name</label>
+                <label className="form-label"> Name</label>
                 <input
                   className="form-control"
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="role"
+                  value={formData.role}
                   onChange={handleChange}
                 />
-                {errors.name && (
-                  <small className="text-danger">{errors.name}</small>
+                {errors.role && <small className="text-danger">{errors.role}</small>}
+              </div>
+
+
+
+              <div className="mb-3">
+                <label className="form-label">Permissions</label>
+                {[
+                  { label: "News", name: "news" },
+                  { label: "Jobs", name: "jobs" },
+                  { label: "Event", name: "event" },
+                  { label: "Park & Recreation", name: "park" },
+                  { label: "Recycling & Garbage", name: "recycling" },
+                  { label: "Pages", name: "pages" }
+                ].map((perm) => (
+                  <div className="form-check" key={perm.name}>
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id={perm.name}
+                      name={perm.name}
+                      checked={formData.permissions[perm.name]}
+                      onChange={handlePermissionChange}
+
+                    />
+                    <label className="form-check-label" htmlFor={perm.name}>
+                      {perm.label}
+                    </label>
+                  </div>
+                ))}
+                {errors.permissions && (
+                  <small className="text-danger d-block mt-1">{errors.permissions}</small>
                 )}
               </div>
+
               <div className="mb-3">
                 <label className="form-label">Status</label>
                 <select
-                  className="form-control"
+                  className="form-select"
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
                 >
-                  <option value="">Select</option>
+                  <option value="">-- Select Status --</option>
                   <option value="1">Active</option>
                   <option value="0">Inactive</option>
                 </select>
-                {errors.status && (
-                  <small className="text-danger">{errors.status}</small>
-                )}
+                {errors.status && <small className="text-danger">{errors.status}</small>}
               </div>
-              <div className="form-check mb-3">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="isAdminCheck"
-                  name="is_administrator"
-                  checked={formData.is_administrator}
-                  onChange={handleChange}
-                />
-                <label className="form-check-label" htmlFor="isAdminCheck">
-                  Administrator Role
-                </label>
-              </div>
+
               <div className="text-end">
                 <Button color="primary" type="submit" disabled={loading.submit}>
                   {loading.submit ? (
                     <>
-                      <Spinner size="sm" className="me-2" /> {editMode ? "Updating..." : "Submitting..."}
+                      <Spinner size="sm" className="me-2" />
+                      {editMode ? "Updating..." : "Submitting..."}
                     </>
                   ) : editMode ? "Update" : "Submit"}
                 </Button>
