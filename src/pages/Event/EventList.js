@@ -148,7 +148,6 @@ const EventList = () => {
         if (!formData.status) newErrors.status = "Status is required";
 
         setErrors(newErrors);
-        console.log(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 

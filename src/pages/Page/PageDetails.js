@@ -46,7 +46,6 @@ const PageDetails = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response);
       setPage(response.data.data || null);
       setLoading(false);
     } catch (err) {

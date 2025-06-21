@@ -168,7 +168,6 @@ const EditPark = () => {
     };
 
     const validate = () => {
-        console.log('aasd');
         const newErrors = {};
         if (!formData.title.trim()) newErrors.title = "Title is required";
         // if (!formData.shortdescription.trim()) newErrors.shortdescription = "Short description is required";
@@ -203,7 +202,7 @@ const EditPark = () => {
     };
 
     const handleSubmit = async (e) => {
-        console.log('aasd');
+
         e.preventDefault();
         if (!validate()) return;
         const now = new Date();

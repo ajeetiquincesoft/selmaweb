@@ -110,7 +110,6 @@ const RecyclingGarbageContent = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(res);
       setAlertMsg({ type: "success", message: "Content updated successfully!" });
       fetchContent(currentPage);
       setTimeout(() => {

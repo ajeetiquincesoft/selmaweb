@@ -29,8 +29,6 @@ function* loginUser({ payload: { user, history } }) {
         email: user.email,
         password: user.password,
       });
-
-      console.log("ggggg"+response);
       localStorage.setItem("authUser", JSON.stringify(response));
     } else if (process.env.REACT_APP_DEFAULTAUTH === "fake") {
       response = yield call(postFakeLogin, {
@@ -40,17 +38,14 @@ function* loginUser({ payload: { user, history } }) {
       localStorage.setItem("authUser", JSON.stringify(response));
     } else {
 
-      // console.log(POST_FAKE_JWT_LOGIN);
       // ✅ Use your custom Node.js API
       response = yield call(apipostjwtlogin, {
         email: user.email,
         password: user.password,
       });
-        console.log("fff"+response);
       // Store token or user info (optional)
       localStorage.setItem("authUser", JSON.stringify(response));
     }
-    console.log("dddd"+JSON.stringify(response));
     yield put(loginSuccess(response.data || response));
     history("/dashboard");
   } catch (error) {

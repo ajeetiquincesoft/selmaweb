@@ -52,7 +52,6 @@ const NewsDetails = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response);
             setNews(response.data.data || null);
             setLoading(false);
         } catch (err) {

@@ -31,7 +31,6 @@ const ChangePassword = () => {
     const storedUser = localStorage.getItem("authUser");
     if (storedUser) {
       const { token } = JSON.parse(storedUser);
-      console.log(token);
       setToken(token);
       fetchUserData(token)
     }
@@ -46,7 +45,6 @@ const ChangePassword = () => {
         }
       });
       const userData = response.data;
-      console.log(userData);
       setProfileImage(userData.meta.profile_pic);
       profileValidation.setValues({
         name: userData.name || '',

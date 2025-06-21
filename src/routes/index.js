@@ -158,6 +158,9 @@ import PageEdit from "../pages/Page/PageEdit";
 //PushNotifications
 import PushNotifications from "../pages/NotificationScreens/PushNotifications";
 
+//Administration
+import RoleCategory from "../pages/Administration/RoleCategory";
+
 // Forms
 import FormElements from "../pages/Forms/FormElements";
 import FormLayouts from "../pages/Forms/FormLayouts";
@@ -322,6 +325,9 @@ const authProtectedRoutes = [
 
   //Push Notification
   { path: "/push-notification", component: <PushNotifications /> },
+
+  //Administration
+  { path: "/role-category", component: <RoleCategory /> },
 
   // Contacts
   { path: "/contacts-grid", component: <ContactsGrid /> },

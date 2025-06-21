@@ -245,6 +245,22 @@ const SidebarContent = props => {
               </ul>
             </li>
 
+            {/* <li>
+              <Link to="/#" className="has-arrow" >
+                <i className='bx bx-user-circle'></i>
+                <span>{props.t("Administration")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/role-category">{props.t("Role Category")}</Link>
+                </li>
+                <li>
+                  <Link to="/page-categories">{props.t("Manage Users")}</Link>
+                </li>
+              </ul>
+            </li> */}
+
+
 
             <li>
               <Link to="/push-notification" >

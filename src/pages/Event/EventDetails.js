@@ -41,7 +41,6 @@ const EventDetails = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response);
             setEvent(response.data.data || null);
             setLoading(false);
         } catch (err) {

@@ -15,7 +15,6 @@ import axios from "axios";
 
 const JobDetails = () => {
     const { id } = useParams();
-    console.log(id);
     const [token, setToken] = useState(null);
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -43,7 +42,6 @@ const JobDetails = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response);
             setJob(response.data.data || null);
             setLoading(false);
         } catch (err) {

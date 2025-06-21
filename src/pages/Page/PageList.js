@@ -100,7 +100,6 @@ const PageList = () => {
                     page: page
                 },
             });
-            console.log(response);
             setPages(response.data.data || []);
             setTotalPages(response.data.pagination.totalPages);
         } catch (err) {
