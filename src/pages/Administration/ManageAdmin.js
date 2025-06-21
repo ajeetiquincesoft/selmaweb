@@ -74,7 +74,7 @@ const UserManagement = () => {
 
   const fetchRoles = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/auth/getAllUsers`, {
+      const res = await axios.get(`${BASE_URL}/auth/getallroles`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRoles(res.data?.data || []);
