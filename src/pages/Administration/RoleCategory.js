@@ -321,7 +321,7 @@ const AdministrationCategories = () => {
 
 
               <div className="mb-3">
-                <label className="form-label">Permissions</label>
+                <label className="form-label h5"><u>Permissions</u></label>
                 {[
                   { label: "News", name: "news" },
                   { label: "Jobs", name: "jobs" },
