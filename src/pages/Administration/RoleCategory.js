@@ -62,7 +62,7 @@ const AdministrationCategories = () => {
 
   const [formData, setFormData] = useState({
     role: "",
-    status: "",
+
     permissions: {
       news: false,
       jobs: false,
@@ -97,7 +97,7 @@ const AdministrationCategories = () => {
   const validate = () => {
     const newErrors = {};
     if (!formData.role.trim()) newErrors.role = "Role Name is required";
-    if (!formData.status) newErrors.status = "Status is required";
+
     const hasPermission = Object.values(formData.permissions).some(value => value === true);
     if (!hasPermission) {
       newErrors.permissions = "Please select at least one permission";
@@ -109,7 +109,6 @@ const AdministrationCategories = () => {
   const resetForm = () => {
     setFormData({
       role: "",
-      status: "",
       permissions: {
         news: false,
         jobs: false,
@@ -204,7 +203,6 @@ const AdministrationCategories = () => {
 
     setFormData({
       role: cat.role,
-      status: cat.status,
       permissions
     });
 
@@ -258,7 +256,6 @@ const AdministrationCategories = () => {
                     <th>#</th>
                     <th>Name</th>
                     <th>Permissions</th>
-                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -282,7 +279,6 @@ const AdministrationCategories = () => {
                             }
                           })()}
                         </td>
-                        <td>{cat.status === 1 ? "Active" : "Inactive"}</td>
                         <td>
                           <Button color="warning" size="sm" className="me-2" onClick={() => handleEdit(cat)}>Edit</Button>
                           {loading.delete === cat.id ? (
@@ -354,20 +350,7 @@ const AdministrationCategories = () => {
                 )}
               </div>
 
-              <div className="mb-3">
-                <label className="form-label">Status</label>
-                <select
-                  className="form-select"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                >
-                  <option value="">-- Select Status --</option>
-                  <option value="1">Active</option>
-                  <option value="0">Inactive</option>
-                </select>
-                {errors.status && <small className="text-danger">{errors.status}</small>}
-              </div>
+              
 
               <div className="text-end">
                 <Button color="primary" type="submit" disabled={loading.submit}>
