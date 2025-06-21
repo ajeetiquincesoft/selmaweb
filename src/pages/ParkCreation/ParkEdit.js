@@ -16,8 +16,6 @@ const EditPark = () => {
     const [errors, setErrors] = useState({});
     const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
     const [initialFacilities, setInitialFacilities] = useState([]);
-    const [existingImages, setExistingImages] = useState([]);
-    const [removedImages, setRemovedImages] = useState([]);
 
     const [formData, setFormData] = useState({
         title: "",
@@ -80,11 +78,9 @@ const EditPark = () => {
                 time: parkData.time || "",
                 organizor: parkData.organizor || "",
                 published_at: parkData.published_at ? new Date(parkData.published_at).toISOString().slice(0, 16) : "",
-                featured_image: null,
-                images: []
+                featured_image: parkData.featured_image,
+                images: parkData.images || [],
             });
-
-            setExistingImages(parkData.images || []);
             setFacilities(parsedFacilities.length > 0 ? parsedFacilities : [{ name: "", address: "", amenities: [""] }]);
             setInitialFacilities(parsedFacilities);
 
@@ -96,11 +92,11 @@ const EditPark = () => {
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: type === "file"
                 ? name === "images"
-                    ? Array.from(files)
+                    ? [...(prev.images || []), ...Array.from(files)] // Add new files to existing images
                     : files[0]
                 : value,
         }));
@@ -163,10 +159,12 @@ const EditPark = () => {
         setFacilities(updatedFacilities);
     };
 
-    const removeExistingImage = (imageIndex) => {
-        const imageToRemove = existingImages[imageIndex];
-        setRemovedImages([...removedImages, imageToRemove]);
-        setExistingImages(existingImages.filter((_, index) => index !== imageIndex));
+    const handleRemoveImage = (index) => {
+        setFormData(prev => {
+            const newImages = [...prev.images];
+            newImages.splice(index, 1);
+            return { ...prev, images: newImages };
+        });
     };
 
     const validate = () => {
@@ -214,23 +212,28 @@ const EditPark = () => {
         ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
             now.getMinutes()
         ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-        
+
         const data = new FormData();
-        Object.entries(formData).forEach(([key, value]) => {
-            if (key === "images") {
-                Array.from(value).forEach(file => {
-                    data.append("images", file);
-                });
-            } else if (key === "featured_image" && value) {
-                data.append("featured_image", value);
-            } else if (value !== null && value !== undefined) {
-                data.append(key, value);
-            }
+        if (formData.featured_image instanceof File) {
+            data.append("featured_image", formData.featured_image);
+        }
+
+        const existingImages = formData.images.filter(img => typeof img === 'string');
+        const newImages = formData.images.filter(img => img instanceof File);
+
+        // Send existing images that weren't removed
+        if (existingImages.length > 0) {
+            data.append("existing_images", JSON.stringify(existingImages));
+        }
+
+        // Send new images
+        newImages.forEach(img => {
+            data.append("images", img);
         });
 
+        data.append("published_at", dateTimeString);
+
         data.append("facilities", JSON.stringify(facilities));
-        existingImages.forEach(image => data.append("existing_images[]", image));
-        removedImages.forEach(image => data.append("removed_images[]", image));
         data.append("id", id);
 
 
@@ -451,55 +454,53 @@ const EditPark = () => {
                                             onChange={handleChange}
                                             accept="image/*"
                                         />
+                                        {formData.featured_image && (
+                                            <div className="mt-2">
+                                                <img
+                                                    src={typeof formData.featured_image === 'string'
+                                                        ? formData.featured_image
+                                                        : URL.createObjectURL(formData.featured_image)}
+                                                    alt="Featured Preview"
+                                                    className="img-thumbnail"
+                                                    style={{ height: 100 }}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <div className="mb-3">
+                                    <Col lg={12} className="mt-3">
                                         <label className="form-label">Additional Images</label>
                                         <input
-                                            type="file"
                                             className="form-control"
+                                            type="file"
                                             name="images"
                                             onChange={handleChange}
                                             multiple
                                             accept="image/*"
                                         />
-                                    </div>
-
-                                    {existingImages.length > 0 && (
-                                        <div className="mb-3">
-                                            <label className="form-label">Current Images</label>
-                                            <Table bordered size="sm">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Image</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {existingImages.map((image, index) => (
-                                                        <tr key={index}>
-                                                            <td>
-                                                                <img
-                                                                    src={image}
-                                                                    alt={`Existing ${index}`}
-                                                                    style={{ maxWidth: "100px", maxHeight: "60px" }}
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <Button
-                                                                    color="danger"
-                                                                    size="sm"
-                                                                    onClick={() => removeExistingImage(index)}
-                                                                >
-                                                                    Remove
-                                                                </Button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </Table>
+                                        {errors.images && <span className="text-danger">{errors.images}</span>}
+                                        <div className="d-flex flex-wrap gap-2 mt-2">
+                                            {formData.images.map((img, index) => (
+                                                <div key={index} className="position-relative">
+                                                    <img
+                                                        src={typeof img === 'string'
+                                                            ? img
+                                                            : URL.createObjectURL(img)}
+                                                        alt={`Preview ${index}`}
+                                                        className="img-thumbnail"
+                                                        style={{ height: 100 }}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                                        onClick={() => handleRemoveImage(index)}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ))}
                                         </div>
-                                    )}
+                                    </Col>
                                 </Card>
 
                                 {/* Facilities */}

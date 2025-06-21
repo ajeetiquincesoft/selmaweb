@@ -38,15 +38,14 @@ const EditPage = () => {
         description: "",
         shortdescription: "",
         featured_image: null,
-        existing_featured_image: "",
         images: [],
-        existing_images: [],
         category_id: "",
         name: "",
         designation: "",
         address: "",
         hours: "",
         contacts: "",
+        undeletable: false,
         status: "",
         published_at: ""
     });
@@ -91,22 +90,23 @@ const EditPage = () => {
             });
 
             const pageData = response.data.data;
+            console.log(pageData.undeletable);
 
             // Set main form data
             setFormData({
                 title: pageData.title || "",
                 description: pageData.description || "",
                 shortdescription: pageData.shortdescription || "",
-                featured_image: null,
-                existing_featured_image: pageData.featured_image || "",
-                images: [],
-                existing_images: pageData.images || [],
+                featured_image: pageData.featured_image,
+                images: pageData.images,
                 category_id: pageData.category_id || "",
                 name: pageData.name || "",
                 designation: pageData.designation || "",
                 address: pageData.address || "",
                 hours: pageData.hours || "",
                 contacts: pageData.contacts || "",
+                undeletable: pageData.undeletable,
+                isdisbledcheck: pageData.undeletable,
                 status: pageData.status?.toString() || "",
                 published_at: pageData.published_at || ""
             });
@@ -137,10 +137,17 @@ const EditPage = () => {
             ...prev,
             [name]: type === "file"
                 ? name === "images"
-                    ? files
+                    ? [...(prev.images || []), ...Array.from(files)] // Add new files to existing images
                     : files[0]
                 : value,
         }));
+    };
+    const handleRemoveImage = (index) => {
+        setFormData(prev => {
+            const newImages = [...prev.images];
+            newImages.splice(index, 1);
+            return { ...prev, images: newImages };
+        });
     };
 
     const handleCouncilMemberChange = (index, e) => {
@@ -208,7 +215,7 @@ const EditPage = () => {
         data.append("title", formData.title);
         data.append("description", formData.description);
         data.append("shortdescription", formData.shortdescription || "");
-
+        data.append("undeletable", formData.undeletable);
         if (formData.featured_image) {
             data.append("featured_image", formData.featured_image);
         } else {
@@ -216,15 +223,18 @@ const EditPage = () => {
         }
 
         // Add new images
-        for (let i = 0; i < formData.images.length; i++) {
-            data.append("images", formData.images[i]);
+        const existingImages = formData.images.filter(img => typeof img === 'string');
+        const newImages = formData.images.filter(img => img instanceof File);
+
+        // Send existing images that weren't removed
+        if (existingImages.length > 0) {
+            data.append("existing_images", JSON.stringify(existingImages));
         }
 
-        // Add existing images
-        formData.existing_images.forEach((img, index) => {
-            data.append(`existing_images[${index}]`, img);
+        // Send new images
+        newImages.forEach(img => {
+            data.append("images", img);
         });
-
         data.append("category_id", formData.category_id);
         data.append("name", formData.name || "");
         data.append("designation", formData.designation || "");
@@ -277,7 +287,7 @@ const EditPage = () => {
                 <li className="active">Page Edit</li>
             </ul>
             <Container >
-               
+
                 {loading.page ? (
                     <div className="text-center my-5">
                         <Spinner color="primary" />
@@ -288,7 +298,7 @@ const EditPage = () => {
                         <Col xl={12}>
                             <Card>
                                 <CardBody>
-                                   
+
                                     <form onSubmit={handleSubmit}>
                                         <FormGroup>
                                             <Label>Title</Label>
@@ -522,63 +532,121 @@ const EditPage = () => {
                                         </Row>
 
                                         <Row>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label>Featured Image</Label>
-                                                    <Input
-                                                        type="file"
-                                                        name="featured_image"
-                                                        onChange={handleChange}
-                                                    />
-                                                    {formData.existing_featured_image && (
-                                                        <div className="mt-2">
-                                                            <small>Current Image:</small>
-                                                            <img
-                                                                src={`${BASE_URL}/uploads/${formData.existing_featured_image}`}
-                                                                alt="Featured"
-                                                                className="img-thumbnail mt-1"
-                                                                style={{ maxHeight: "100px" }}
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </FormGroup>
+                                            <Col lg={12} className="mt-3">
+                                                <label className="form-label">Featured Image</label>
+                                                <input
+                                                    className="form-control"
+                                                    type="file"
+                                                    name="featured_image"
+                                                    onChange={handleChange}
+                                                    accept="image/*"
+                                                />
+                                                {errors.featured_image && <span className="text-danger">{errors.featured_image}</span>}
+                                                {formData.featured_image && (
+                                                    <div className="mt-2">
+                                                        <img
+                                                            src={typeof formData.featured_image === 'string'
+                                                                ? formData.featured_image
+                                                                : URL.createObjectURL(formData.featured_image)}
+                                                            alt="Featured Preview"
+                                                            className="img-thumbnail"
+                                                            style={{ height: 100 }}
+                                                        />
+                                                    </div>
+                                                )}
                                             </Col>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label>Additional Images</Label>
-                                                    <Input
-                                                        type="file"
-                                                        name="images"
-                                                        onChange={handleChange}
-                                                        multiple
-                                                    />
-                                                    {formData.existing_images.length > 0 && (
-                                                        <div className="mt-2">
-                                                            <small>Current Images:</small>
-                                                            <div className="d-flex flex-wrap gap-2 mt-1">
-                                                                {formData.existing_images.map((img, index) => (
-                                                                    <div key={index} className="position-relative">
-                                                                        <img
-                                                                            src={`${BASE_URL}/uploads/${img}`}
-                                                                            alt={`Gallery ${index}`}
-                                                                            className="img-thumbnail"
-                                                                            style={{ height: "50px" }}
-                                                                        />
-                                                                        <button
-                                                                            type="button"
-                                                                            className="btn btn-danger btn-xs position-absolute top-0 end-0"
-                                                                            onClick={() => removeExistingImage(index)}
-                                                                        >
-                                                                            <i className="bx bx-x"></i>
-                                                                        </button>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
+
+                                            <Col lg={12} className="mt-3">
+                                                <label className="form-label">Additional Images</label>
+                                                <input
+                                                    className="form-control"
+                                                    type="file"
+                                                    name="images"
+                                                    onChange={handleChange}
+                                                    multiple
+                                                    accept="image/*"
+                                                />
+                                                {errors.images && <span className="text-danger">{errors.images}</span>}
+                                                <div className="d-flex flex-wrap gap-2 mt-2">
+                                                    {formData.images.map((img, index) => (
+                                                        <div key={index} className="position-relative">
+                                                            <img
+                                                                src={typeof img === 'string'
+                                                                    ? img
+                                                                    : URL.createObjectURL(img)}
+                                                                alt={`Preview ${index}`}
+                                                                className="img-thumbnail"
+                                                                style={{ height: 100 }}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                                                onClick={() => handleRemoveImage(index)}
+                                                            >
+                                                                ×
+                                                            </button>
                                                         </div>
-                                                    )}
-                                                </FormGroup>
+                                                    ))}
+                                                </div>
                                             </Col>
                                         </Row>
+
+                                     
+
+
+                                        {formData.isdisbledcheck == 0 ? (
+                                            // Show this checkbox when undeletable is 0
+                                            <div className="form-check mt-3">
+                                                <Input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id="formrow-customCheck"
+                                                    name="undeletable"
+                                                    value={formData.undeletable}
+                                                    onChange={(e) => {
+                                                        setFormData({
+                                                            ...formData,
+                                                            undeletable: e.target.checked ? 1 : 0
+                                                        });
+                                                    }}
+                                                />
+                                                <Label
+                                                    className="form-check-label h5"
+                                                    htmlFor="formrow-customCheck"
+                                                >
+                                                    Deletion of this page is not permitted.
+                                                </Label>
+                                            </div>
+                                        ) : (
+                                            <div className="form-check mt-3">
+                                                <Input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id="formrow-customCheck"
+                                                    name="undeletable"
+                                                    value={formData.undeletable}
+                                                    defaultChecked={formData.undeletable == 0 ? false : true}
+                                                    disabled
+                                                    onChange={(e) => {
+                                                        setFormData({
+                                                            ...formData,
+                                                            undeletable: e.target.checked ? 1 : 0
+                                                        });
+                                                    }}
+                                                />
+                                                <Label
+                                                    className="form-check-label h5"
+                                                    htmlFor="formrow-customCheck"
+                                                >
+                                                    Deletion of this page is not permitted.
+                                                </Label>
+                                            </div>
+                                        )}
+
+
+
+
+
 
                                         <div className="text-center mt-4">
                                             <Button

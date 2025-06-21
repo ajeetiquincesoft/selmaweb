@@ -100,6 +100,7 @@ const PageList = () => {
                     page: page
                 },
             });
+            console.log(response);
             setPages(response.data.data || []);
             setTotalPages(response.data.pagination.totalPages);
         } catch (err) {
@@ -208,6 +209,7 @@ const PageList = () => {
         data.append("description", formData.description);
         data.append("shortdescription", formData.shortdescription || "");
         data.append("featured_image", formData.featured_image);
+        data.append("undeletable", formData.undeletable);
 
         for (let i = 0; i < formData.images.length; i++) {
             data.append("images", formData.images[i]);
@@ -398,13 +400,16 @@ const PageList = () => {
                                                                 </Link>
                                                             </div>
                                                         </Col>
-                                                        <Col sm={2} md={2} lg={2} className="text-end fs-4">
-                                                            <i className="bx bx-trash align-middle text-danger me-2"
-                                                                title="Delete"
-                                                                style={{ cursor: 'pointer' }}
-                                                                onClick={() => handleDelete(item.id)}
-                                                            ></i>
-                                                        </Col>
+
+                                                        {!item.undeletable && (
+                                                            <Col sm={2} md={2} lg={2} className="text-end fs-4">
+                                                                <i className="bx bx-trash align-middle text-danger me-2"
+                                                                    title="Delete"
+                                                                    style={{ cursor: 'pointer' }}
+                                                                    onClick={() => handleDelete(item.id)}
+                                                                ></i>
+                                                            </Col>
+                                                        )}
                                                     </Row>
                                                 </div>
                                             </Card>
@@ -710,6 +715,24 @@ const PageList = () => {
                                     </FormGroup>
                                 </Col>
                             </Row>
+                            <div className="form-check">
+                                <Input
+                                    type="checkbox"
+                                    className="form-check-Input"
+                                    id="formrow-customCheck"
+                                    name="undeletable"
+                                    checked={formData.undeletable === 1}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, undeletable: e.target.checked ? 1 : 0 })
+                                    }
+                                />
+                                <Label
+                                    className="form-check-Label"
+                                    htmlFor="formrow-customCheck"
+                                >
+                                   Deletion of this page is not permitted.
+                                </Label>
+                            </div>
 
                             <div className="text-center mt-4">
                                 <Button

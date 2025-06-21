@@ -168,7 +168,7 @@ const Dashboard = props => {
                     </Col>
                     <Col xs="5" className="align-self-end">
 
-                    
+
                       <img src={profileImg} alt="" className="img-fluid" />
                     </Col>
                   </Row>
@@ -224,7 +224,7 @@ const Dashboard = props => {
                       Selma is located high on the banks of the Alabama River in Dallas County of which it is the county seat.
                       The city is best known for the Battle of Selma and for the Selma to Montgomery Marches.
                     </p>
-                    
+
                   </div>
                   <Row className="mt-4">
                     <Col xs={4} >
@@ -256,7 +256,7 @@ const Dashboard = props => {
                           <div className="avatar-xs mx-auto mb-3">
 
                             <span className={"avatar-title rounded-circle bg-info font-size-16"}>
-                             x
+                              x
                             </span>
                           </div>
                           <h5 className="font-size-15">X</h5>
@@ -303,7 +303,6 @@ const Dashboard = props => {
             </Col>
             <Col xl="8">
               <Row>
-
                 <Col md="4">
                   <Card className="mini-stats-wid">
                     <CardBody>
@@ -363,8 +362,69 @@ const Dashboard = props => {
                     </CardBody>
                   </Card>
                 </Col>
-
               </Row>
+
+              {/* <Row>
+                <Col md="4">
+                  <Card className="mini-stats-wid">
+                    <CardBody>
+                      <div className="d-flex">
+                        <div className="flex-grow-1">
+                          <p className="text-muted fw-medium">
+                            Jobs
+                          </p>
+                          <h4 className="mb-0">{Homedata?.counts.jobCount}</h4>
+                        </div>
+                        <div className="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                          <span className="avatar-title rounded-circle bg-primary">
+                            <i className={"bx  bx bx-briefcase-alt font-size-24"}></i>
+                          </span>
+                        </div>
+                      </div>
+                    </CardBody>
+                  </Card>
+                </Col>
+
+                <Col md="4">
+                  <Card className="mini-stats-wid">
+                    <CardBody>
+                      <div className="d-flex">
+                        <div className="flex-grow-1">
+                          <p className="text-muted fw-medium">
+                            News
+                          </p>
+                          <h4 className="mb-0">{Homedata?.counts.newsCount}</h4>
+                        </div>
+                        <div className="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                          <span className="avatar-title rounded-circle bg-primary">
+                            <i className={"bx  bxs-detail font-size-24"}></i>
+                          </span>
+                        </div>
+                      </div>
+                    </CardBody>
+                  </Card>
+                </Col>
+
+                <Col md="4">
+                  <Card className="mini-stats-wid">
+                    <CardBody>
+                      <div className="d-flex">
+                        <div className="flex-grow-1">
+                          <p className="text-muted fw-medium">
+                            Event
+                          </p>
+                          <h4 className="mb-0">{Homedata?.counts.eventCount}</h4>
+                        </div>
+                        <div className="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                          <span className="avatar-title rounded-circle bg-primary">
+                            <i className={"bx  bx-calendar-event font-size-24"}></i>
+                          </span>
+                        </div>
+                      </div>
+                    </CardBody>
+                  </Card>
+                </Col>
+              </Row> */}
 
               <Card>
                 <CardBody>

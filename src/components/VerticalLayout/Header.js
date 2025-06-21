@@ -123,7 +123,7 @@ const Header = props => {
                 <i className="bx bx-fullscreen" />
               </button>
             </div>
-            <NotificationDropdown />
+            
             <ProfileMenu />
           </div>
         </div>
