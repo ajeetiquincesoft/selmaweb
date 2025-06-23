@@ -281,11 +281,11 @@ const AdministrationCategories = () => {
                         </td>
                         <td>
                           <Button color="warning" size="sm" className="me-2" onClick={() => handleEdit(cat)}>Edit</Button>
-                          {loading.delete === cat.id ? (
+                          {/* {loading.delete === cat.id ? (
                             <Spinner size="sm" color="danger" />
                           ) : (
                             <Button color="danger" size="sm" onClick={() => handleDelete(cat.id)}>Delete</Button>
-                          )}
+                          )} */}
                         </td>
                       </tr>
                     ))
@@ -337,7 +337,7 @@ const AdministrationCategories = () => {
                       type="checkbox"
                       id={perm.name}
                       name={perm.name}
-                      checked={formData.permissions[perm.name]}
+                      defaultChecked={formData.permissions[perm.name]}
                       onChange={handlePermissionChange}
 
                     />
@@ -351,7 +351,7 @@ const AdministrationCategories = () => {
                 )}
               </div>
 
-              
+
 
               <div className="text-end">
                 <Button color="primary" type="submit" disabled={loading.submit}>
