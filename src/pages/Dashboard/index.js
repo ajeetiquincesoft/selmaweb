@@ -117,7 +117,7 @@ const Dashboard = props => {
         },
       });
       const { data, user, latest } = response?.data;
-
+      console.log(user);
       setDashboard(data);
       setUser(user);
       setLatestJobs(data?.latest?.jobs || []);
@@ -184,7 +184,7 @@ const Dashboard = props => {
                         />
                       </div>
                       <h5 className="font-size-15 text-truncate">{userData?.name}</h5>
-                      <p className="text-muted mb-0 text-truncate">Admin</p>
+                      <p className="text-muted mb-0 text-truncate">{userData?.role}</p>
                     </Col>
 
                     <Col sm="8">

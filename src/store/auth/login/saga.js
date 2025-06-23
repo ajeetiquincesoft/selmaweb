@@ -29,12 +29,14 @@ function* loginUser({ payload: { user, history } }) {
         email: user.email,
         password: user.password,
       });
+      // console.log("bbbbddfdf--->"+response);
       localStorage.setItem("authUser", JSON.stringify(response));
     } else if (process.env.REACT_APP_DEFAULTAUTH === "fake") {
       response = yield call(postFakeLogin, {
         email: user.email,
         password: user.password,
       });
+      //  console.log("aaaaddfdf--->"+response);
       localStorage.setItem("authUser", JSON.stringify(response));
     } else {
 
@@ -43,7 +45,7 @@ function* loginUser({ payload: { user, history } }) {
         email: user.email,
         password: user.password,
       });
-      // Store token or user info (optional)
+        // console.log("ccccaaaaddfdf--->"+JSON.stringify(response));
       localStorage.setItem("authUser", JSON.stringify(response));
     }
     yield put(loginSuccess(response.data || response));

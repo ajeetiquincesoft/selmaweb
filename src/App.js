@@ -22,7 +22,7 @@ import "./assets/scss/theme.scss";
 // import { initFirebaseBackend } from "./helpers/firebase_helper";
 
 import fakeBackend from "./helpers/AuthType/fakeBackend";
-import useIdleLogout  from "./helpers/useIdleLogout";
+import useIdleLogout from "./helpers/useIdleLogout";
 // Activating fake backend
 fakeBackend();
 
@@ -93,7 +93,7 @@ const App = () => {
             path={route.path}
             element={
               <Authmiddleware>
-                <Layout>{route.component}</Layout>
+                <Layout>{typeof route.component === 'function' ? route.component() : route.component}</Layout>
               </Authmiddleware>}
             key={idx}
             exact={true}

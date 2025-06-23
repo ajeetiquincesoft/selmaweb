@@ -328,7 +328,8 @@ const AdministrationCategories = () => {
                   { label: "Event", name: "event" },
                   { label: "Park & Recreation", name: "park" },
                   { label: "Recycling & Garbage", name: "recycling" },
-                  { label: "Pages", name: "pages" }
+                  { label: "Pages", name: "pages" },
+                  { label: "Notification", name: "notification" }
                 ].map((perm) => (
                   <div className="form-check" key={perm.name}>
                     <input

@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { hasPermission } from "../helpers/auth";
 
 // Pages Component
 import Chat from "../pages/Chat/Chat";
@@ -274,63 +275,60 @@ const authProtectedRoutes = [
   { path: "/projects-overview/:id", component: <ProjectsOverview /> },
   { path: "/projects-create", component: <ProjectsCreate /> },
 
-  //news
-  { path: "/add-news", component: <AddNews /> },
-  { path: "/news-list", component: <NewsList /> },
-  { path: "/news-categories", component: <NewsCategories /> },
-  { path: "/news-details/:id", component: <NewsDetails /> },
-  { path: "/edit-news/:id", component: <NewsEdit /> },
+  // News (permission: "news")
+  { path: "/add-news", component: () => hasPermission("news") ? <AddNews /> : <Navigate to="/dashboard" /> },
+  { path: "/news-list", component: () => hasPermission("news") ? <NewsList /> : <Navigate to="/dashboard" /> },
+  { path: "/news-categories", component: () => hasPermission("news") ? <NewsCategories /> : <Navigate to="/dashboard" /> },
+  { path: "/news-details/:id", component: () => hasPermission("news") ? <NewsDetails /> : <Navigate to="/dashboard" /> },
+  { path: "/edit-news/:id",component: () => hasPermission("news") ? <NewsEdit /> : <Navigate to="/dashboard" /> },
 
-  //blog
-  { path: "/blog-list", component: <BlogList /> },
-  { path: "/blog-grid", component: <BlogGrid /> },
-  { path: "/blog-details", component: <BlogDetails /> },
+  // Blog (permission: "blog")
+  { path: "/blog-list", component: () => hasPermission("blog") ? <BlogList /> : <Navigate to="/dashboard" /> },
+  { path: "/blog-grid", component: () => hasPermission("blog") ? <BlogGrid /> : <Navigate to="/dashboard" /> },
+  { path: "/blog-details", component: () => hasPermission("blog") ? <BlogDetails /> : <Navigate to="/dashboard" /> },
 
-  //job
-  { path: "/job-grid", component: <JobGrid /> },
-  { path: "/job-details/:id", component: <JobDetails /> },
-  { path: "/job-categories", component: <JobCategories /> },
-  { path: "/job-list", component: <JobList /> },
-  { path: "/job-apply", component: <ApplyJobs /> },
-  { path: "/candidate-list", component: <CandidateList /> },
-  { path: "/candidate-overview", component: <CandidateOverview /> },
-  { path: "/edit-job/:id", component: <JobEdit /> },
+  // Job (permission: "jobs")
+  { path: "/job-grid", component: () => hasPermission("jobs") ? <JobGrid /> : <Navigate to="/dashboard" /> },
+  { path: "/job-details/:id", component: () => hasPermission("jobs") ? <JobDetails /> : <Navigate to="/dashboard" /> },
+  { path: "/job-categories", component: () => hasPermission("jobs") ? <JobCategories /> : <Navigate to="/dashboard" /> },
+  { path: "/job-list",component: () => hasPermission("jobs") ? <JobList /> : <Navigate to="/dashboard" /> },
+  { path: "/job-apply", component: () => hasPermission("jobs") ? <ApplyJobs /> : <Navigate to="/dashboard" /> },
+  { path: "/candidate-list", component: () => hasPermission("jobs") ? <CandidateList /> : <Navigate to="/dashboard" /> },
+  { path: "/candidate-overview", component: () => hasPermission("jobs") ? <CandidateOverview /> : <Navigate to="/dashboard" /> },
+  { path: "/edit-job/:id", component: () => hasPermission("jobs") ? <JobEdit /> : <Navigate to="/dashboard" /> },
 
+  // Event (permission: "event")
+  { path: "/event-categories",component: () => hasPermission("event") ? <EventCategories /> : <Navigate to="/dashboard" /> },
+  { path: "/event-list", component: () => hasPermission("event") ? <EventList /> : <Navigate to="/dashboard" /> },
+  { path: "/event-details/:id", component: () =>hasPermission("event") ? <EventDetails /> : <Navigate to="/dashboard" /> },
+  { path: "/edit-event/:id", component: () => hasPermission("event") ? <EventEdit /> : <Navigate to="/dashboard" /> },
 
-  //Event
+  // Park And Recreation (permission: "park")
+  { path: "/park-recreation-content", component: () => hasPermission("park") ? <ParkCreationContent /> : <Navigate to="/dashboard" /> },
+  { path: "/park-recreation-content-details", component: () => hasPermission("park") ? <ParkCreationContentDetails /> : <Navigate to="/dashboard" /> },
+  { path: "/parks-recreation-categories", component: () =>hasPermission("park") ? <ParkCreationCategory /> : <Navigate to="/dashboard" /> },
+  { path: "/parks-recreation-list", component: () => hasPermission("park") ? <ParkCreationList /> : <Navigate to="/dashboard" /> },
+  { path: "/park-details/:id",component: () => hasPermission("park") ? <ParkDetails /> : <Navigate to="/dashboard" /> },
+  { path: "/edit-park/:id", component: () => hasPermission("park") ? <ParkEdit /> : <Navigate to="/dashboard" /> },
 
-  { path: "/event-categories", component: <EventCategories /> },
-  { path: "/event-list", component: <EventList /> },
-  { path: "/event-details/:id", component: <EventDetails /> },
-  { path: "/edit-event/:id", component: <EventEdit /> },
+  // Recycling & Garbage (permission: "recycling")
+  { path: "/recycling-garbage-content",component: () => hasPermission("recycling") ? <RecyclingGarbageContent /> : <Navigate to="/dashboard" /> },
+  { path: "/recycling-garbage-list", component: () => hasPermission("recycling") ? <RecyclingGarbageList /> : <Navigate to="/dashboard" /> },
+  { path: "/recycling-garbage-details/:id", component: () => hasPermission("recycling") ? <RecyclingGarbageDetails /> : <Navigate to="/dashboard" /> },
+  { path: "/edit-recycling-garbage/:id", component: () => hasPermission("recycling") ? <EditRecyclingGarbage /> : <Navigate to="/dashboard" /> },
 
-  //Park And Recreation
-  { path: "/park-recreation-content", component: <ParkCreationContent /> },
-  { path: "/park-recreation-content-details", component: <ParkCreationContentDetails /> },
-  { path: "/parks-recreation-categories", component: <ParkCreationCategory /> },
-  { path: "/parks-recreation-list", component: <ParkCreationList /> },
-  { path: "/park-details/:id", component: <ParkDetails /> },
-  { path: "/edit-park/:id", component: <ParkEdit /> },
+  // Pages (permission: "pages")
+  { path: "/page-categories",component: () => hasPermission("pages") ? <PageCategories /> : <Navigate to="/dashboard" /> },
+  { path: "/page-list", component: () => hasPermission("pages") ? <PageList /> : <Navigate to="/dashboard" /> },
+  { path: "/page-details/:id", component: () =>hasPermission("pages") ? <PageDetails /> : <Navigate to="/dashboard" /> },
+  { path: "/edit-page/:id", component: () => hasPermission("pages") ? <PageEdit /> : <Navigate to="/dashboard" /> },
 
-  //Recycling & Garbage
-  { path: "/recycling-garbage-content", component: <RecyclingGarbageContent /> },
-  { path: "/recycling-garbage-list", component: <RecyclingGarbageList /> },
-  { path: "/recycling-garbage-details/:id", component: <RecyclingGarbageDetails /> },
-  { path: "/edit-recycling-garbage/:id", component: <EditRecyclingGarbage /> },
+  // Push Notification (permission: "notification")
+  { path: "/push-notification",component: () => hasPermission("notification") ? <PushNotifications /> : <Navigate to="/dashboard" /> },
 
-  //Pages
-  { path: "/page-categories", component: <PageCategories /> },
-  { path: "/page-list", component: <PageList /> },
-  { path: "/page-details/:id", component: <PageDetails /> },
-  { path: "/edit-page/:id", component: <PageEdit /> },
-
-  //Push Notification
-  { path: "/push-notification", component: <PushNotifications /> },
-
-  //Administration
-  { path: "/role-category", component: <RoleCategory /> },
-  { path: "/manage-admin", component: <ManageAdmin /> },
-
+  // Administration (permission: "admin")
+  { path: "/role-category", component: () => hasPermission("admin") ? <RoleCategory /> : <Navigate to="/dashboard" /> },
+  { path: "/manage-admin",component: () => hasPermission("admin") ? <ManageAdmin /> : <Navigate to="/dashboard" /> },
   // Contacts
   { path: "/contacts-grid", component: <ContactsGrid /> },
   { path: "/contacts-list", component: <ContactsList /> },

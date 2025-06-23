@@ -79,8 +79,9 @@ const ParkCreationList = () => {
       setLoading(prev => ({ ...prev, parks: true, initial: page === 1 }));
       const response = await axios.get(`${BASE_URL}/auth/getAllParksAndRecreation`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { limit: 6, page }
+        params: { limit: 18, page }
       });
+      console.log(response);
       setParks(response.data.data || []);
       setCurrentPage(response.data.pagination.currentPage);
       setTotalPages(response.data.pagination.totalPages);
@@ -328,6 +329,20 @@ const ParkCreationList = () => {
                       />
                     </div>
                     <div className="p-3">
+                      <ul className="list-inline d-flex justify-content">
+                        <li className="list-inline-item me-3">
+                          <span className="text-muted">
+                            <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
+                            {item.category?.name || "General"}
+                          </span>
+                        </li>
+                        <li className="list-inline-item me-3">
+                          <span className="text-muted">
+                            <i className="bx bx-user align-middle text-muted me-1"></i>
+                            {item.author?.name || "Admin"}
+                          </span>
+                        </li>
+                      </ul>
                       <p>
                         {stripHtml(item.shortdescription).length > 120
                           ? stripHtml(item.shortdescription).substring(0, 120) + "..."
