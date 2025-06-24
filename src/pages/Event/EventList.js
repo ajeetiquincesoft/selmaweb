@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     Card,
     Col,
@@ -12,7 +12,6 @@ import {
     Alert,
     Spinner
 } from "reactstrap";
-import classnames from "classnames";
 import axios from "axios";
 import BASE_URL from "path"; // Replace with actual BASE_URL
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -34,6 +33,12 @@ const EventList = () => {
         submit: false,
         delete: false
     });
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const navigate = useNavigate();
+    const searchParams = new URLSearchParams(window.location.search);
+    const categoryIdPera = searchParams.get('category_id');
     const formRef = useRef(null);
 
     const [formData, setFormData] = useState({
@@ -47,7 +52,8 @@ const EventList = () => {
         date: "",
         time: "",
         organizor: "",
-        status: ""
+        status: "",
+        address: ""
     });
 
     useEffect(() => {
@@ -61,9 +67,16 @@ const EventList = () => {
     useEffect(() => {
         if (token) {
             fetchCategories();
-            fetchEventData(currentPage);
+
+            const filters = {
+                category_id: categoryIdPera || "",
+            };
+            fetchEventData(1, filters);
+            if (categoryIdPera) {
+                setSelectedCategory(categoryIdPera);
+            }
         }
-    }, [token, currentPage]);
+    }, [token]);
 
     const fetchCategories = async () => {
         try {
@@ -79,12 +92,24 @@ const EventList = () => {
         }
     };
 
-    const fetchEventData = async (page = 1) => {
+    const fetchEventData = async (page = 1, filters = {}) => {
         try {
             setLoading(prev => ({ ...prev, events: true }));
-            const response = await axios.get(`${BASE_URL}/auth/getallevents?status=all`, {
+            const params = {
+                limit: 3,
+                page: page,
+                ...filters,
+                status: filters.status ? filters.status : "all",
+            };
+
+            // Only include status if it's not empty
+            if (params.status === "") {
+                delete params.status;
+            }
+
+            const response = await axios.get(`${BASE_URL}/auth/getallevents`, {
                 headers: { Authorization: `Bearer ${token}` },
-                params: { limit: 15, page: page },
+                params: params,
             });
             setEvents(response.data.data || []);
             setCurrentPage(response.data.pagination.currentPage);
@@ -94,6 +119,28 @@ const EventList = () => {
         } finally {
             setLoading(prev => ({ ...prev, events: false }));
         }
+    };
+
+    const handleFilterSubmit = (e) => {
+        e.preventDefault();
+        navigate(`/event-list?`);
+        const filters = {};
+
+        if (searchKeyword) {
+            filters.keyword = searchKeyword;
+        }
+
+        if (selectedCategory) {
+            filters.category_id = selectedCategory;
+        }
+
+        if (selectedStatus) {
+            filters.status = selectedStatus;
+        }
+
+        // Reset to page 1 when applying new filters
+        setCurrentPage(1);
+        fetchEventData(1, filters);
     };
 
     const stripHtml = (html) => {
@@ -114,7 +161,8 @@ const EventList = () => {
             date: "",
             time: "",
             organizor: "",
-            status: ""
+            status: "",
+            address: ""
         });
         setModal(!modal);
     }
@@ -135,11 +183,8 @@ const EventList = () => {
         const newErrors = {};
 
         if (!formData.title) newErrors.title = "Title is required";
-        // if (!formData.shortdescription) newErrors.shortdescription = "Short description is required";
         if (!formData.description) newErrors.description = "Description is required";
         if (!formData.featured_image) newErrors.featured_image = "Featured image is required";
-        // if (!formData.files || formData.files.length === 0) newErrors.files = "At least one image is required";
-        // if (!formData.link) newErrors.link = "Link is required";
         if (!formData.address) newErrors.address = "address is required";
         if (!formData.category_id) newErrors.category_id = "Category is required";
         if (!formData.date) newErrors.date = "Date is required";
@@ -189,7 +234,14 @@ const EventList = () => {
                     },
                 });
             setAlertMsg({ type: "success", message: "Event added successfully!" });
-            fetchEventData(currentPage);
+
+            // Refresh event list with current filters
+            const filters = {};
+            if (searchKeyword) filters.keyword = searchKeyword;
+            if (selectedCategory) filters.category_id = selectedCategory;
+            if (selectedStatus) filters.status = selectedStatus;
+            fetchEventData(currentPage, filters);
+
             setTimeout(() => {
                 setModal(false);
                 setAlertMsg({ type: "", message: "" });
@@ -212,7 +264,13 @@ const EventList = () => {
                         "Content-Type": "application/json",
                     },
                 });
-                fetchEventData(currentPage);
+
+                // Refresh event list with current filters
+                const filters = {};
+                if (searchKeyword) filters.keyword = searchKeyword;
+                if (selectedCategory) filters.category_id = selectedCategory;
+                if (selectedStatus) filters.status = selectedStatus;
+                fetchEventData(currentPage, filters);
             } catch (error) {
                 console.error("Error deleting event:", error);
             } finally {
@@ -241,6 +299,55 @@ const EventList = () => {
                     </Col>
                 </Row>
 
+                {/* Search and Filter Form */}
+                <form onSubmit={handleFilterSubmit}>
+                    <Row className="justify-content-end mb-3">
+                        <Col xs="6" md="3">
+                            <input
+                                type="search"
+                                className="form-control"
+                                placeholder="Search..."
+                                value={searchKeyword}
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                            />
+                        </Col>
+
+                        <Col xs="6" md="2">
+                            <select
+                                className="form-select"
+                                value={selectedCategory}
+                                onChange={(e) => setSelectedCategory(e.target.value)}
+                            >
+                                <option value="">All Categories</option>
+                                {categories.map((category) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </Col>
+
+                        <Col xs="6" md="2">
+                            <select
+                                className="form-select"
+                                value={selectedStatus}
+                                onChange={(e) => setSelectedStatus(e.target.value)}
+                            >
+                                <option value="all">All Status</option>
+                                <option value="1">Published</option>
+                                <option value="0">Unpublished</option>
+                                <option value="2">Draft</option>
+                            </select>
+                        </Col>
+
+                        <Col xs="6" md="1" className="mt-2 mt-md-0">
+                            <button type="submit" className="btn btn-primary w-100">
+                                Filter
+                            </button>
+                        </Col>
+                    </Row>
+                </form>
+
                 {loading.events ? (
                     <div className="text-center my-5">
                         <Spinner color="primary" />
@@ -249,107 +356,154 @@ const EventList = () => {
                 ) : (
                     <>
                         <Row>
-                            {events.map((item, index) => (
-                                <Col key={index} sm={4} md={4} lg={4}>
-                                    <Card className="p-1 border shadow-none">
-                                        <div className="p-3">
-                                            <div className="d-flex justify-content-between">
-                                                <div>
-                                                    <h5>
-                                                        <Link to={`/event-details/${item.id}`} className="text-dark">
-                                                            {item.title.length > 60
-                                                                ? item.title.substring(0, 60) + "..."
-                                                                : item.title}
+                            {events.length > 0 ? (
+                                events.map((item, index) => (
+                                    <Col key={index} sm={4} md={4} lg={4}>
+                                        <Card className="p-1 border shadow-none">
+                                            <div className="p-3">
+                                                <div className="d-flex justify-content-between">
+                                                    <div>
+                                                        <h5>
+                                                            <Link to={`/event-details/${item.id}`} className="text-dark">
+                                                                {item.title.length > 60
+                                                                    ? item.title.substring(0, 60) + "..."
+                                                                    : item.title}
+                                                            </Link>
+                                                        </h5>
+                                                    </div>
+                                                    <div>
+                                                        <Link to={`/edit-event/${item.id}`}>
+                                                            <i
+                                                                className="bx bx-edit align-middle fw-20 text-primary me-2"
+                                                                title="Edit"
+                                                                style={{ cursor: "pointer" }}
+                                                            ></i>
                                                         </Link>
-                                                    </h5>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <Link to={`/edit-event/${item.id}`}>
-                                                        <i
-                                                            className="bx bx-edit align-middle fw-20 text-primary me-2"
-                                                            title="Edit"
-                                                            style={{ cursor: "pointer" }}
-                                                        ></i>
-                                                    </Link>
-                                                </div>
+                                                <p className="text-muted mb-0">
+                                                    {new Date(item.date).toLocaleDateString("en-GB", {
+                                                        day: "2-digit",
+                                                        month: "short",
+                                                        year: "numeric",
+                                                    })}
+                                                </p>
                                             </div>
-                                            <p className="text-muted mb-0">
-                                                {new Date(item.date).toLocaleDateString("en-GB", {
-                                                    day: "2-digit",
-                                                    month: "short",
-                                                    year: "numeric",
-                                                })}
-                                            </p>
-                                        </div>
 
-                                        <div className="position-relative">
-                                            <img
-                                                src={item.featured_image || "default.jpg"}
-                                                alt={item.title}
-                                                className="img-thumbnail fixed-size-img"
-                                            />
-                                        </div>
+                                            <div className="position-relative">
+                                                <img
+                                                    src={item.featured_image || "default.jpg"}
+                                                    alt={item.title}
+                                                    className="img-thumbnail fixed-size-img"
+                                                />
+                                            </div>
 
-                                        <div className="p-3">
-                                            <ul className="list-inline d-flex justify-content">
-                                                <li className="list-inline-item me-3">
-                                                    <span className="text-muted">
-                                                        <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
-                                                        {item.category?.name || "General"}
-                                                    </span>
-                                                </li>
-                                                <li className="list-inline-item me-3">
-                                                    <span className="text-muted">
-                                                        <i className="bx bx-user align-middle text-muted me-1"></i>
-                                                        {item.user?.name || "Admin"}
-                                                    </span>
-                                                </li>
-                                            </ul>
-                                            <p>
-                                                {stripHtml(item.shortdescription).length > 120
-                                                    ? stripHtml(item.shortdescription).substring(0, 120) + "..."
-                                                    : stripHtml(item.shortdescription)}
-                                            </p>
-                                            <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                <Col sm={10} md={10} lg={10}>
-                                                    <Link to={`/event-details/${item.id}`} className="text-primary">
-                                                        Read more <i className="mdi mdi-arrow-right"></i>
-                                                    </Link>
-                                                </Col>
-                                                <Col sm={2} md={2} lg={2} className="text-end fs-4">
-                                                    {loading.delete === item.id ? (
-                                                        <Spinner size="sm" color="danger" />
-                                                    ) : (
-                                                        <i className="bx bx-trash align-middle text-danger me-2"
-                                                            title="Delete"
-                                                            style={{ cursor: 'pointer' }}
-                                                            onClick={() => handleDelete(item.id)}
-                                                        />
-                                                    )}
-                                                </Col>
-                                            </Row>
-                                        </div>
-                                    </Card>
+                                            <div className="p-3">
+                                                <ul className="list-inline d-flex justify-content">
+                                                    <li className="list-inline-item me-3">
+                                                        <span className="text-muted">
+                                                            <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
+                                                            {item.category?.name || "General"}
+                                                        </span>
+                                                    </li>
+                                                    <li className="list-inline-item me-3">
+                                                        <span className="text-muted">
+                                                            <i className="bx bx-user align-middle text-muted me-1"></i>
+                                                            {item.user?.name || "Admin"}
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                                <p>
+                                                    {stripHtml(item.shortdescription).length > 120
+                                                        ? stripHtml(item.shortdescription).substring(0, 120) + "..."
+                                                        : stripHtml(item.shortdescription)}
+                                                </p>
+                                                <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <Col sm={10} md={10} lg={10}>
+                                                        <Link to={`/event-details/${item.id}`} className="text-primary">
+                                                            Read more <i className="mdi mdi-arrow-right"></i>
+                                                        </Link>
+                                                    </Col>
+                                                    <Col sm={2} md={2} lg={2} className="text-end fs-4">
+                                                        {loading.delete === item.id ? (
+                                                            <Spinner size="sm" color="danger" />
+                                                        ) : (
+                                                            <i className="bx bx-trash align-middle text-danger me-2"
+                                                                title="Delete"
+                                                                style={{ cursor: 'pointer' }}
+                                                                onClick={() => handleDelete(item.id)}
+                                                            />
+                                                        )}
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                ))
+                            ) : (
+                                <Col className="text-center my-5">
+                                    <p>No events found matching your criteria</p>
                                 </Col>
-                            ))}
+                            )}
                         </Row>
 
                         {/* Pagination */}
-                        <div className="text-center mt-4">
-                            <ul className="pagination justify-content-end">
-                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
-                                </li>
-                                {Array.from({ length: totalPages }, (_, index) => (
-                                    <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                                        <button className="page-link" onClick={() => setCurrentPage(index + 1)}>{index + 1}</button>
+                        {events.length > 0 && (
+                            <div className="text-center mt-4">
+                                <ul className="pagination justify-content-end">
+                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => {
+                                                const filters = {};
+                                                if (searchKeyword) filters.keyword = searchKeyword;
+                                                if (selectedCategory) filters.category_id = selectedCategory;
+                                                if (selectedStatus) filters.status = selectedStatus;
+                                                setCurrentPage(currentPage - 1);
+                                                fetchEventData(currentPage - 1, filters);
+                                            }}
+                                        >
+                                            &laquo;
+                                        </button>
                                     </li>
-                                ))}
-                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>&raquo;</button>
-                                </li>
-                            </ul>
-                        </div>
+                                    {Array.from({ length: totalPages }, (_, index) => (
+                                        <li
+                                            key={index + 1}
+                                            className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                                        >
+                                            <button
+                                                className="page-link"
+                                                onClick={() => {
+                                                    const filters = {};
+                                                    if (searchKeyword) filters.keyword = searchKeyword;
+                                                    if (selectedCategory) filters.category_id = selectedCategory;
+                                                    if (selectedStatus) filters.status = selectedStatus;
+                                                    setCurrentPage(index + 1);
+                                                    fetchEventData(index + 1, filters);
+                                                }}
+                                            >
+                                                {index + 1}
+                                            </button>
+                                        </li>
+                                    ))}
+                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => {
+                                                const filters = {};
+                                                if (searchKeyword) filters.keyword = searchKeyword;
+                                                if (selectedCategory) filters.category_id = selectedCategory;
+                                                if (selectedStatus) filters.status = selectedStatus;
+                                                setCurrentPage(currentPage + 1);
+                                                fetchEventData(currentPage + 1, filters);
+                                            }}
+                                        >
+                                            &raquo;
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
                     </>
                 )}
 

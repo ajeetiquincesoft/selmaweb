@@ -223,19 +223,21 @@ const ParkCreationCategory = () => {
                                             <tr key={cat.id}>
                                                 <td>{index + 1}</td>
                                                 <td className="d-flex align-items-center gap-2">
-                                                    {cat.image && (
-                                                        <img
-                                                            src={`https://selmaapi.webstage247.com/uploads/${cat.image}`}
-                                                            alt={cat.name}
-                                                            style={{
-                                                                width: "40px",
-                                                                height: "40px",
-                                                                borderRadius: "50%",
-                                                                objectFit: "cover",
-                                                            }}
-                                                        />
-                                                    )}
-                                                    <span>{cat.name}</span>
+                                                    <Link to={`/parks-recreation-list?category_id=${cat.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                        {cat.image && (
+                                                            <img
+                                                                src={`https://selmaapi.webstage247.com/uploads/${cat.image}`}
+                                                                alt={cat.name}
+                                                                style={{
+                                                                    width: "40px",
+                                                                    height: "40px",
+                                                                    borderRadius: "50%",
+                                                                    objectFit: "cover",
+                                                                }}
+                                                            />
+                                                        )}
+                                                        <span>{cat.name}</span>
+                                                    </Link>
                                                 </td>
                                                 <td>{cat.status == 1 ? "Active" : "Inactive"}</td>
                                                 <td>
@@ -324,7 +326,7 @@ const ParkCreationCategory = () => {
                                 <Button color="primary" type="submit" disabled={loading.submit}>
                                     {loading.submit ? (
                                         <>
-                                            <Spinner size="sm" className="me-2" /> 
+                                            <Spinner size="sm" className="me-2" />
                                             {editId ? "Updating..." : "Submitting..."}
                                         </>
                                     ) : editId ? "Update" : "Submit"}

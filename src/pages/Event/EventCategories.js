@@ -196,7 +196,11 @@ const EventCategories = () => {
                                         categories.map((cat, index) => (
                                             <tr key={cat.id}>
                                                 <td>{index + 1}</td>
-                                                <td>{cat.name}</td>
+                                                <td>
+                                                    <Link to={`/event-list?category_id=${cat.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                        {cat.name}
+                                                    </Link>
+                                                </td>
                                                 <td>{cat.status == 1 ? "Active" : "Inactive"}</td>
                                                 <td>
                                                     <Button
@@ -273,7 +277,7 @@ const EventCategories = () => {
                                 <Button color="primary" type="submit" disabled={loading.submit}>
                                     {loading.submit ? (
                                         <>
-                                            <Spinner size="sm" className="me-2" /> 
+                                            <Spinner size="sm" className="me-2" />
                                             {editId ? "Updating..." : "Submitting..."}
                                         </>
                                     ) : editId ? "Update" : "Submit"}

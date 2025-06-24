@@ -160,7 +160,7 @@ const JobCategories = () => {
     setModalOpen(true);
   };
 
-  document.title="Job Category | City of Selma";
+  document.title = "Job Category | City of Selma";
 
   if (loading.initial) {
     return (
@@ -215,7 +215,12 @@ const JobCategories = () => {
                     categories.map((cat, index) => (
                       <tr key={cat.id}>
                         <td>{index + 1}</td>
-                        <td>{cat.name}</td>
+                        <td>
+                          <Link to={`/job-list?category_id=${cat.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            {cat.name}
+                          </Link>
+                        </td>
+
                         <td>{cat.status == 1 ? "Active" : "Inactive"}</td>
                         <td>
                           <Button

@@ -161,7 +161,7 @@ const NewsCategories = () => {
     setModalOpen(true);
   };
 
-  document.title="News Category | City of Selma";
+  document.title = "News Category | City of Selma";
 
   if (loading.initial) {
     return (
@@ -216,7 +216,11 @@ const NewsCategories = () => {
                     categories.map((cat, index) => (
                       <tr key={cat.id}>
                         <td>{index + 1}</td>
-                        <td>{cat.name}</td>
+                        <td>
+                          <Link to={`/news-list?category_id=${cat.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            {cat.name}
+                          </Link>
+                        </td>
                         <td>{cat.status == 1 ? "Active" : "Inactive"}</td>
                         <td>
                           <Button

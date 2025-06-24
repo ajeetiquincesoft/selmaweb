@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     Card,
     CardBody,
@@ -36,6 +36,13 @@ const PageList = () => {
         categories: false,
         submit: false
     });
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const categoryIdPera = searchParams.get('category_id');
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         title: "",
@@ -50,7 +57,8 @@ const PageList = () => {
         hours: "",
         contacts: "",
         status: "",
-        published_at: ""
+        published_at: "",
+        undeletable: 0
     });
 
     const [councilMembers, setCouncilMembers] = useState([
@@ -64,13 +72,15 @@ const PageList = () => {
             setToken(token);
         }
         fetchCategories();
+        const filters = {
+            category_id: categoryIdPera || "",
+        };
+        fetchPages(1, filters);
+        if (categoryIdPera) {
+            setSelectedCategory(categoryIdPera);
+        }
     }, []);
 
-    useEffect(() => {
-        if (token) {
-            fetchPages(currentPage);
-        }
-    }, [currentPage, token]);
 
     const fetchCategories = async () => {
         try {
@@ -88,25 +98,55 @@ const PageList = () => {
         }
     };
 
-    const fetchPages = async (page = 1) => {
+    const fetchPages = async (page = 1, filters = {}) => {
         try {
             setLoading(prev => ({ ...prev, pages: true }));
-            const response = await axios.get(`${BASE_URL}/auth/getallpages?status=all`, {
+            const params = {
+                limit: 18,
+                page: page,
+                ...filters,
+                status: filters.status ? filters.status : "all",
+            };
+
+            if (params.status === "") {
+                delete params.status;
+            }
+
+            const response = await axios.get(`${BASE_URL}/auth/getallpages`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-                params: {
-                    limit: 15,
-                    page: page
-                },
+                params: params,
             });
             setPages(response.data.data || []);
+            setCurrentPage(response.data.pagination.currentPage);
             setTotalPages(response.data.pagination.totalPages);
         } catch (err) {
             console.error("Failed to fetch pages", err);
         } finally {
             setLoading(prev => ({ ...prev, pages: false }));
         }
+    };
+
+    const handleFilterSubmit = (e) => {
+        e.preventDefault();
+        navigate(`/page-list?`);
+        const filters = {};
+
+        if (searchKeyword) {
+            filters.keyword = searchKeyword;
+        }
+
+        if (selectedCategory) {
+            filters.category_id = selectedCategory;
+        }
+
+        if (selectedStatus) {
+            filters.status = selectedStatus;
+        }
+
+        setCurrentPage(1);
+        fetchPages(1, filters);
     };
 
     const stripHtml = (html) => {
@@ -129,7 +169,8 @@ const PageList = () => {
             hours: "",
             contacts: "",
             status: "",
-            published_at: ""
+            published_at: "",
+            undeletable: 0
         });
         setCouncilMembers([{ name: "", designation: "", image: null }]);
         setModal(!modal);
@@ -194,7 +235,6 @@ const PageList = () => {
         ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
         const data = new FormData();
 
-        // Add council members in the required format
         councilMembers.forEach((member, index) => {
             data.append(`council_name_${index}`, member.name);
             data.append(`council_designation_${index}`, member.designation);
@@ -203,7 +243,6 @@ const PageList = () => {
             }
         });
 
-        // Add other form data
         data.append("title", formData.title);
         data.append("description", formData.description);
         data.append("shortdescription", formData.shortdescription || "");
@@ -236,7 +275,14 @@ const PageList = () => {
             );
 
             setAlertMsg({ type: "success", message: "Page added successfully!" });
-            fetchPages(currentPage);
+
+            // Refresh with current filters
+            const filters = {};
+            if (searchKeyword) filters.keyword = searchKeyword;
+            if (selectedCategory) filters.category_id = selectedCategory;
+            if (selectedStatus) filters.status = selectedStatus;
+            fetchPages(currentPage, filters);
+
             setTimeout(() => {
                 setModal(false);
                 setAlertMsg({ type: "", message: "" });
@@ -263,7 +309,13 @@ const PageList = () => {
                         }
                     }
                 );
-                fetchPages(currentPage);
+
+                // Refresh with current filters
+                const filters = {};
+                if (searchKeyword) filters.keyword = searchKeyword;
+                if (selectedCategory) filters.category_id = selectedCategory;
+                if (selectedStatus) filters.status = selectedStatus;
+                fetchPages(currentPage, filters);
             } catch (error) {
                 console.error("Error deleting page:", error);
             } finally {
@@ -319,6 +371,51 @@ const PageList = () => {
                     </Col>
                 </Row>
 
+                {/* Search and Filter Form */}
+                <form onSubmit={handleFilterSubmit}>
+                    <Row className="justify-content-end mb-3">
+                        <Col xs="6" md="3">
+                            <Input
+                                type="search"
+                                placeholder="Search..."
+                                value={searchKeyword}
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                            />
+                        </Col>
+                        <Col xs="6" md="2">
+                            <Input
+                                type="select"
+                                value={selectedCategory}
+                                onChange={(e) => setSelectedCategory(e.target.value)}
+                            >
+                                <option value="">All Categories</option>
+                                {categories.map(category => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </Input>
+                        </Col>
+                        <Col xs="6" md="2">
+                            <Input
+                                type="select"
+                                value={selectedStatus}
+                                onChange={(e) => setSelectedStatus(e.target.value)}
+                            >
+                                <option value="all">All Status</option>
+                                <option value="1">Published</option>
+                                <option value="0">Unpublished</option>
+                                <option value="2">Draft</option>
+                            </Input>
+                        </Col>
+                        <Col xs="6" md="1" className="mt-2 mt-md-0">
+                            <Button type="submit" color="primary" className="w-100">
+                                Filter
+                            </Button>
+                        </Col>
+                    </Row>
+                </form>
+
                 {loading.pages ? (
                     <div className="text-center my-5">
                         <Spinner color="primary" />
@@ -329,128 +426,157 @@ const PageList = () => {
                         <Col xl={12}>
                             <div>
                                 <Row>
-                                    {pages.map((item, index) => (
-                                        <Col key={index} sm={4} md={4} lg={4}>
-                                            <Card className="p-1 border shadow-none">
-                                                <div className="p-3">
-                                                    <div className="d-flex justify-content-between">
-                                                        <div>
-                                                            <h5>
-                                                                <Link to={`/page-details/${item.id}`} className="text-dark">
-                                                                    {item.title.length > 60
-                                                                        ? item.title.substring(0, 60) + "..."
-                                                                        : item.title}
-                                                                </Link>
-                                                            </h5>
-                                                        </div>
-                                                        <div>
-                                                            <Link to={`/edit-page/${item.id}`}>
-                                                                <i
-                                                                    className="bx bx-edit align-middle fw-20 text-primary me-2"
-                                                                    title="Edit"
-                                                                    style={{ cursor: "pointer" }}
-                                                                ></i>
-                                                            </Link>
-                                                        </div>
-                                                    </div>
-
-                                                    <p className="text-muted mb-0">
-                                                        {new Date(item.createdAt).toLocaleDateString("en-GB", {
-                                                            day: "2-digit",
-                                                            month: "short",
-                                                            year: "numeric",
-                                                        })}
-                                                    </p>
-                                                </div>
-
-                                                <div className="position-relative">
-                                                    <img
-                                                        src={item.featured_image || "default.jpg"}
-                                                        alt={item.title}
-                                                        className="img-thumbnail fixed-size-img"
-                                                    />
-                                                </div>
-
-                                                <div className="p-3">
-                                                    <ul className="list-inline d-flex justify-content">
-                                                        <li className="list-inline-item me-3">
-                                                            <span className="text-muted">
-                                                                <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
-                                                                {item.category?.name || "General"}
-                                                            </span>
-                                                        </li>
-                                                        <li className="list-inline-item me-3">
-                                                            <span className="text-muted">
-                                                                <i className="bx bx-user align-middle text-muted me-1"></i>
-                                                                {item.author?.name || "Admin"}
-                                                            </span>
-                                                        </li>
-                                                    </ul>
-                                                    <p>
-                                                        {stripHtml(item.shortdescription).length > 120
-                                                            ? stripHtml(item.shortdescription).substring(0, 120) + "..."
-                                                            : stripHtml(item.shortdescription)}
-                                                    </p>
-                                                    <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                        <Col sm={10} md={10} lg={10}>
+                                    {pages.length > 0 ? (
+                                        pages.map((item, index) => (
+                                            <Col key={index} sm={4} md={4} lg={4}>
+                                                <Card className="p-1 border shadow-none">
+                                                    <div className="p-3">
+                                                        <div className="d-flex justify-content-between">
                                                             <div>
-                                                                <Link to={`/page-details/${item.id}`} className="text-primary">
-                                                                    Read more <i className="mdi mdi-arrow-right"></i>
+                                                                <h5>
+                                                                    <Link to={`/page-details/${item.id}`} className="text-dark">
+                                                                        {item.title.length > 60
+                                                                            ? item.title.substring(0, 60) + "..."
+                                                                            : item.title}
+                                                                    </Link>
+                                                                </h5>
+                                                            </div>
+                                                            <div>
+                                                                <Link to={`/edit-page/${item.id}`}>
+                                                                    <i
+                                                                        className="bx bx-edit align-middle fw-20 text-primary me-2"
+                                                                        title="Edit"
+                                                                        style={{ cursor: "pointer" }}
+                                                                    ></i>
                                                                 </Link>
                                                             </div>
-                                                        </Col>
+                                                        </div>
 
-                                                        {!item.undeletable && (
-                                                            <Col sm={2} md={2} lg={2} className="text-end fs-4">
-                                                                <i className="bx bx-trash align-middle text-danger me-2"
-                                                                    title="Delete"
-                                                                    style={{ cursor: 'pointer' }}
-                                                                    onClick={() => handleDelete(item.id)}
-                                                                ></i>
+                                                        <p className="text-muted mb-0">
+                                                            {new Date(item.createdAt).toLocaleDateString("en-GB", {
+                                                                day: "2-digit",
+                                                                month: "short",
+                                                                year: "numeric",
+                                                            })}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="position-relative">
+                                                        <img
+                                                            src={item.featured_image || "default.jpg"}
+                                                            alt={item.title}
+                                                            className="img-thumbnail fixed-size-img"
+                                                        />
+                                                    </div>
+
+                                                    <div className="p-3">
+                                                        <ul className="list-inline d-flex justify-content">
+                                                            <li className="list-inline-item me-3">
+                                                                <span className="text-muted">
+                                                                    <i className="bx bx-purchase-tag-alt align-middle text-muted me-1"></i>
+                                                                    {item.category?.name || "General"}
+                                                                </span>
+                                                            </li>
+                                                            <li className="list-inline-item me-3">
+                                                                <span className="text-muted">
+                                                                    <i className="bx bx-user align-middle text-muted me-1"></i>
+                                                                    {item.author?.name || "Admin"}
+                                                                </span>
+                                                            </li>
+                                                        </ul>
+                                                        <p>
+                                                            {stripHtml(item.shortdescription).length > 120
+                                                                ? stripHtml(item.shortdescription).substring(0, 120) + "..."
+                                                                : stripHtml(item.shortdescription)}
+                                                        </p>
+                                                        <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                            <Col sm={10} md={10} lg={10}>
+                                                                <div>
+                                                                    <Link to={`/page-details/${item.id}`} className="text-primary">
+                                                                        Read more <i className="mdi mdi-arrow-right"></i>
+                                                                    </Link>
+                                                                </div>
                                                             </Col>
-                                                        )}
-                                                    </Row>
-                                                </div>
-                                            </Card>
+
+                                                            {!item.undeletable && (
+                                                                <Col sm={2} md={2} lg={2} className="text-end fs-4">
+                                                                    <i className="bx bx-trash align-middle text-danger me-2"
+                                                                        title="Delete"
+                                                                        style={{ cursor: 'pointer' }}
+                                                                        onClick={() => handleDelete(item.id)}
+                                                                    ></i>
+                                                                </Col>
+                                                            )}
+                                                        </Row>
+                                                    </div>
+                                                </Card>
+                                            </Col>
+                                        ))
+                                    ) : (
+                                        <Col className="text-center my-5">
+                                            <p>No pages found matching your criteria</p>
                                         </Col>
-                                    ))}
+                                    )}
                                 </Row>
                                 {/* Pagination */}
-                                <div className="text- mt-4">
-                                    <ul className="pagination justify-content-end">
-                                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                            <button
-                                                className="page-link"
-                                                onClick={() => setCurrentPage(prev => prev - 1)}
-                                                disabled={currentPage === 1}
-                                            >
-                                                &laquo;
-                                            </button>
-                                        </li>
-                                        {Array.from({ length: totalPages }, (_, index) => (
-                                            <li
-                                                key={index + 1}
-                                                className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
-                                            >
+                                {pages.length > 0 && (
+                                    <div className="text-center mt-4">
+                                        <ul className="pagination justify-content-end">
+                                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                                                 <button
                                                     className="page-link"
-                                                    onClick={() => setCurrentPage(index + 1)}
+                                                    onClick={() => {
+                                                        const filters = {};
+                                                        if (searchKeyword) filters.keyword = searchKeyword;
+                                                        if (selectedCategory) filters.category_id = selectedCategory;
+                                                        if (selectedStatus) filters.status = selectedStatus;
+                                                        setCurrentPage(currentPage - 1);
+                                                        fetchPages(currentPage - 1, filters);
+                                                    }}
+                                                    disabled={currentPage === 1}
                                                 >
-                                                    {index + 1}
+                                                    &laquo;
                                                 </button>
                                             </li>
-                                        ))}
-                                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                            <button
-                                                className="page-link"
-                                                onClick={() => setCurrentPage(prev => prev + 1)}
-                                                disabled={currentPage === totalPages}
-                                            >
-                                                &raquo;
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
+                                            {Array.from({ length: totalPages }, (_, index) => (
+                                                <li
+                                                    key={index + 1}
+                                                    className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                                                >
+                                                    <button
+                                                        className="page-link"
+                                                        onClick={() => {
+                                                            const filters = {};
+                                                            if (searchKeyword) filters.keyword = searchKeyword;
+                                                            if (selectedCategory) filters.category_id = selectedCategory;
+                                                            if (selectedStatus) filters.status = selectedStatus;
+                                                            setCurrentPage(index + 1);
+                                                            fetchPages(index + 1, filters);
+                                                        }}
+                                                    >
+                                                        {index + 1}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                                <button
+                                                    className="page-link"
+                                                    onClick={() => {
+                                                        const filters = {};
+                                                        if (searchKeyword) filters.keyword = searchKeyword;
+                                                        if (selectedCategory) filters.category_id = selectedCategory;
+                                                        if (selectedStatus) filters.status = selectedStatus;
+                                                        setCurrentPage(currentPage + 1);
+                                                        fetchPages(currentPage + 1, filters);
+                                                    }}
+                                                    disabled={currentPage === totalPages}
+                                                >
+                                                    &raquo;
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         </Col>
                     </Row>
@@ -714,13 +840,14 @@ const PageList = () => {
                                     </FormGroup>
                                 </Col>
                             </Row>
-                            <div className="form-check">
+                           
+                             <div className="form-check">
                                 <Input
                                     type="checkbox"
                                     className="form-check-Input"
                                     id="formrow-customCheck"
                                     name="undeletable"
-                                    checked={formData.undeletable === 1}
+                                   
                                     onChange={(e) =>
                                         setFormData({ ...formData, undeletable: e.target.checked ? 1 : 0 })
                                     }
