@@ -40,8 +40,6 @@ const JobList = () => {
   const categoryIdPera = searchParams.get('category_id');
   const navigate = useNavigate();
 
-
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -93,7 +91,7 @@ const JobList = () => {
     try {
       setLoading(prev => ({ ...prev, jobs: true }));
       const params = {
-        limit: 3,
+        limit: 18,
         page: page,
         ...filters,
         status: filters.status ? filters.status : "all",

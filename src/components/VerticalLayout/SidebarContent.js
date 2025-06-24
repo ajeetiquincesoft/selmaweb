@@ -105,11 +105,28 @@ const SidebarContent = props => {
     removeActivation(items);
 
     for (let i = 0; i < items.length; ++i) {
-      if (pathName === items[i].pathname) {
+      const itemPath = items[i].pathname;
+
+      // Exact match
+      if (pathName === itemPath) {
+        matchingMenuItem = items[i];
+        break;
+      }
+
+      // ✅ Custom match for routes like /edit-news/5
+      if (
+        (pathName.startsWith("/edit-news") && itemPath === "/news-list") ||
+        (pathName.startsWith("/edit-job") && itemPath === "/job-list")||
+        (pathName.startsWith("/edit-event") && itemPath === "/event-list")||
+        (pathName.startsWith("/edit-park") && itemPath === "/parks-recreation-list")||
+        (pathName.startsWith("/edit-recycling-garbage") && itemPath === "/recycling-garbage-list")||
+        (pathName.startsWith("/edit-page") && itemPath === "/page-List")
+      ) {
         matchingMenuItem = items[i];
         break;
       }
     }
+    
     if (matchingMenuItem) {
       activateParentDropdown(matchingMenuItem);
     }
@@ -291,7 +308,7 @@ const SidebarContent = props => {
                   <span>{props.t("Push Notifications")}</span>
                 </Link>
               </li>
-                 )}
+            )}
             {/* <li>
               <Link to="/calendar" className="has-arrow" >
                 <i className='bx bxs-user-account'></i>

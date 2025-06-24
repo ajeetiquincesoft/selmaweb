@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     Card,
     Col,
@@ -13,14 +13,12 @@ import {
     Spinner
 } from "reactstrap";
 import axios from "axios";
-import classnames from "classnames";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import BASE_URL from "path"; // Replace with your actual BASE_URL import
 import "../../custom.css";
 
 const RecyclingAndGarbageList = () => {
-    const [activeTab, toggleTab] = useState("1");
     const [modal, setModal] = useState(false);
     const [token, setToken] = useState(null);
     const [getnews, setNews] = useState([]);
@@ -34,6 +32,9 @@ const RecyclingAndGarbageList = () => {
         submit: false,
         delete: false
     });
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState("");
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         title: "",
@@ -57,17 +58,25 @@ const RecyclingAndGarbageList = () => {
         }
     }, [token, currentPage]);
 
-    const fetchRecyclingData = async (page = 1) => {
+    const fetchRecyclingData = async (page = 1, filters = {}) => {
         try {
             setLoading(prev => ({ ...prev, data: true, initial: page === 1 }));
-            const response = await axios.get(`${BASE_URL}/auth/getAllRecyclingAndGarbage?status=all`, {
+            const params = {
+                limit: 15,
+                page: page,
+                ...filters,
+                status: filters.status ? filters.status : "all",
+            };
+
+            if (params.status === "") {
+                delete params.status;
+            }
+
+            const response = await axios.get(`${BASE_URL}/auth/getAllRecyclingAndGarbage`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-                params: {
-                    limit: 15,
-                    page: page
-                },
+                params: params,
             });
             setNews(response.data.data || []);
             setCurrentPage(response.data.pagination.currentPage);
@@ -77,6 +86,22 @@ const RecyclingAndGarbageList = () => {
         } finally {
             setLoading(prev => ({ ...prev, data: false, initial: false }));
         }
+    };
+
+    const handleFilterSubmit = (e) => {
+        e.preventDefault();
+        const filters = {};
+
+        if (searchKeyword) {
+            filters.keyword = searchKeyword;
+        }
+
+        if (selectedStatus) {
+            filters.status = selectedStatus;
+        }
+
+        setCurrentPage(1);
+        fetchRecyclingData(1, filters);
     };
 
     const stripHtml = (html) => {
@@ -94,7 +119,7 @@ const RecyclingAndGarbageList = () => {
             status: ""
         });
         setModal(!modal);
-    }
+    };
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
@@ -135,7 +160,13 @@ const RecyclingAndGarbageList = () => {
                 },
             });
             setAlertMsg({ type: "success", message: "Data added successfully!" });
-            fetchRecyclingData(currentPage);
+
+            // Refresh with current filters
+            const filters = {};
+            if (searchKeyword) filters.keyword = searchKeyword;
+            if (selectedStatus) filters.status = selectedStatus;
+            fetchRecyclingData(currentPage, filters);
+
             setTimeout(() => {
                 setModal(false);
                 setAlertMsg({ type: "", message: "" });
@@ -158,7 +189,12 @@ const RecyclingAndGarbageList = () => {
                         "Content-Type": "application/json"
                     }
                 });
-                fetchRecyclingData(currentPage);
+
+                // Refresh with current filters
+                const filters = {};
+                if (searchKeyword) filters.keyword = searchKeyword;
+                if (selectedStatus) filters.status = selectedStatus;
+                fetchRecyclingData(currentPage, filters);
             } catch (error) {
                 console.error("Error deleting item:", error);
             } finally {
@@ -198,6 +234,38 @@ const RecyclingAndGarbageList = () => {
                     </Col>
                 </Row>
 
+                {/* Search and Filter Form */}
+                <form onSubmit={handleFilterSubmit} className="mb-3">
+                    <Row className="justify-content-end">
+                        <Col xs="6" md="3">
+                            <input
+                                type="search"
+                                className="form-control"
+                                placeholder="Search..."
+                                value={searchKeyword}
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                            />
+                        </Col>
+                        <Col xs="6" md="2">
+                            <select
+                                className="form-select"
+                                value={selectedStatus}
+                                onChange={(e) => setSelectedStatus(e.target.value)}
+                            >
+                                <option value="all">All Status</option>
+                                <option value="1">Published</option>
+                                <option value="0">Unpublished</option>
+                                <option value="2">Draft</option>
+                            </select>
+                        </Col>
+                        <Col xs="6" md="1" className="mt-2 mt-md-0">
+                            <button type="submit" className="btn btn-primary w-100">
+                                Filter
+                            </button>
+                        </Col>
+                    </Row>
+                </form>
+
                 {loading.data ? (
                     <div className="text-center my-5">
                         <Spinner color="primary" />
@@ -206,104 +274,150 @@ const RecyclingAndGarbageList = () => {
                 ) : (
                     <>
                         <Row>
-                            {getnews.map((item, index) => (
-                                <Col key={index} sm={4}>
-                                    <Card className="p-1 border shadow-none">
-                                        <div className="p-3">
-                                            <div className="d-flex justify-content-between">
-                                                <div>
-                                                    <h5>
-                                                        <Link to={`/recycling-garbage-details/${item.id}`} className="text-dark">
-                                                            {item.title.length > 60
-                                                                ? item.title.substring(0, 60) + "..."
-                                                                : item.title}
+                            {getnews.length > 0 ? (
+                                getnews.map((item, index) => (
+                                    <Col key={index} sm={4}>
+                                        <Card className="p-1 border shadow-none">
+                                            <div className="p-3">
+                                                <div className="d-flex justify-content-between">
+                                                    <div>
+                                                        <h5>
+                                                            <Link to={`/recycling-garbage-details/${item.id}`} className="text-dark">
+                                                                {item.title.length > 60
+                                                                    ? item.title.substring(0, 60) + "..."
+                                                                    : item.title}
+                                                            </Link>
+                                                        </h5>
+                                                    </div>
+                                                    <div>
+                                                        <Link to={`/edit-recycling-garbage/${item.id}`}>
+                                                            <i
+                                                                className="bx bx-edit align-middle fw-20 text-primary me-2"
+                                                                title="Edit"
+                                                                style={{ cursor: "pointer" }}
+                                                            ></i>
                                                         </Link>
-                                                    </h5>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <Link to={`/edit-recycling-garbage/${item.id}`}>
-                                                        <i
-                                                            className="bx bx-edit align-middle fw-20 text-primary me-2"
-                                                            title="Edit"
-                                                            style={{ cursor: "pointer" }}
-                                                        ></i>
-                                                    </Link>
-                                                </div>
+
+                                                <p className="text-muted mb-0">
+                                                    {new Date(item.createdAt).toLocaleDateString("en-GB")}
+                                                </p>
                                             </div>
 
-                                            <p className="text-muted mb-0">
-                                                {new Date(item.createdAt).toLocaleDateString("en-GB")}
-                                            </p>
-                                        </div>
+                                            <div className="position-relative">
+                                                <img
+                                                    src={item.image || "default.jpg"}
+                                                    alt={item.title}
+                                                    className="img-thumbnail fixed-size-img"
+                                                />
+                                            </div>
 
-                                        <div className="position-relative">
-                                            <img
-                                                src={item.image || "default.jpg"}
-                                                alt={item.title}
-                                                className="img-thumbnail fixed-size-img"
-                                            />
-                                        </div>
-
-                                        <div className="p-3">
-                                            <ul className="list-inline d-flex justify-content">
-                                                <li className="list-inline-item me-3">
-                                                    <span className="text-muted">
-                                                        <i className="bx bx-purchase-tag-alt me-1"></i>
-                                                        {item.category?.name || "General"}
-                                                    </span>
-                                                </li>
-                                                <li className="list-inline-item me-3">
-                                                    <span className="text-muted">
-                                                        <i className="bx bx-user me-1"></i>
-                                                        {item.author?.name || "Admin"}
-                                                    </span>
-                                                </li>
-                                            </ul>
-                                            <p>
-                                                {stripHtml(item.shortdescription).length > 120
-                                                    ? stripHtml(item.shortdescription).substring(0, 120) + "..."
-                                                    : stripHtml(item.shortdescription)}
-                                            </p>
-                                            <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                <Col sm={10} md={10} lg={10}>
-                                                    <Link to={`/recycling-garbage-details/${item.id}`} className="text-primary">
-                                                        Read more <i className="mdi mdi-arrow-right"></i>
-                                                    </Link>
-                                                </Col>
-                                                <Col sm={2} md={2} lg={2} className="text-end fs-4">
-                                                    {loading.delete === item.id ? (
-                                                        <Spinner size="sm" color="danger" />
-                                                    ) : (
-                                                        <i
-                                                            className="bx bx-trash text-danger"
-                                                            title="Delete"
-                                                            style={{ cursor: 'pointer' }}
-                                                            onClick={() => handleDelete(item.id)}
-                                                        />
-                                                    )}
-                                                </Col>
-                                            </Row>
-                                        </div>
-                                    </Card>
+                                            <div className="p-3">
+                                                <ul className="list-inline d-flex justify-content">
+                                                    <li className="list-inline-item me-3">
+                                                        <span className="text-muted">
+                                                            <i className="bx bx-purchase-tag-alt me-1"></i>
+                                                            {item.category?.name || "General"}
+                                                        </span>
+                                                    </li>
+                                                    <li className="list-inline-item me-3">
+                                                        <span className="text-muted">
+                                                            <i className="bx bx-user me-1"></i>
+                                                            {item.author?.name || "Admin"}
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                                <p>
+                                                    {stripHtml(item.shortdescription).length > 120
+                                                        ? stripHtml(item.shortdescription).substring(0, 120) + "..."
+                                                        : stripHtml(item.shortdescription)}
+                                                </p>
+                                                <Row style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <Col sm={10} md={10} lg={10}>
+                                                        <Link to={`/recycling-garbage-details/${item.id}`} className="text-primary">
+                                                            Read more <i className="mdi mdi-arrow-right"></i>
+                                                        </Link>
+                                                    </Col>
+                                                    <Col sm={2} md={2} lg={2} className="text-end fs-4">
+                                                        {loading.delete === item.id ? (
+                                                            <Spinner size="sm" color="danger" />
+                                                        ) : (
+                                                            <i
+                                                                className="bx bx-trash text-danger"
+                                                                title="Delete"
+                                                                style={{ cursor: 'pointer' }}
+                                                                onClick={() => handleDelete(item.id)}
+                                                            />
+                                                        )}
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                ))
+                            ) : (
+                                <Col className="text-center my-5">
+                                    <p>No recycling & garbage data found matching your criteria</p>
                                 </Col>
-                            ))}
+                            )}
                         </Row>
 
-                        <div className="text-center mt-4">
-                            <ul className="pagination justify-content-end">
-                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
-                                </li>
-                                {Array.from({ length: totalPages }, (_, index) => (
-                                    <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                                        <button className="page-link" onClick={() => setCurrentPage(index + 1)}>{index + 1}</button>
+                        {getnews.length > 0 && (
+                            <div className="text-center mt-4">
+                                <ul className="pagination justify-content-end">
+                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                        <button 
+                                            className="page-link" 
+                                            onClick={() => {
+                                                const filters = {};
+                                                if (searchKeyword) filters.keyword = searchKeyword;
+                                                if (selectedStatus) filters.status = selectedStatus;
+                                                setCurrentPage(currentPage - 1);
+                                                fetchRecyclingData(currentPage - 1, filters);
+                                            }}
+                                            disabled={currentPage === 1}
+                                        >
+                                            &laquo;
+                                        </button>
                                     </li>
-                                ))}
-                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>&raquo;</button>
-                                </li>
-                            </ul>
-                        </div>
+                                    {Array.from({ length: totalPages }, (_, index) => (
+                                        <li 
+                                            key={index} 
+                                            className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                                        >
+                                            <button 
+                                                className="page-link" 
+                                                onClick={() => {
+                                                    const filters = {};
+                                                    if (searchKeyword) filters.keyword = searchKeyword;
+                                                    if (selectedStatus) filters.status = selectedStatus;
+                                                    setCurrentPage(index + 1);
+                                                    fetchRecyclingData(index + 1, filters);
+                                                }}
+                                            >
+                                                {index + 1}
+                                            </button>
+                                        </li>
+                                    ))}
+                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                        <button 
+                                            className="page-link" 
+                                            onClick={() => {
+                                                const filters = {};
+                                                if (searchKeyword) filters.keyword = searchKeyword;
+                                                if (selectedStatus) filters.status = selectedStatus;
+                                                setCurrentPage(currentPage + 1);
+                                                fetchRecyclingData(currentPage + 1, filters);
+                                            }}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            &raquo;
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
                     </>
                 )}
             </Col>

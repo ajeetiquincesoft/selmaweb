@@ -94,7 +94,7 @@ const NewsList = () => {
     try {
       setLoading(prev => ({ ...prev, news: true }));
       const params = {
-        limit: 3,
+        limit: 18,
         page: page,
         ...filters,
         status: filters.status ? filters.status : "all",
