@@ -15,7 +15,8 @@ import {
   ModalBody,
   Container,
   Alert,
-  Spinner
+  Spinner,
+  ModalFooter
 } from "reactstrap";
 import classnames from "classnames";
 import axios from "axios";
@@ -29,11 +30,14 @@ import { useNavigate } from "react-router-dom";
 const NewsList = () => {
   const [activeTab, toggleTab] = useState("1");
   const [modal, setModal] = useState(false);
+  const [uploadModal, setUploadModal] = useState(false);
+  const [file, setFile] = useState(null);
   const [token, setToken] = useState(null);
   const [categories, setCategories] = useState([]);
   const [getnews, setNews] = useState([]);
   const [errors, setErrors] = useState({});
   const [alertMsg, setAlertMsg] = useState({ type: "", message: "" });
+  const [uploadalertmessage, setUploadAlertMsg] = useState({ type: "", message: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -162,6 +166,8 @@ const NewsList = () => {
     setModal(!modal);
   };
 
+  const toggleUploadModal = () => setUploadModal(!uploadModal);
+
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     setFormData((prev) => ({
@@ -229,8 +235,8 @@ const NewsList = () => {
       // if (selectedCategory) filters.category_id = selectedCategory;
       // if (selectedStatus) filters.status = selectedStatus;
       setSearchKeyword("");
-      setSelectedStatus(""); 
-      setSelectedCategory(""); 
+      setSelectedStatus("");
+      setSelectedCategory("");
       fetchNewsdata(currentPage);
 
       setTimeout(() => {
@@ -274,6 +280,44 @@ const NewsList = () => {
     }
   };
 
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      alert("Please select an XML file.");
+      return;
+    }
+    try {
+
+      const formData = new FormData();
+      formData.append("xmlFile", file);
+
+      const response = await axios.post(
+        `${BASE_URL}/auth/uploadNews`, // ✅ Correct API endpoint
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setUploadAlertMsg({ type: "success", message: "News Uploaded successfully!" });
+      setSearchKeyword("");
+      setSelectedStatus("");
+      setSelectedCategory("");
+      fetchNewsdata(currentPage);
+      setTimeout(() => {
+        setUploadModal(false);
+        setUploadAlertMsg({ type: "", message: "" });
+      }, 2000);
+    } catch (err) {
+      console.error("Upload error:", err);
+    }
+  };
+
   return (
     <div className="page-content p-0">
       <Container fluid>
@@ -292,6 +336,11 @@ const NewsList = () => {
                 <Button color="primary" onClick={toggleModal}>
                   <i className="mdi mdi-plus me-1"></i> Add News
                 </Button>
+
+                <Button className="mx-2" color="success" onClick={toggleUploadModal}>
+                  <i className="mdi mdi-upload me-1"></i> Upload XML
+                </Button>
+
               </Col>
             </Row>
 
@@ -380,7 +429,7 @@ const NewsList = () => {
                                 </div>
 
                                 <p className="text-muted mb-0">
-                                  {new Date(item.createdAt).toLocaleDateString("en-GB", {
+                                  {new Date(item.published_at).toLocaleDateString("en-GB", {
                                     day: "2-digit",
                                     month: "short",
                                     year: "numeric",
@@ -639,6 +688,29 @@ const NewsList = () => {
               </Container>
             </form>
           </ModalBody>
+        </Modal>
+        {/* Upload Model  */}
+        <Modal isOpen={uploadModal} toggle={toggleUploadModal}>
+          <ModalHeader toggle={toggleUploadModal}>Upload XML File</ModalHeader>
+          {uploadalertmessage.message && (
+            <Alert color={uploadalertmessage.type}>{uploadalertmessage.message}</Alert>
+          )}
+          <ModalBody>
+            <input
+              type="file"
+              accept=".xml"
+              className="form-control"
+              onChange={handleFileChange}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={handleUpload}>
+              Upload
+            </Button>
+            <Button color="secondary" onClick={toggleUploadModal}>
+              Cancel
+            </Button>
+          </ModalFooter>
         </Modal>
       </Container>
     </div>
