@@ -46,7 +46,8 @@ const NewsList = () => {
   const [loading, setLoading] = useState({
     news: false,
     categories: false,
-    submit: false
+    submit: false,
+    upload: false
   });
   const searchParams = new URLSearchParams(window.location.search);
   const categoryIdPera = searchParams.get('category_id');
@@ -290,12 +291,12 @@ const NewsList = () => {
       return;
     }
     try {
-
+      setLoading(prev => ({ ...prev, upload: true }));
       const formData = new FormData();
       formData.append("xmlFile", file);
 
       const response = await axios.post(
-        `${BASE_URL}/auth/uploadNews`, // ✅ Correct API endpoint
+        `${BASE_URL}/auth/uploadNews`,
         formData,
         {
           headers: {
@@ -315,6 +316,9 @@ const NewsList = () => {
       }, 2000);
     } catch (err) {
       console.error("Upload error:", err);
+    }
+    finally {
+      setLoading(prev => ({ ...prev, upload: false }));
     }
   };
 
@@ -704,8 +708,18 @@ const NewsList = () => {
             />
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={handleUpload}>
-              Upload
+            <Button
+              color="primary"
+              onClick={handleUpload}
+              disabled={loading.upload} // Disable button during upload
+            >
+              {loading.upload ? (
+                <>
+                  <Spinner size="sm" className="me-2" /> Uploading...
+                </>
+              ) : (
+                "Upload"
+              )}
             </Button>
             <Button color="secondary" onClick={toggleUploadModal}>
               Cancel
